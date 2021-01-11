@@ -1,0 +1,223 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
+
+jobs:
+  wolfram-language-paclet-test:
+    docker:
+      - image: maxitg/set-replace-wl-ci:12.1.1
+        auth:
+          username: maxitg
+          password: $DOCKERHUB_PASSWORD
+    parallelism: 4
+
+    steps:
+      - checkout
+
+      - run:
+          name: Build
+          command: ./build.wls
+
+      - store_artifacts:
+          path: ./LibraryResources/
+
+      - attach_workspace:
+          at: /tmp/workspace
+
+      - run:
+          name: Copy libraries from other platforms
+          command: cp -r /tmp/workspace/* ./LibraryResources/
+
+      - run:
+          name: Install
+          command: ./install.wls
+
+      - store_artifacts:
+          path: ./BuiltPaclets/
+
+      - run:
+          name: Reinstall
+          command: ./install.wls
+
+      - run:
+          name: Test
+          command: |
+            if [ $CIRCLE_NODE_INDEX -eq 2 ]
+            then
+              testsToRun=matching
+            elif [ $CIRCLE_NODE_INDEX -eq 3 ]
+            then
+              testsToRun=WolframModel
+            else
+              testsToRun=$(circleci tests glob "Tests/*.wlt" \
+                | sed "/Tests\/performance.wlt/d" \
+                | sed "/Tests\/matching.wlt/d" \
+                | sed "/Tests\/WolframModel.wlt/d" \
+                | circleci tests split --total=2 --split-by=filesize \
+                | sed "s/\.wlt//" \
+                | sed "s/Tests\///")
+            fi
+            ./.circleci/test.sh $testsToRun
+
+      - run:
+          name: Performance Test
+          command: |
+            if [ $CIRCLE_NODE_INDEX -eq 0 ]
+            then
+              ./performanceTest.wls master @HEAD 2
+            fi
+
+  cpp-test:
+    docker:
+      - image: alpine:3.12.1
+        auth:
+          username: maxitg
+          password: $DOCKERHUB_PASSWORD
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Required Tools
+          command: |
+            apk add --no-cache bash git g++ make cmake clang py-pip shellcheck shfmt grep npm
+            pip install cpplint
+            npm install -g markdownlint-cli
+
+      - run:
+          name: Lint
+          command: |
+            set +eo pipefail
+            ./lint.sh
+            if [ $? -ne 0 ]
+            then
+              echo "Please run scripts/install_git_hooks.sh to detect linting issues before git push."
+              exit 1
+            fi
+
+      - run:
+          name: Build
+          command: |
+            mkdir build
+            cd build
+            cmake .. -DSET_REPLACE_BUILD_TESTING=ON \
+                     -DSET_REPLACE_ENABLE_ALLWARNINGS=ON
+            cmake --build .
+
+      - run:
+          name: Test
+          command: ./libPostTagSystemTest.sh
+
+      - store_test_results:
+          path: TestResults
+
+  cpp-32-test:
+    docker:
+      - image: i386/alpine:3.12.1
+        auth:
+          username: maxitg
+          password: $DOCKERHUB_PASSWORD
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install Required Tools
+          command: apk add --no-cache bash git g++ make cmake
+
+      - run:
+          name: Build
+          command: |
+            mkdir build
+            cd build
+            cmake .. -DSET_REPLACE_BUILD_TESTING=ON \
+                     -DSET_REPLACE_ENABLE_ALLWARNINGS=ON
+            cmake --build .
+
+      - run:
+          name: Test
+          command: ./libPostTagSystemTest.sh
+
+      - store_test_results:
+          path: TestResults
+
+  macos-build:
+    macos:
+      xcode: 12.2.0
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install CMake
+          command: |
+            cmakeURL=$(\
+              curl -s https://api.github.com/repos/Kitware/CMake/releases/latest \
+              | grep 'browser_download_url' \
+              | cut -d\" -f4 \
+              | grep macos-universal.tar.gz)
+            curl -L --output cmake-macos-universal.tar.gz $cmakeURL
+            tar xf cmake-macos-universal.tar.gz
+            cmakeDir=$(ls | grep cmake-*-macos-universal)
+            mkdir -p /usr/local/bin /usr/local/share
+            cp -r $cmakeDir/CMake.app/Contents/bin/* /usr/local/bin/
+            cp -r $cmakeDir/CMake.app/Contents/share/* /usr/local/share/
+
+      - run:
+          name: Build
+          command: scripts/buildLibraryResources.sh
+
+      - persist_to_workspace:
+          root: LibraryResources
+          paths:
+            - MacOSX-x86-64
+
+      - store_artifacts:
+          path: ./LibraryResources/
+
+  windows-build:
+    executor:
+      name: win/default
+      shell: bash.exe
+
+    steps:
+      - checkout
+
+      - run:
+          name: Install CMake
+          command: |
+            cmakeURL=$(\
+              curl -s https://api.github.com/repos/Kitware/CMake/releases/latest \
+              | grep 'browser_download_url' \
+              | cut -d\" -f4 \
+              | grep win64-x64.zip)
+            curl -L --output cmake-win64-x64.zip $cmakeURL
+            unzip -q cmake-win64-x64.zip
+            cmakeDir=$(dir -1 | findstr -i cmake-*-win64-x64)
+            echo "export PATH=\"$(pwd)/$cmakeDir/bin:$PATH\"" >> $BASH_ENV
+
+      - run:
+          name: Build
+          command: scripts/buildLibraryResources.sh
+
+      - persist_to_workspace:
+          root: LibraryResources
+          paths:
+            - Windows-x86-64
+
+      - store_artifacts:
+          path: ./LibraryResources/
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - macos-build
+      - windows-build
+      - cpp-test
+      - cpp-32-test
+      - wolfram-language-paclet-test:
+          requires:
+            - macos-build
+            - windows-build

@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+get_filename_component(STATEFUL_TAG_SYSTEM_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+if(NOT TARGET PostTagSystem)
+  include ("${STATEFUL_TAG_SYSTEM_CMAKE_DIR}/PostTagSystemTargets.cmake")
+endif()
