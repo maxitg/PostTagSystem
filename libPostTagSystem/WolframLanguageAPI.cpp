@@ -37,7 +37,10 @@ mint getData(const mint* data, const mint& length, const mint& index) {
   }
 }
 
-int systemInitialize([[maybe_unused]] WolframLibraryData libData, mint argc, const MArgument* argv, [[maybe_unused]] MArgument result) {
+int systemInitialize([[maybe_unused]] WolframLibraryData libData,
+                     mint argc,
+                     const MArgument* argv,
+                     [[maybe_unused]] MArgument result) {
   if (argc != 1) {
     return LIBRARY_FUNCTION_ERROR;
   }

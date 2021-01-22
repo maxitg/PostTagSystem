@@ -54,8 +54,8 @@ BuildLibPostTagSystem[OptionsPattern[]] := ModuleScope[
     preBuildCallback, caching, verbose
   ];
 
-  SetAutomatic[compiler, ToExpression @ ConsoleTryEnvironment["COMPILER", Automatic]];
-  SetAutomatic[compilerInstallation, ConsoleTryEnvironment["COMPILER_INSTALLATION", Automatic]];
+  SetAutomatic[compiler, ToExpression @ PostTagSystemConsoleTryEnvironment["COMPILER", Automatic]];
+  SetAutomatic[compilerInstallation, PostTagSystemConsoleTryEnvironment["COMPILER_INSTALLATION", Automatic]];
   SetAutomatic[librarySourceDirectory, FileNameJoin[{repositoryDirectory, "libPostTagSystem"}]];
   SetAutomatic[libraryTargetDirectory, FileNameJoin[{repositoryDirectory, "LibraryResources", systemID}]];
 
@@ -66,8 +66,8 @@ BuildLibPostTagSystem[OptionsPattern[]] := ModuleScope[
 
   (* derive hashes *)
   sourceHashes = Join[
-    FileTreeHashes[librarySourceDirectory, {"*.cpp", "*.hpp"}, 1],
-    FileTreeHashes[$DevUtilsRoot, {"*.m"}, 1]
+    PostTagSystemFileTreeHashes[librarySourceDirectory, {"*.cpp", "*.hpp"}, 1],
+    PostTagSystemFileTreeHashes[$PostTagSystemDevUtilsRoot, {"*.m"}, 1]
   ];
   hashedOptions = {compiler, compilerInstallation, systemID};
   finalHash = Base36Hash[{sourceHashes, hashedOptions}];

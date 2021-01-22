@@ -2,25 +2,25 @@ Package["PostTagSystemDevUtils`"]
 
 PackageImport["GeneralUtilities`"]
 
-PackageExport["ConsolePrintList"]
+PackageExport["PostTagSystemConsolePrintList"]
 
 SetUsage @ "
-ConsolePrintList[list$] will print a list of items in InputForm, one per line, with commas as appropriate.
+PostTagSystemConsolePrintList[list$] will print a list of items in InputForm, one per line, with commas as appropriate.
 ";
 
-ConsolePrintList[list_List] := (
+PostTagSystemConsolePrintList[list_List] := (
   Print["{"];
   Scan[Print["  ", ToString[#, InputForm], ","]&, Most @ list];
   Print["  ", ToString[#, InputForm]]& @ Last @ list;
   Print["}"];
 );
 
-PackageExport["ConsoleTryEnvironment"]
+PackageExport["PostTagSystemConsoleTryEnvironment"]
 
 SetUsage @ "
-ConsoleTryEnvironment[var$, default$] will look up the value of the environment variable var$, but use \
+PostTagSystemConsoleTryEnvironment[var$, default$] will look up the value of the environment variable var$, but use \
 default$ if it is not availabe.
 ";
 
-SetAttributes[ConsoleTryEnvironment, HoldRest];
-ConsoleTryEnvironment[var_, default_] := Replace[$Failed :> default] @ Environment[var];
+SetAttributes[PostTagSystemConsoleTryEnvironment, HoldRest];
+PostTagSystemConsoleTryEnvironment[var_, default_] := Replace[$Failed :> default] @ Environment[var];

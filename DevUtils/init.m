@@ -6,9 +6,9 @@ but is available for developer workflow purposes, and is used by the build scrip
 PackageImport["GeneralUtilities`"]
 
 PackageExport["$PostTagSystemRoot"]
-PackageExport["$DevUtilsRoot"]
-PackageExport["$DevUtilsTemporaryDirectory"]
+PackageExport["$PostTagSystemDevUtilsRoot"]
+PackageExport["$PostTagSystemDevUtilsTemporaryDirectory"]
 
 $PostTagSystemRoot = FileNameDrop[$InputFileName, -2];
-$DevUtilsRoot = FileNameDrop[$InputFileName, -1];
-$DevUtilsTemporaryDirectory := EnsureDirectory @ FileNameJoin[{$TemporaryDirectory, "PostTagSystem"}];
+$PostTagSystemDevUtilsRoot = FileNameDrop[$InputFileName, -1];
+$PostTagSystemDevUtilsTemporaryDirectory := EnsureDirectory @ FileNameJoin[{$TemporaryDirectory, "PostTagSystem"}];

@@ -4,50 +4,50 @@ PackageImport["GeneralUtilities`"]
 
 PackageImport["PacletManager`"] (* for PacletFind, PacletInstall in versions prior to 12.1 *)
 
-PackageExport["$GitLinkAvailableQ"]
+PackageExport["$PostTagSystemGitLinkAvailableQ"]
 
 (* unfortunately, owing to a bug in GitLink, GitLink *needs* to be on the $ContextPath or GitRepo objects
 end up in the wrong context, since they are generated in a loopback link unqualified *)
-$GitLinkAvailableQ := !FailureQ[Quiet @ Check[Needs["GitLink`"], $Failed]];
+$PostTagSystemGitLinkAvailableQ := !FailureQ[Quiet @ Check[Needs["GitLink`"], $Failed]];
 
-PackageExport["GitSHAWithDirtyStar"]
+PackageExport["PostTagSystemGitSHAWithDirtyStar"]
 
-Clear[GitSHAWithDirtyStar];
+Clear[PostTagSystemGitSHAWithDirtyStar];
 
 SetUsage @ "
-GitSHAWithDirtyStar['path$'] returns the SHA hash of the commit that is currently checked on \
+PostTagSystemGitSHAWithDirtyStar['path$'] returns the SHA hash of the commit that is currently checked on \
 for the Git repository at 'path$'. Unlike the GitSHA function, this will include a '*' character \
 if the current working tree is dirty.
 ";
 
-GitSHAWithDirtyStar[repoDir_] /; TrueQ[$GitLinkAvailableQ] := ModuleScope[
+PostTagSystemGitSHAWithDirtyStar[repoDir_] /; TrueQ[$PostTagSystemGitLinkAvailableQ] := ModuleScope[
   repo = GitLink`GitOpen[repoDir];
   sha = GitLink`GitSHA[repo, repo["HEAD"]];
   cleanQ = AllTrue[# === {} &] @ GitLink`GitStatus[repo];
   If[cleanQ, sha, sha <> "*"]
 ];
 
-GitSHAWithDirtyStar[_] /; FalseQ[$GitLinkAvailableQ] := Missing["NotAvailable"];
+PostTagSystemGitSHAWithDirtyStar[_] /; FalseQ[$PostTagSystemGitLinkAvailableQ] := Missing["NotAvailable"];
 
-PackageExport["InstallGitLink"]
+PackageExport["PostTagSystemInstallGitLink"]
 
 SetUsage @ "
-InstallGitLink[] will attempt to install GitLink on the current system (if necessary).
+PostTagSystemInstallGitLink[] will attempt to install GitLink on the current system (if necessary).
 ";
 
-InstallGitLink[] := If[PacletFind["GitLink", "Internal" -> All] === {},
+PostTagSystemInstallGitLink[] := If[PacletFind["GitLink", "Internal" -> All] === {},
   PacletInstall["https://www.wolframcloud.com/obj/maxp1/GitLink-2019.11.26.01.paclet"];
 ];
 
-PackageExport["CalculateMinorVersionNumber"]
+PackageExport["PostTagSystemCalculateMinorVersionNumber"]
 
 SetUsage @ "
-CalculateMinorVersionNumber[repositoryDirectory$, masterBranch$] will calculate a minor version \
+PostTagSystemCalculateMinorVersionNumber[repositoryDirectory$, masterBranch$] will calculate a minor version \
 derived from the number of commits between the last checkpoint and the 'master' branch, \
 which can be overriden with the 'MasterBranch' option. The checkpoint is defined in scripts/version.wl.
 ";
 
-CalculateMinorVersionNumber[repoDir_, masterBranch_] := ModuleScope[
+PostTagSystemCalculateMinorVersionNumber[repoDir_, masterBranch_] := ModuleScope[
   versionInformation = Import[FileNameJoin[{repoDir, "scripts", "version.wl"}]];
   gitRepo = GitLink`GitOpen[repoDir];
   If[$internalBuildQ, GitLink`GitFetch[gitRepo, "origin"]];
