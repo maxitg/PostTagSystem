@@ -6,6 +6,7 @@ PackageExport["PostTagSystem"]
 
 PackageScope["unloadLibrary"]
 PackageScope["cpp$stateCount"]
+PackageScope["cpp$stateSuccessors"]
 
 (* this function is defined now, but only run the *next* time Kernel/init.m is called, before all symbols
 are cleared. *)
@@ -50,6 +51,14 @@ $libraryFunctions = {
       "stateCount",
       {Integer},
       Integer],
+    $Failed],
+
+  cpp$stateSuccessors = If[$libraryFile =!= $Failed,
+    LibraryFunctionLoad[
+      $libraryFile,
+      "stateSuccessors",
+      {Integer},
+      {Integer, 1}],
     $Failed]
 };
 

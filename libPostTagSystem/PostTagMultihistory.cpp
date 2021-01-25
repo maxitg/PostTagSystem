@@ -57,12 +57,16 @@ class PostTagMultihistory::Implementation {
       } else {
         currentState = nextState(currentState);
         nextStates_.push_back(statesIndex_.count(currentState) ? statesIndex_[currentState]
-                                                               : static_cast<int>(statesIndex_.size()));
+                                                               : static_cast<int>(states_.size()));
       }
     }
   }
 
   size_t stateCount() const { return states_.size(); }
+
+  const std::vector<int>& stateSuccessors() const {
+    return nextStates_;
+  }
 
  private:
   PostTagState nextState(const PostTagState& state) {
@@ -101,5 +105,7 @@ void PostTagMultihistory::addEvolutionStartingFromState(const PostTagState& stat
 }
 
 size_t PostTagMultihistory::stateCount() const { return implementation_->stateCount(); }
+
+const std::vector<int>& PostTagMultihistory::stateSuccessors() const { return implementation_->stateSuccessors(); }
 
 }  // namespace PostTagSystem

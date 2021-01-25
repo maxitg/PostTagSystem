@@ -38,7 +38,8 @@ PostTagSystemEvolution /:
 $propertyArgumentCounts = <|
   "EvolutionObject" -> {0, 0},
   "Properties" -> {0, 0},
-  "StateCount" -> {0, 0}|>;
+  "StateCount" -> {0, 0},
+  "StateGraph" -> {0, Infinity}|>;
 
 (* Master options handling *)
 
@@ -119,7 +120,19 @@ propertyEvaluate[evolution : PostTagSystemEvolution[_Integer], "EvolutionObject"
 
 (* StateCount *)
 
-propertyEvaluate[evolution : PostTagSystemEvolution[id_Integer], "StateCount"] := cpp$stateCount[id];
+propertyEvaluate[PostTagSystemEvolution[id_Integer], "StateCount"] := cpp$stateCount[id];
+
+(* StateGraph *)
+
+propertyEvaluate[PostTagSystemEvolution[id_Integer], "StateGraph", opts : OptionsPattern[]] := ModuleScope[
+  successors = cpp$stateSuccessors[id];
+  states = Range[Length[successors]];
+  Graph[states,
+        DeleteCases[Thread[states -> successors], _ -> 0],
+        opts,
+        VertexStyle -> Directive[Opacity[0.7], Hue[0.62, 0.45, 0.87]],
+        EdgeStyle -> Hue[0.75, 0, 0.35]]
+]
 
 (* Public properties call *)
 

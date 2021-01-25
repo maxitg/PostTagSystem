@@ -24,4 +24,6 @@ EXTERN_C DLLEXPORT int addEvolutionStartingFromState(WolframLibraryData libData,
  */
 EXTERN_C DLLEXPORT int stateCount(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
 
+EXTERN_C DLLEXPORT int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
+
 #endif  // LIBPOSTTAGSYSTEM_WOLFRAMLANGUAGEAPI_HPP_

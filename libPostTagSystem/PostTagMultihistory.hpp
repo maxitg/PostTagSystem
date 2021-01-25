@@ -20,6 +20,8 @@ class PostTagMultihistory {
 
   size_t stateCount() const;
 
+  const std::vector<int>& stateSuccessors() const;
+
  private:
   class Implementation;
   std::shared_ptr<Implementation> implementation_;
