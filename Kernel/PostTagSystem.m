@@ -7,6 +7,7 @@ PackageExport["PostTagSystem"]
 PackageScope["unloadLibrary"]
 PackageScope["cpp$stateCount"]
 PackageScope["cpp$stateSuccessors"]
+PackageScope["cpp$state"]
 
 (* this function is defined now, but only run the *next* time Kernel/init.m is called, before all symbols
 are cleared. *)
@@ -39,8 +40,8 @@ $libraryFunctions = {
     LibraryFunctionLoad[
       $libraryFile,
       "addEvolutionStartingFromState",
-      {Integer,    (* system ID *)
-       Integer,    (* head state *)
+      {Integer,       (* system ID *)
+       Integer,       (* head state *)
        {Integer, 1}}, (* tape state *)
       "Void"],
     $Failed],
@@ -59,6 +60,15 @@ $libraryFunctions = {
       "stateSuccessors",
       {Integer},
       {Integer, 1}],
+    $Failed],
+
+  cpp$state = If[$libraryFile =!= $Failed,
+    LibraryFunctionLoad[
+      $libraryFile,
+      "state",
+      {Integer,  (* system ID *)
+       Integer}, (* state ID *)
+      {Integer, 1}], (* {headState, tape[[1]], tape[[2]], ...} *)
     $Failed]
 };
 

@@ -22,6 +22,8 @@ class PostTagMultihistory {
 
   const std::vector<int>& stateSuccessors() const;
 
+  const PostTagState& state(int index) const;
+
  private:
   class Implementation;
   std::shared_ptr<Implementation> implementation_;

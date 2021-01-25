@@ -121,6 +121,32 @@ int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArg
 
   return LIBRARY_NO_ERROR;
 }
+
+int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  if (argc != 2) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  try {
+    const auto& state =
+        systemFromID(MArgument_getInteger(argv[0])).state(static_cast<int>(MArgument_getInteger(argv[1])) - 1);
+    MTensor output;
+    const mint dimensions[1] = {static_cast<mint>(state.tape.size() + 1)};
+    libData->MTensor_new(MType_Integer, 1, dimensions, &output);
+    mint position[1];
+    position[0] = 1;
+    libData->MTensor_setInteger(output, position, state.headState);
+    for (size_t i = 0; i < state.tape.size(); ++i) {
+      position[0] = i + 2;
+      libData->MTensor_setInteger(output, position, state.tape[i]);
+    }
+    MArgument_setMTensor(result, output);
+  } catch (...) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  return LIBRARY_NO_ERROR;
+}
 }  // namespace
 }  // namespace PostTagSystem
 
@@ -154,4 +180,8 @@ EXTERN_C int addEvolutionStartingFromState(WolframLibraryData libData,
 
 EXTERN_C int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   return PostTagSystem::stateSuccessors(libData, argc, argv, result);
+}
+
+EXTERN_C int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return PostTagSystem::state(libData, argc, argv, result);
 }

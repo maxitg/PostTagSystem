@@ -39,7 +39,8 @@ $propertyArgumentCounts = <|
   "EvolutionObject" -> {0, 0},
   "Properties" -> {0, 0},
   "StateCount" -> {0, 0},
-  "StateGraph" -> {0, Infinity}|>;
+  "StateGraph" -> {0, Infinity},
+  "State" -> {1, 1}|>;
 
 (* Master options handling *)
 
@@ -133,6 +134,11 @@ propertyEvaluate[PostTagSystemEvolution[id_Integer], "StateGraph", opts : Option
         VertexStyle -> Directive[Opacity[0.7], Hue[0.62, 0.45, 0.87]],
         EdgeStyle -> Hue[0.75, 0, 0.35]]
 ]
+
+(* State *)
+
+propertyEvaluate[PostTagSystemEvolution[systemID_Integer], "State", stateID_Integer] :=
+  Through[{First, Rest}[cpp$state[systemID, stateID]]]
 
 (* Public properties call *)
 
