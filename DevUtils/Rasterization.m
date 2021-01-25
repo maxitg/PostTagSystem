@@ -3,9 +3,9 @@ Package["PostTagSystemDevUtils`"]
 PackageImport["GeneralUtilities`"]
 
 SetRelatedSymbolGroup[
-  RasterizeExpressionAndExportToMarkdown,
-  RasterizeCellsAndExportToMarkdown,
-  RasterizePreviousInputOutputAndExportToMarkdown
+  PostTagSystemRasterizeExpressionAndExportToMarkdown,
+  PostTagSystemRasterizeCellsAndExportToMarkdown,
+  PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown
 ];
 
 $usageSuffix = "
@@ -26,39 +26,42 @@ $exportOptions = {
   "DryRun" -> False
 };
 
-PackageExport["RasterizeExpressionAndExportToMarkdown"]
+PackageExport["PostTagSystemRasterizeExpressionAndExportToMarkdown"]
 
 SetUsage @ Evaluate["
-RasterizeExpressionAndExportToMarkdown['path$', expr$] will rasterize expr$, write the result to 'path$', and
-return an HTML <img> tag that can be pasted directly into a markdown file.
+PostTagSystemRasterizeExpressionAndExportToMarkdown['path$', expr$] will rasterize expr$, write the result to 'path$', \
+and return an HTML <img> tag that can be pasted directly into a markdown file.
 * The resulting image WILL NOT have an attached Out[]= label." <> $usageSuffix];
 
-SyntaxInformation[RasterizeExpressionAndExportToMarkdown] = {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
+SyntaxInformation[PostTagSystemRasterizeExpressionAndExportToMarkdown] =
+  {"ArgumentsPattern" -> {_, _, OptionsPattern[]}};
 
-Options[RasterizeExpressionAndExportToMarkdown] = $exportOptions;
+Options[PostTagSystemRasterizeExpressionAndExportToMarkdown] = $exportOptions;
 
-RasterizeExpressionAndExportToMarkdown[relativePath_, expr_, opts:OptionsPattern[]] := CatchFailureAsMessage @ Scope[
+PostTagSystemRasterizeExpressionAndExportToMarkdown[
+    relativePath_, expr_, opts : OptionsPattern[]] := CatchFailureAsMessage @ Scope[
   UnpackOptions[maxWidth];
   image = rasterize[maxWidth, expr];
   exportImageToMarkdown[relativePath, image, FilterOptions @ opts]
 ];
 
-PackageExport["RasterizeCellsAndExportToMarkdown"]
+PackageExport["PostTagSystemRasterizeCellsAndExportToMarkdown"]
 
 SetUsage @ Evaluate["
-RasterizeCellsAndExportToMarkdown['path$', cells$] will rasterize a cell or set of cells, write the result to 'path$', \
-and return an HTML <img> tag that can be pasted directly into a markdown file.
+PostTagSystemRasterizeCellsAndExportToMarkdown['path$', cells$] will rasterize a cell or set of cells, write the \
+result to 'path$', and return an HTML <img> tag that can be pasted directly into a markdown file.
 * Cells can be Cell[$$] expressions or CellObject[$$] expressions (which will be read with NotebookRead).
 * The resulting image WILL include cell labels (In[]:=, Out[]=, etc)." <> $usageSuffix
 ];
 
-SyntaxInformation[RasterizeCellsAndExportToMarkdown] = {"ArgumentsPattern" -> {_, OptionsPattern[]}};
+SyntaxInformation[PostTagSystemRasterizeCellsAndExportToMarkdown] = {"ArgumentsPattern" -> {_, OptionsPattern[]}};
 
-Options[RasterizeCellsAndExportToMarkdown] = $exportOptions;
+Options[PostTagSystemRasterizeCellsAndExportToMarkdown] = $exportOptions;
 
 $cellP = HoldPattern[Cell[_, __]] | HoldPattern[CellObject[_]];
 
-RasterizeCellsAndExportToMarkdown[relativePath_, cells_, opts:OptionsPattern[]] := CatchFailureAsMessage @ Scope[
+PostTagSystemRasterizeCellsAndExportToMarkdown[
+    relativePath_, cells_, opts : OptionsPattern[]] := CatchFailureAsMessage @ Scope[
   If[!MatchQ[cells, $cellP | {$cellP..}], ReturnFailed["exportmdnotcells"]];
   cells = Developer`ToList[cells] /. co_CellObject :> NotebookRead[co];
   If[!MatchQ[cells, {__Cell}] , ReturnFailed["exportmdnotcells"]];
@@ -67,21 +70,24 @@ RasterizeCellsAndExportToMarkdown[relativePath_, cells_, opts:OptionsPattern[]] 
   exportImageToMarkdown[relativePath, image, FilterOptions @ opts]
 ];
 
-PackageExport["RasterizePreviousInputOutputAndExportToMarkdown"]
+PackageExport["PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown"]
 
 SetUsage @ Evaluate["
-RasterizePreviousInputOutputAndExportToMarkdown['path$'] will read the previous input and output cell from the \
-current notebook, rasterize the output, write the result to 'path$', and return a markdown code block containing \
-the input and an HTML <img> tag containing the rasterized output, that can be pasted directly into a markdown file.
+PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown['path$'] will read the previous input and output cell \
+from the current notebook, rasterize the output, write the result to 'path$', and return a markdown code block \
+containing the input and an HTML <img> tag containing the rasterized output, that can be pasted directly into a \
+markdown file.
 * If the input cell does not contain purely textual boxes, it cannot be faithfully represented as text, and so \
 it will be included in the rasterized image instead.
 * The option 'RasterizeInput' -> True will force the input to be rasterized, and will not create a markdown \
 code block.
 * Any Message or Print cells between the output and the input will be included in the rasterization." <> $usageSuffix];
 
-Options[RasterizePreviousInputOutputAndExportToMarkdown] = Append[$exportOptions, "RasterizeInput" -> False];
+Options[PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown] =
+  Append[$exportOptions, "RasterizeInput" -> False];
 
-SyntaxInformation[RasterizePreviousInputOutputAndExportToMarkdown] = {"ArgumentsPattern" -> {_, OptionsPattern[]}};
+SyntaxInformation[PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown] =
+  {"ArgumentsPattern" -> {_, OptionsPattern[]}};
 
 (* this detects whether formatting boxes have been embedded into the input string via so-called
 "Linear Syntax" (which is an insane thing that shouldn't exist) *)
@@ -129,7 +135,8 @@ previousCellData[cell_, requiredType_] := Scope[
   {cellType, cellExpr, cellObject}
 ];
 
-RasterizePreviousInputOutputAndExportToMarkdown[relativePath_, opts:OptionsPattern[]] := CatchFailureAsMessage @ Scope[
+PostTagSystemRasterizePreviousInputOutputAndExportToMarkdown[
+    relativePath_, opts : OptionsPattern[]] := CatchFailureAsMessage @ Scope[
   {cellType, cellExpr, cellObj} = previousCellData[None, "Output"];
   rasterCells = {cellExpr};
   While[True,

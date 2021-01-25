@@ -15,4 +15,13 @@ EXTERN_C DLLEXPORT void WolframLibrary_uninitialize(WolframLibraryData libData);
  */
 EXTERN_C DLLEXPORT int systemInitialize(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
 
+EXTERN_C DLLEXPORT int addEvolutionStartingFromState(WolframLibraryData libData,
+                                                     mint argc,
+                                                     MArgument* argv,
+                                                     MArgument result);
+
+/** @brief Obtains the total number of states.
+ */
+EXTERN_C DLLEXPORT int stateCount(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
+
 #endif  // LIBPOSTTAGSYSTEM_WOLFRAMLANGUAGEAPI_HPP_

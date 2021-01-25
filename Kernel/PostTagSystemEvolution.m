@@ -24,9 +24,10 @@ PostTagSystemEvolution /:
   BoxForm`ArrangeSummaryBox[
     PostTagSystemEvolution,
     evolution,
-    ArrayPlot[{{1}, {1, 1, 0, 1}, {1, 1, 1, 0, 1}, {0, 1, 1, 1, 0, 1}, {1, 0, 1, 0, 0}, {0, 0, 1, 1, 0, 1}}],
+    ArrayPlot[{{1}, {1, 1, 0, 1}, {1, 1, 1, 0, 1}, {0, 1, 1, 1, 0, 1}, {1, 0, 1, 0, 0}, {0, 0, 1, 1, 0, 1}},
+              ColorRules -> {0 -> White, 1 -> Darker @ Gray}],
     (* Always grid *)
-    {"No properties are yet implemented."},
+    {"States: " <> ToString[evolution["StateCount"]]},
     (* Sometimes grid *)
     {},
     format,
@@ -36,7 +37,8 @@ PostTagSystemEvolution /:
 
 $propertyArgumentCounts = <|
   "EvolutionObject" -> {0, 0},
-  "Properties" -> {0, 0}|>;
+  "Properties" -> {0, 0},
+  "StateCount" -> {0, 0}|>;
 
 (* Master options handling *)
 
@@ -114,6 +116,10 @@ propertyEvaluate[PostTagSystemEvolution[_Integer], "Properties"] := Keys[$proper
 (* EvolutionObject *)
 
 propertyEvaluate[evolution : PostTagSystemEvolution[_Integer], "EvolutionObject"] := evolution;
+
+(* StateCount *)
+
+propertyEvaluate[evolution : PostTagSystemEvolution[id_Integer], "StateCount"] := cpp$stateCount[id];
 
 (* Public properties call *)
 

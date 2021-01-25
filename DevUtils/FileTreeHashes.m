@@ -5,7 +5,8 @@ PackageImport["GeneralUtilities`"]
 PackageExport["PostTagSystemFileTreeHashes"]
 
 SetUsage @ "
-PostTagSystemFileTreeHashes['path$', pattern$, depth$, excludeList$] returns a list of pairs consisting of {'filename', hash}.
+PostTagSystemFileTreeHashes['path$', pattern$, depth$, excludeList$] returns a list of pairs consisting of \
+{'filename', hash}.
 * The files found are those matching pattern$ that are within 'path$'.
 * The file pattern pattern$ is as used by FileNames, and can be a list.
 * depth$ instructs FileTreeHash how many directories to preserve from the returned absolute paths to ensure they
