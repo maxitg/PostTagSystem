@@ -3,6 +3,7 @@
 #include <limits>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace PostTagSystem {
 namespace {
@@ -68,6 +69,18 @@ class PostTagMultihistory::Implementation {
 
   const PostTagState& state(const int index) const { return states_[index]; }
 
+  const std::vector<int> cycleSources() const {
+    std::vector<bool> isEverVisited(states_.size(), false);
+    std::vector<int> cycleSources;
+    for (int i = 0; i < static_cast<int>(states_.size()); ++i) {
+      if (!isEverVisited[i]) {
+        std::unordered_set<int> currentlyVisitedStates;
+        tryToFindCycleSource(i, &isEverVisited, &currentlyVisitedStates, &cycleSources);
+      }
+    }
+    return cycleSources;
+  }
+
  private:
   PostTagState nextState(const PostTagState& state) {
     PostTagState newState;
@@ -96,6 +109,18 @@ class PostTagMultihistory::Implementation {
     }
     return newState;
   }
+
+  void tryToFindCycleSource(const int stateIndex,
+                            std::vector<bool>* isEverVisited,
+                            std::unordered_set<int>* currentlyVisitedStates,
+                            std::vector<int>* result) const {
+    if (stateIndex < 0) return;
+    if (currentlyVisitedStates->count(stateIndex)) result->push_back(stateIndex);
+    if ((*isEverVisited)[stateIndex]) return;
+    (*isEverVisited)[stateIndex] = true;
+    currentlyVisitedStates->insert(stateIndex);
+    tryToFindCycleSource(nextStates_[stateIndex], isEverVisited, currentlyVisitedStates, result);
+  }
 };
 
 PostTagMultihistory::PostTagMultihistory() : implementation_(std::make_shared<Implementation>()) {}
@@ -109,5 +134,7 @@ size_t PostTagMultihistory::stateCount() const { return implementation_->stateCo
 const std::vector<int>& PostTagMultihistory::stateSuccessors() const { return implementation_->stateSuccessors(); }
 
 const PostTagState& PostTagMultihistory::state(int index) const { return implementation_->state(index); }
+
+const std::vector<int> PostTagMultihistory::cycleSources() const { return implementation_->cycleSources(); }
 
 }  // namespace PostTagSystem

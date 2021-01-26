@@ -24,6 +24,8 @@ class PostTagMultihistory {
 
   const PostTagState& state(int index) const;
 
+  const std::vector<int> cycleSources() const;
+
  private:
   class Implementation;
   std::shared_ptr<Implementation> implementation_;
