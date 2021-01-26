@@ -72,10 +72,23 @@ $libraryFunctions = {
     $Failed]
 };
 
-PostTagSystem[initHead_, initTape_] := ModuleScope[
+PostTagSystem[{initHead_Integer, initTape_}] := ModuleScope[
   evolution = CreateManagedLibraryExpression["PostTagSystem", PostTagSystemEvolution];
   id = ManagedLibraryExpressionID[evolution, "PostTagSystem"];
   cpp$systemInitialize[id];
   cpp$addEvolutionStartingFromState[id, initHead, initTape];
   evolution
 ];
+
+PostTagSystem[states_] := ModuleScope[
+  evolution = CreateManagedLibraryExpression["PostTagSystem", PostTagSystemEvolution];
+  id = ManagedLibraryExpressionID[evolution, "PostTagSystem"];
+  cpp$systemInitialize[id];
+  cpp$addEvolutionStartingFromState[id, #, #2] & @@@ states;
+  evolution
+];
+
+PostTagSystem[evolution : PostTagSystemEvolution[id_Integer], {initHead_, initTape_}] := ModuleScope[
+  cpp$addEvolutionStartingFromState[id, initHead, initTape];
+  evolution
+]
