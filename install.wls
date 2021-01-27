@@ -10,7 +10,7 @@ Check[
 ];
 
 Check[
-  InstallGitLink[];
+  PostTagSystemInstallGitLink[];
 
   buildResult = BuildLibPostTagSystem["Verbose" -> True];
   If[!AssociationQ[buildResult], Exit[1]];

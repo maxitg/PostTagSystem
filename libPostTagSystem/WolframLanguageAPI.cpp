@@ -1,7 +1,9 @@
 #include "WolframLanguageAPI.hpp"
 
+#include <algorithm>
 // NOLINTNEXTLINE(build/c++11)
 #include <chrono>  // <chrono> is banned in Chromium, so cpplint flags it https://stackoverflow.com/a/33653404/905496
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <random>
@@ -77,9 +79,14 @@ int stateCount(mint argc, MArgument* argv, MArgument result) {
 
 PostTagState getState(WolframLibraryData libData, const mint headState, const MTensor tape) {
   const auto tapeData = libData->MTensor_getIntegerData(tape);
+  const auto tapeLength = libData->MTensor_getFlattenedLength(tape);
   PostTagState result;
-  result.headState = headState;
-  result.tape = std::vector<uint8_t>(tapeData, tapeData + libData->MTensor_getFlattenedLength(tape));
+  result.headState = static_cast<uint8_t>(headState);
+
+  result.tape.reserve(tapeLength);
+  std::transform(tapeData, tapeData + tapeLength, std::back_inserter(result.tape), [](mint token) {
+    return static_cast<uint8_t>(token);
+  });
   return result;
 }
 

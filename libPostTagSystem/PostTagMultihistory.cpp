@@ -1,5 +1,6 @@
 #include "PostTagMultihistory.hpp"
 
+#include <algorithm>
 #include <limits>
 #include <memory>
 #include <unordered_map>
@@ -104,6 +105,9 @@ class PostTagMultihistory::Implementation {
 
         case 2:
           newState.tape.push_back(0);
+          break;
+
+        default:
           break;
       }
     }

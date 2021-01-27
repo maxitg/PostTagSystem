@@ -45,10 +45,10 @@ PackPostTagSystem[OptionsPattern[]] := ModuleScope[
   SetAutomatic[sourceDirectory, repositoryDirectory];
   EnsureDirectory[outputDirectory];
 
-  If[$GitLinkAvailableQ,
-    minorVersionNumber = CalculateMinorVersionNumber[repositoryDirectory, masterBranch];
+  If[$PostTagSystemGitLinkAvailableQ,
+    minorVersionNumber = PostTagSystemCalculateMinorVersionNumber[repositoryDirectory, masterBranch];
     pacletInfoFile = createUpdatedPacletInfo[FileNameJoin[{sourceDirectory, "PacletInfo.m"}], minorVersionNumber];
-    gitSHA = GitSHAWithDirtyStar[repositoryDirectory];
+    gitSHA = PostTagSystemGitSHAWithDirtyStar[repositoryDirectory];
   ,
     Message[PackPostTagSystem::nogitlink];
     pacletInfoFile = FileNameJoin[{sourceDirectory, "PacletInfo.m"}];
@@ -56,7 +56,7 @@ PackPostTagSystem[OptionsPattern[]] := ModuleScope[
   ];
 
   buildInfo = <|"GitSHA" -> gitSHA, "BuildTime" -> Round[DateList[TimeZone -> "UTC"]]|>;
-  tempBuildInfoFile = FileNameJoin[{$DevUtilsTemporaryDirectory, "PacletBuildInfo.json"}];
+  tempBuildInfoFile = FileNameJoin[{$PostTagSystemDevUtilsTemporaryDirectory, "PacletBuildInfo.json"}];
   Developer`WriteRawJSONFile[tempBuildInfoFile, buildInfo];
 
   kernelDir = FileNameJoin[{sourceDirectory, "Kernel"}];
@@ -89,7 +89,7 @@ PackPostTagSystem[OptionsPattern[]] := ModuleScope[
 createUpdatedPacletInfo[pacletInfoFilename_, minorVersionNumber_] := ModuleScope[
   pacletInfo = Association @@ Import[pacletInfoFilename];
   versionString = pacletInfo[Version] <> "." <> ToString[minorVersionNumber];
-  tempFilename = FileNameJoin[{$DevUtilsTemporaryDirectory, "PacletInfo.m"}];
+  tempFilename = FileNameJoin[{$PostTagSystemDevUtilsTemporaryDirectory, "PacletInfo.m"}];
   AppendTo[pacletInfo, Version -> versionString];
   Block[{$ContextPath = {"System`", "PacletManager`"}},
     Export[tempFilename, PacletManager`Paclet @@ Normal[pacletInfo]]

@@ -19,7 +19,7 @@ If[FileExistsQ[$devUtilsPath],
   (* forwarders for the functions we want from DevUtils. This is done so
   we don't create the PostTagSystemDevUtils context for ordinary users (when DevUtils *isn't* available) *)
   buildLibPostTagSystem = Symbol["PostTagSystemDevUtils`BuildLibPostTagSystem"];
-  gitSHAWithDirtyStar = Symbol["PostTagSystemDevUtils`GitSHAWithDirtyStar"];
+  gitSHAWithDirtyStar = Symbol["PostTagSystemDevUtils`PostTagSystemGitSHAWithDirtyStar"];
 
   (* try build the C++ code immediately (which will most likely retrieve a cached library) *)
   (* if there is a frontend, then give a temporary progress panel, otherwise just Print *)
