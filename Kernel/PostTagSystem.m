@@ -9,6 +9,7 @@ PackageScope["cpp$stateCount"]
 PackageScope["cpp$stateSuccessors"]
 PackageScope["cpp$state"]
 PackageScope["cpp$cycleSources"]
+PackageScope["cpp$initStates"]
 
 (* this function is defined now, but only run the *next* time Kernel/init.m is called, before all symbols
 are cleared. *)
@@ -78,6 +79,14 @@ $libraryFunctions = {
       "cycleSources",
       {Integer},
       {Integer, 1}],
+    $Failed],
+
+  cpp$initStates = If[$libraryFile =!= $Failed,
+    LibraryFunctionLoad[
+     $libraryFile,
+     "initStates",
+     {Integer},
+     {Integer, 1}],
     $Failed]
 };
 

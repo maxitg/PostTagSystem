@@ -30,4 +30,6 @@ EXTERN_C DLLEXPORT int state(WolframLibraryData libData, mint argc, MArgument* a
 
 EXTERN_C DLLEXPORT int cycleSources(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
 
+EXTERN_C DLLEXPORT int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
+
 #endif  // LIBPOSTTAGSYSTEM_WOLFRAMLANGUAGEAPI_HPP_

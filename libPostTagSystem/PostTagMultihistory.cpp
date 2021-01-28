@@ -48,6 +48,8 @@ class PostTagMultihistory::Implementation {
   std::vector<int> nextStates_;
   std::unordered_map<PostTagState, int, PostTagStateHasher, PostTagStateEquality> statesIndex_;
 
+  std::vector<int> initStates_;
+
  public:
   void addEvolutionStartingFromState(const PostTagState& state) {
     PostTagState currentState = state;
@@ -62,6 +64,7 @@ class PostTagMultihistory::Implementation {
                                                                : static_cast<int>(states_.size()));
       }
     }
+    initStates_.push_back(statesIndex_[state]);
   }
 
   size_t stateCount() const { return states_.size(); }
@@ -81,6 +84,8 @@ class PostTagMultihistory::Implementation {
     }
     return cycleSources;
   }
+
+  const std::vector<int>& initStates() const { return initStates_; }
 
  private:
   PostTagState nextState(const PostTagState& state) {
@@ -140,5 +145,7 @@ const std::vector<int>& PostTagMultihistory::stateSuccessors() const { return im
 const PostTagState& PostTagMultihistory::state(int index) const { return implementation_->state(index); }
 
 const std::vector<int> PostTagMultihistory::cycleSources() const { return implementation_->cycleSources(); }
+
+const std::vector<int>& PostTagMultihistory::initStates() const { return implementation_->initStates(); }
 
 }  // namespace PostTagSystem

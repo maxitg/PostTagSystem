@@ -41,7 +41,8 @@ $propertyArgumentCounts = <|
   "StateCount" -> {0, 0},
   "StateGraph" -> {0, Infinity},
   "State" -> {1, 1},
-  "CycleSources" -> {0, 0}|>;
+  "CycleSources" -> {0, 0},
+  "InitStates" -> {0, 0}|>;
 
 (* Master options handling *)
 
@@ -144,6 +145,10 @@ propertyEvaluate[PostTagSystemEvolution[systemID_Integer], "State", stateID_Inte
 (* Cycle sources *)
 
 propertyEvaluate[PostTagSystemEvolution[systemID_Integer], "CycleSources"] := cpp$cycleSources[systemID];
+
+(* Init states *)
+
+propertyEvaluate[PostTagSystemEvolution[systemID_Integer], "InitStates"] := cpp$initStates[systemID];
 
 (* Public properties call *)
 

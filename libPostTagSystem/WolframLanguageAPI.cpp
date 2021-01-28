@@ -177,6 +177,29 @@ int cycleSources(WolframLibraryData libData, mint argc, MArgument* argv, MArgume
 
   return LIBRARY_NO_ERROR;
 }
+
+int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  if (argc != 1) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  try {
+    const auto& inits = systemFromID(MArgument_getInteger(argv[0])).initStates();
+    MTensor output;
+    const mint dimensions[1] = {static_cast<mint>(inits.size())};
+    libData->MTensor_new(MType_Integer, 1, dimensions, &output);
+    mint position[1];
+    for (size_t i = 0; i < inits.size(); ++i) {
+      position[0] = i + 1;
+      libData->MTensor_setInteger(output, position, inits[i] + 1);
+    }
+    MArgument_setMTensor(result, output);
+  } catch (...) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  return LIBRARY_NO_ERROR;
+}
 }  // namespace
 }  // namespace PostTagSystem
 
@@ -218,4 +241,8 @@ EXTERN_C int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgu
 
 EXTERN_C int cycleSources(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   return PostTagSystem::cycleSources(libData, argc, argv, result);
+}
+
+EXTERN_C int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return PostTagSystem::initStates(libData, argc, argv, result);
 }
