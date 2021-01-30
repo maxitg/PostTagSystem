@@ -58,11 +58,13 @@ message(STATUS "POST_TAG_SYSTEM_COMPILE_OPTIONS: ${POST_TAG_SYSTEM_COMPILE_OPTIO
 
 set(libPostTagSystem_headers
     WolframLanguageAPI.hpp
-    PostTagMultihistory.cpp
+    PostTagMultihistory.hpp
+    NDTM.hpp
     )
 set(libPostTagSystem_sources
     WolframLanguageAPI.cpp
     PostTagMultihistory.cpp
+    NDTM.cpp
     )
 list(TRANSFORM libPostTagSystem_headers PREPEND "libPostTagSystem/")
 list(TRANSFORM libPostTagSystem_sources PREPEND "libPostTagSystem/")
