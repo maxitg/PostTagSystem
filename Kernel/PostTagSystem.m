@@ -4,7 +4,7 @@ PackageImport["GeneralUtilities`"]
 
 PackageExport["PostTagSystem"]
 PackageExport["NDTMEvaluate"]
-PackageExport["NDTMEvaluate$Simple"]
+PackageExport["NDTMEvaluateSimple"]
 
 PackageScope["unloadLibrary"]
 PackageScope["cpp$stateCount"]
@@ -131,6 +131,11 @@ PostTagSystem[{initHead_, initTape_}, evolution : PostTagSystemEvolution[id_Inte
   evolution
 ]
 
+SetUsage @ "
+NDTMEvaluate[rules$, eventLimit$, stateLimit$] evaluates an NDTM and returns the max event count and a total state
+count.
+";
+
 SyntaxInformation[NDTMEvaluate] = {"ArgumentsPattern" -> {rules_, maxEventCountLimit_, totalStateCountLimit_}};
 NDTMEvaluate[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
   output = cpp$ndtmEvaluate[Catenate /@ List @@@ rules, maxEventCountLimit, totalStateCountLimit];
@@ -142,8 +147,13 @@ NDTMEvaluate[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
   ]
 ];
 
-SyntaxInformation[NDTMEvaluate] = {"ArgumentsPattern" -> {rules_, maxEventCountLimit_, totalStateCountLimit_}};
-NDTMEvaluate$Simple[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
+SetUsage @ "
+NDTMEvaluateSimple[rules$, eventLimit$, stateLimit$] evaluates an NDTM and returns the max event count and a total
+state count in a simple way.
+";
+
+SyntaxInformation[NDTMEvaluateSimple] = {"ArgumentsPattern" -> {rules_, maxEventCountLimit_, totalStateCountLimit_}};
+NDTMEvaluateSimple[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
   output = cpp$ndtmEvaluate[Catenate /@ List @@@ rules, maxEventCountLimit, totalStateCountLimit];
   result = {output[[2]], output[[3]]};
   Switch[output[[1]],
