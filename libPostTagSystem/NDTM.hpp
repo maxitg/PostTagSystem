@@ -18,10 +18,10 @@ struct State {
   int headPosition;
   std::vector<int> tape;
 
-  State(int size) {
+  explicit State(int size) {
     headState = 1;
     headPosition = size + 1;
-    tape = std::vector<int>(2*size + 1, 0);
+    tape = std::vector<int>(2 * size + 1, 0);
   }
 };
 
