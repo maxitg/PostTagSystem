@@ -1,5 +1,6 @@
 #include "NDTM.hpp"
 
+#include <algorithm>
 #include <optional>
 #include <unordered_set>
 
