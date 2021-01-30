@@ -19,7 +19,6 @@ TEST(PostTagSystem, simpleEvolution) {
 
 namespace NDTM {
 TEST(ndtm, simple) {
-  State init{};
   auto result = evaluateNDTM({{1, 0, 1, 0, 1}}, 1, 6);
   ASSERT_EQ(result.terminationReason, TerminationReason::MaxEventsExceeded);
   ASSERT_EQ(result.maxEventCount, 1);
@@ -27,10 +26,9 @@ TEST(ndtm, simple) {
 }
 
 TEST(ndtm, multiEvent) {
-  State init{};
-  auto result = evaluateNDTM({{1, 0, 1, 0, 1}}, 3, 6);
+  auto result = evaluateNDTM({{1, 0, 1, 1, 1}, {1, 1, 1, 1, 1}}, 10000, 100000);
   ASSERT_EQ(result.terminationReason, TerminationReason::MaxEventsExceeded);
-  ASSERT_EQ(result.maxEventCount, 3);
-  ASSERT_EQ(result.totalStateCount, 4);
+  ASSERT_EQ(result.maxEventCount, 10000);
+  ASSERT_EQ(result.totalStateCount, 10001);
 }
 }  // namespace NDTM

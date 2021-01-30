@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <optional>
 #include <unordered_set>
+#include <queue>
+#include <set>
 
 namespace NDTM {
-class StateHasher {
+/*class StateHasher {
  public:
   size_t operator()(const State& state) const {
     std::size_t result = 0;
@@ -37,7 +39,22 @@ class StateEquality {
     const auto mismatchedIterators = std::mismatch(a.tape.begin(), a.tape.end(), b.tape.begin(), b.tape.end());
     return mismatchedIterators.first == a.tape.end() && mismatchedIterators.second == b.tape.end();
   }
-};
+};*/
+
+bool stateCompare(const State& a, const State& b) {
+  if (a.headPosition != b.headPosition) {
+    return a.headPosition < b.headPosition;
+  } else if (a.headState != b.headState) {
+    return a.headState < b.headState;
+  } else {
+    for (int i = 0; i < static_cast<int>(a.tape.size()); ++i) {
+      if (a.tape[i] != b.tape[i]) {
+        return a.tape[i] < b.tape[i];
+      }
+    }
+  }
+  return false;
+}
 
 std::optional<State> nextState(const Rule& rule, const State& init) {
   if (init.tape[init.headPosition] != rule.oldTapeState || init.headState != rule.oldHeadState) {
@@ -47,44 +64,36 @@ std::optional<State> nextState(const Rule& rule, const State& init) {
   newState.tape[init.headPosition] = rule.newTapeState;
   newState.headState = rule.newHeadState;
   newState.headPosition = init.headPosition + rule.displacement;
-  newState.headDisplacement = init.headDisplacement + rule.displacement;
-  if (newState.headPosition == -1) {
-    newState.tape.push_front(0);
-    ++newState.headPosition;
-  } else if (newState.headPosition == 1 && newState.tape[0] == 0) {
-    newState.tape.pop_front();
-    --newState.headPosition;
-  }
-
-  if (newState.headPosition == static_cast<int>(newState.tape.size())) {
-    newState.tape.push_back(0);
-  } else if (newState.headPosition == static_cast<int>(newState.tape.size()) - 2 &&
-             newState.tape[static_cast<int>(newState.tape.size()) - 1] == 0) {
-    newState.tape.pop_back();
-  }
   return newState;
 }
 
 LifetimeData evaluateNDTM(const std::vector<Rule>& rules, int maxEventCountLimit, int totalStateCountLimit) {
   LifetimeData result;
 
-  std::unordered_set<State, StateHasher, StateEquality> unevaluatedStates = {State()};
-  std::unordered_set<State, StateHasher, StateEquality> allStates = {State()};
+  std::set<State, decltype(stateCompare)*> allStates(stateCompare);
+  allStates.insert(State(maxEventCountLimit));
+  std::queue<std::set<State, decltype(stateCompare)*>::iterator> unevaluatedStates;
+  unevaluatedStates.push(allStates.begin());
 
   int event;
   for (event = 0; !unevaluatedStates.empty() && event < maxEventCountLimit &&
                   static_cast<int>(allStates.size()) < totalStateCountLimit;
        ++event) {
-    std::unordered_set<State, StateHasher, StateEquality> oldUnevaluatedStates = unevaluatedStates;
-    unevaluatedStates.clear();
-    for (const auto& state : oldUnevaluatedStates) {
+    int countToEvaluate = static_cast<int>(unevaluatedStates.size());
+    for (int i = 0; i < countToEvaluate; ++i) {
+      const auto state = *(unevaluatedStates.front());
+      unevaluatedStates.pop();
       for (const auto& rule : rules) {
         const auto newState = nextState(rule, state);
-        if (newState.has_value() && !allStates.count(newState.value())) {
-          unevaluatedStates.insert(newState.value());
-          allStates.insert(newState.value());
+        if (newState.has_value()) {
+          auto insertedState = allStates.insert(newState.value());
+          if (insertedState.second) {
+            unevaluatedStates.push(insertedState.first);
+            if (static_cast<int>(allStates.size()) >= totalStateCountLimit) break;
+          }
         }
       }
+      if (static_cast<int>(allStates.size()) >= totalStateCountLimit) break;
     }
   }
 

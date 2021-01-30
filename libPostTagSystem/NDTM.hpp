@@ -1,7 +1,7 @@
 #ifndef LIBPOSTTAGSYSTEM_NDTM_HPP_
 #define LIBPOSTTAGSYSTEM_NDTM_HPP_
 
-#include <deque>
+#include <array>
 #include <vector>
 
 namespace NDTM {
@@ -16,14 +16,12 @@ struct Rule {
 struct State {
   int headState;
   int headPosition;
-  int headDisplacement;
-  std::deque<int> tape;
+  std::vector<int> tape;
 
-  State() {
+  State(int size) {
     headState = 1;
-    headPosition = 0;
-    headDisplacement = 0;
-    tape = {0};
+    headPosition = size + 1;
+    tape = std::vector<int>(2*size + 1, 0);
   }
 };
 
