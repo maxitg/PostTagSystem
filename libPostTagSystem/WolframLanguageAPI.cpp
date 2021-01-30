@@ -3,15 +3,19 @@
 #include <algorithm>
 // NOLINTNEXTLINE(build/c++11)
 #include <chrono>  // <chrono> is banned in Chromium, so cpplint flags it https://stackoverflow.com/a/33653404/905496
+#include <deque>
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <random>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
+#include "NDTM.hpp"
 #include "PostTagMultihistory.hpp"
 
 namespace PostTagSystem {
@@ -245,4 +249,45 @@ EXTERN_C int cycleSources(WolframLibraryData libData, mint argc, MArgument* argv
 
 EXTERN_C int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   return PostTagSystem::initStates(libData, argc, argv, result);
+}
+
+namespace NDTM {
+int ndtmEvaluate(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  if (argc != 3) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  auto rulesTensor = MArgument_getMTensor(argv[0]);
+  auto ruleData = libData->MTensor_getIntegerData(rulesTensor);
+  auto ruleCount = libData->MTensor_getFlattenedLength(rulesTensor) / 5;
+  std::vector<Rule> rules(ruleCount);
+  for (int i = 0; i < ruleCount; ++i) {
+    rules[i].oldHeadState = static_cast<int>(*(ruleData + 5 * i));
+    rules[i].oldTapeState = static_cast<int>(*(ruleData + 5 * i + 1));
+    rules[i].newHeadState = static_cast<int>(*(ruleData + 5 * i + 2));
+    rules[i].newTapeState = static_cast<int>(*(ruleData + 5 * i + 3));
+    rules[i].displacement = static_cast<int>(*(ruleData + 5 * i + 4));
+  }
+
+  LifetimeData lifetimeResult = evaluateNDTM(
+      rules, static_cast<int>(MArgument_getInteger(argv[1])), static_cast<int>(MArgument_getInteger(argv[2])));
+
+  MTensor output;
+  const mint dimensions[1] = {3};
+  libData->MTensor_new(MType_Integer, 1, dimensions, &output);
+  mint position[1];
+  position[0] = 1;
+  libData->MTensor_setInteger(output, position, static_cast<int>(lifetimeResult.terminationReason));
+  position[0] = 2;
+  libData->MTensor_setInteger(output, position, lifetimeResult.maxEventCount);
+  position[0] = 3;
+  libData->MTensor_setInteger(output, position, lifetimeResult.totalStateCount);
+  MArgument_setMTensor(result, output);
+
+  return LIBRARY_NO_ERROR;
+}
+}  // namespace NDTM
+
+EXTERN_C int ndtmEvaluate(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return NDTM::ndtmEvaluate(libData, argc, argv, result);
 }

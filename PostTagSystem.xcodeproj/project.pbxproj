@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		69015F4E257AA3FF00B01241 /* WolframLanguageAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */; };
+		690C9D7C25C4FF7000769BAC /* NDTM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 690C9D7A25C4FF7000769BAC /* NDTM.cpp */; };
+		690C9D7D25C4FF7000769BAC /* NDTM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 690C9D7A25C4FF7000769BAC /* NDTM.cpp */; };
+		690C9D7E25C4FF7000769BAC /* NDTM.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 690C9D7B25C4FF7000769BAC /* NDTM.hpp */; };
 		6914D3AA2532AEF300B2B197 /* PostTagSystem_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 691E077C2471D1DD00D2BDD5 /* PostTagSystem_test.cpp */; };
 		6914D3D42532B1B600B2B197 /* WolframLanguageAPI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */; };
 		693A211425BB55760033672D /* PostTagMultihistory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 693A211225BB55760033672D /* PostTagMultihistory.cpp */; };
@@ -29,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		690C9D7A25C4FF7000769BAC /* NDTM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NDTM.cpp; sourceTree = "<group>"; };
+		690C9D7B25C4FF7000769BAC /* NDTM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = NDTM.hpp; sourceTree = "<group>"; };
 		6914D3902532AEB500B2B197 /* PostTagSystemTests */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PostTagSystemTests; sourceTree = BUILT_PRODUCTS_DIR; };
 		691E077A2471CED500D2BDD5 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		691E077C2471D1DD00D2BDD5 /* PostTagSystem_test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PostTagSystem_test.cpp; sourceTree = "<group>"; };
@@ -90,6 +95,8 @@
 				69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */,
 				693A211325BB55760033672D /* PostTagMultihistory.hpp */,
 				693A211225BB55760033672D /* PostTagMultihistory.cpp */,
+				690C9D7B25C4FF7000769BAC /* NDTM.hpp */,
+				690C9D7A25C4FF7000769BAC /* NDTM.cpp */,
 				691E07792471CED500D2BDD5 /* test */,
 			);
 			path = libPostTagSystem;
@@ -103,6 +110,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				693A211625BB55760033672D /* PostTagMultihistory.hpp in Headers */,
+				690C9D7E25C4FF7000769BAC /* NDTM.hpp in Headers */,
 				69CAF8762257B23B006F9C60 /* WolframLanguageAPI.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -185,6 +193,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				690C9D7D25C4FF7000769BAC /* NDTM.cpp in Sources */,
 				693A211525BB55760033672D /* PostTagMultihistory.cpp in Sources */,
 				6914D3AA2532AEF300B2B197 /* PostTagSystem_test.cpp in Sources */,
 				69015F4E257AA3FF00B01241 /* WolframLanguageAPI.cpp in Sources */,
@@ -195,6 +204,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				690C9D7C25C4FF7000769BAC /* NDTM.cpp in Sources */,
 				6914D3D42532B1B600B2B197 /* WolframLanguageAPI.cpp in Sources */,
 				693A211425BB55760033672D /* PostTagMultihistory.cpp in Sources */,
 			);

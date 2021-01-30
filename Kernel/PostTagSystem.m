@@ -3,6 +3,8 @@ Package["PostTagSystem`"]
 PackageImport["GeneralUtilities`"]
 
 PackageExport["PostTagSystem"]
+PackageExport["NDTMEvaluate"]
+PackageExport["NDTMEvaluate$Simple"]
 
 PackageScope["unloadLibrary"]
 PackageScope["cpp$stateCount"]
@@ -87,6 +89,16 @@ $libraryFunctions = {
      "initStates",
      {Integer},
      {Integer, 1}],
+    $Failed],
+
+  cpp$ndtmEvaluate = If[$libraryFile =!= $Failed,
+    LibraryFunctionLoad[
+      $libraryFile,
+      "ndtmEvaluate",
+      {{Integer, 2},
+       Integer,
+       Integer},
+      {Integer, 1}],
     $Failed]
 };
 
@@ -118,3 +130,25 @@ PostTagSystem[{initHead_, initTape_}, evolution : PostTagSystemEvolution[id_Inte
   cpp$addEvolutionStartingFromState[id, initHead, initTape];
   evolution
 ]
+
+SyntaxInformation[NDTMEvaluate] = {"ArgumentsPattern" -> {rules_, maxEventCountLimit_, totalStateCountLimit_}};
+NDTMEvaluate[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
+  output = cpp$ndtmEvaluate[Catenate /@ List @@@ rules, maxEventCountLimit, totalStateCountLimit];
+  resultAssociation = <|"MaxEventCount" -> output[[2]], "StateCount" -> output[[3]]|>;
+  Switch[output[[1]],
+    0, resultAssociation,
+    1, Failure["MaxEventsExceeded", resultAssociation],
+    2, Failure["MaxStatesExceeded", resultAssociation]
+  ]
+];
+
+SyntaxInformation[NDTMEvaluate] = {"ArgumentsPattern" -> {rules_, maxEventCountLimit_, totalStateCountLimit_}};
+NDTMEvaluate$Simple[rules_, maxEventCountLimit_, totalStateCountLimit_] := ModuleScope[
+  output = cpp$ndtmEvaluate[Catenate /@ List @@@ rules, maxEventCountLimit, totalStateCountLimit];
+  result = {output[[2]], output[[3]]};
+  Switch[output[[1]],
+    0, result,
+    1, None,
+    2, TooBig
+  ]
+];
