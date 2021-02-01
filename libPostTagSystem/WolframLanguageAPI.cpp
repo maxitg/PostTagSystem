@@ -129,6 +129,22 @@ int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArg
   return LIBRARY_NO_ERROR;
 }
 
+int stateSuccessor([[maybe_unused]] WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  if (argc != 2) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  try {
+    const auto& successors = systemFromID(MArgument_getInteger(argv[0])).stateSuccessors();
+    const auto successor = successors[MArgument_getInteger(argv[1]) - 1] + 1;
+    MArgument_setInteger(result, successor);
+  } catch (...) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  return LIBRARY_NO_ERROR;
+}
+
 int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   if (argc != 2) {
     return LIBRARY_FUNCTION_ERROR;
@@ -233,6 +249,10 @@ EXTERN_C int addEvolutionStartingFromState(WolframLibraryData libData,
 
 EXTERN_C int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   return PostTagSystem::stateSuccessors(libData, argc, argv, result);
+}
+
+EXTERN_C int stateSuccessor(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return PostTagSystem::stateSuccessor(libData, argc, argv, result);
 }
 
 EXTERN_C int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {

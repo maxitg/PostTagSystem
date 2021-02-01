@@ -24,6 +24,8 @@ EXTERN_C DLLEXPORT int addEvolutionStartingFromState(WolframLibraryData libData,
  */
 EXTERN_C DLLEXPORT int stateCount(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
 
+EXTERN_C DLLEXPORT int stateSuccessor(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
+
 EXTERN_C DLLEXPORT int stateSuccessors(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);
 
 EXTERN_C DLLEXPORT int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result);

@@ -39,6 +39,7 @@ $propertyArgumentCounts = <|
   "EvolutionObject" -> {0, 0},
   "Properties" -> {0, 0},
   "StateCount" -> {0, 0},
+  "StateSuccessor" -> {1, 1},
   "StateGraph" -> {0, Infinity},
   "State" -> {1, 1},
   "CycleSources" -> {0, 0},
@@ -124,6 +125,11 @@ propertyEvaluate[evolution : PostTagSystemEvolution[_Integer], "EvolutionObject"
 (* StateCount *)
 
 propertyEvaluate[PostTagSystemEvolution[id_Integer], "StateCount"] := cpp$stateCount[id];
+
+(* StateSuccessor *)
+
+propertyEvaluate[PostTagSystemEvolution[id_Integer], "StateSuccessor", stateID_Integer] :=
+  cpp$stateSuccessor[id, stateID];
 
 (* StateGraph *)
 

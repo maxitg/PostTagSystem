@@ -6,6 +6,7 @@ PackageExport["PostTagSystem"]
 
 PackageScope["unloadLibrary"]
 PackageScope["cpp$stateCount"]
+PackageScope["cpp$stateSuccessor"]
 PackageScope["cpp$stateSuccessors"]
 PackageScope["cpp$state"]
 PackageScope["cpp$cycleSources"]
@@ -53,6 +54,14 @@ $libraryFunctions = {
       $libraryFile,
       "stateCount",
       {Integer},
+      Integer],
+    $Failed],
+
+  cpp$stateSuccessor = If[$libraryFile =!= $Failed,
+    LibraryFunctionLoad[
+      $libraryFile,
+      "stateSuccessor",
+      {Integer, Integer},
       Integer],
     $Failed],
 
