@@ -120,9 +120,11 @@ class PostTagHistory::Implementation {
     auto remainingBitCountToStore = chunkOutput.newTapeSize;
     while (remainingBitCountToStore > 0) {
       auto bitCountToStoreNow = std::min(remainingBitCountToStore, static_cast<uint8_t>(8 - state->lastChunkSize));
-      auto bitsToStoreNow = static_cast<uint16_t>(chunkOutput.newTape >> (remainingBitCountToStore - bitCountToStoreNow)
-                                                                             << (16 - bitCountToStoreNow)) >>
-                            (16 - bitCountToStoreNow);
+
+      auto bitCountNotToStoreNow = remainingBitCountToStore - bitCountToStoreNow;
+      auto bitsToStoreNow = static_cast<uint8_t>(
+          static_cast<uint16_t>(chunkOutput.newTape >> bitCountNotToStoreNow << (16 - bitCountToStoreNow)) >>
+          (16 - bitCountToStoreNow));
 
       state->chunks.back() = (state->chunks.back() << bitCountToStoreNow) + bitsToStoreNow;
       state->lastChunkSize += bitCountToStoreNow;
