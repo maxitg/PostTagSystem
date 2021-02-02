@@ -12,8 +12,8 @@
 #include <utility>
 #include <vector>
 
-#include "PostTagMultihistory.hpp"
 #include "PostTagHistory.hpp"
+#include "PostTagMultihistory.hpp"
 
 namespace PostTagSystem {
 namespace {
