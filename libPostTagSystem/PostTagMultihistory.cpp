@@ -14,7 +14,7 @@ class PostTagStateHasher {
   size_t operator()(const PostTagState& state) const {
     std::size_t result = 0;
     hash_combine(&result, state.headState);
-    for (const auto tapeValue : state.tape) {
+    for (const bool tapeValue : state.tape) {
       hash_combine(&result, tapeValue);
     }
     return result;

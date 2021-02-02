@@ -33,23 +33,25 @@ class PostTagHistory::Implementation {
  public:
   Implementation() : chunkEvaluationTable_(createChunkEvaluationTable()) {}
 
-  State evaluate(const State& init, const uint64_t maxEvents) const {
+  PostTagState evaluate(const PostTagState& init, const uint64_t maxEvents) const {
     if (maxEvents % 8 != 0) {
       return {{}, std::numeric_limits<uint8_t>::max()};
     }
     auto chunkedState = toChunkedState(init);
-    evaluateToTermination(&chunkedState, maxEvents / 8);
+    evaluate(&chunkedState, maxEvents / 8);
     return fromChunkedStateDestructively(&chunkedState);
   }
 
  private:
   ChunkEvaluationTable createChunkEvaluationTable() {
     ChunkEvaluationTable table;
-    for (uint8_t inputTape = 0; inputTape < std::numeric_limits<uint8_t>::max(); ++inputTape) {
+    uint8_t inputTape = std::numeric_limits<uint8_t>::max();
+    do {
+      ++inputTape;
       for (uint8_t inputPhase = 0; inputPhase < 3; ++inputPhase) {
         table[3 * inputTape + inputPhase] = createChunkOutput(inputTape, inputPhase);
       }
-    }
+    } while (inputTape != std::numeric_limits<uint8_t>::max());
     return table;
   }
 
@@ -69,7 +71,7 @@ class PostTagHistory::Implementation {
     return {output, outputSize, phase};
   }
 
-  ChunkedState toChunkedState(const State& state) const {
+  ChunkedState toChunkedState(const PostTagState& state) const {
     ChunkedState result;
     for (size_t i = 0; i < state.tape.size(); ++i) {
       if (i % 8 == 0) result.chunks.push(0);
@@ -77,19 +79,22 @@ class PostTagHistory::Implementation {
       result.chunks.back() += state.tape[i];
     }
     result.lastChunkSize = state.tape.size() % 8;
-    result.phase = state.phase;
+    if (result.lastChunkSize == 0 && state.tape.size() != 0) result.lastChunkSize = 8;
+    result.phase = state.headState;
     return result;
   }
 
-  State fromChunkedStateDestructively(ChunkedState* chunkedState) const {
+  PostTagState fromChunkedStateDestructively(ChunkedState* chunkedState) const {
     std::vector<bool> tape;
-    tape.reserve(8 * (chunkedState->chunks.size() - 1) + chunkedState->lastChunkSize);
-    while (chunkedState->chunks.size() > 1) {
-      pushBitsFromChunk(&tape, &chunkedState->chunks.front(), 8);
+    if (chunkedState->chunks.size()) {
+      tape.reserve(8 * (chunkedState->chunks.size() - 1) + chunkedState->lastChunkSize);
+      while (chunkedState->chunks.size() > 1) {
+        pushBitsFromChunk(&tape, &chunkedState->chunks.front(), 8);
+        chunkedState->chunks.pop();
+      }
+      pushBitsFromChunk(&tape, &chunkedState->chunks.front(), chunkedState->lastChunkSize);
       chunkedState->chunks.pop();
     }
-    pushBitsFromChunk(&tape, &chunkedState->chunks.front(), chunkedState->lastChunkSize);
-    chunkedState->chunks.pop();
     return {tape, chunkedState->phase};
   }
 
@@ -101,9 +106,8 @@ class PostTagHistory::Implementation {
     }
   }
 
-  void evaluateToTermination(ChunkedState* state, const uint64_t maxEvents) const {
-    for (uint64_t i = 0; i < maxEvents; ++i) {
-      if (state->chunks.size() == 1) return;
+  void evaluate(ChunkedState* state, const uint64_t maxEvents) const {
+    for (uint64_t i = 0; i < maxEvents && state->chunks.size() > 1; ++i) {
       evaluateOnce(state);
     }
   }
@@ -134,7 +138,7 @@ class PostTagHistory::Implementation {
 
 PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
 
-PostTagHistory::State PostTagHistory::evaluate(const State& init, const uint64_t maxEvents) const {
+PostTagState PostTagHistory::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
   return implementation_->evaluate(init, maxEvents);
 }
 }  // namespace PostTagSystem

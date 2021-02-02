@@ -5,16 +5,13 @@
 #include <memory>
 #include <vector>
 
+#include "PostTagState.h"
+
 namespace PostTagSystem {
 class PostTagHistory {
  public:
-  struct State {
-    const std::vector<bool> tape;
-    const uint8_t phase;
-  };
-
   PostTagHistory();
-  State evaluate(const State& init, uint64_t maxEvents = std::numeric_limits<uint64_t>::max()) const;
+  PostTagState evaluate(const PostTagState& init, uint64_t maxEvents) const;
 
  private:
   class Implementation;
