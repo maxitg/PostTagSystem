@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "PostTagHistory.hpp"
 #include "PostTagMultihistory.hpp"
 
 namespace PostTagSystem {
@@ -145,6 +146,18 @@ int stateSuccessor([[maybe_unused]] WolframLibraryData libData, mint argc, MArgu
   return LIBRARY_NO_ERROR;
 }
 
+void putState(WolframLibraryData libData, const PostTagState& state, MTensor* output) {
+  const mint dimensions[1] = {static_cast<mint>(state.tape.size() + 1)};
+  libData->MTensor_new(MType_Integer, 1, dimensions, output);
+  mint position[1];
+  position[0] = 1;
+  libData->MTensor_setInteger(*output, position, state.headState);
+  for (size_t i = 0; i < state.tape.size(); ++i) {
+    position[0] = i + 2;
+    libData->MTensor_setInteger(*output, position, state.tape[i]);
+  }
+}
+
 int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   if (argc != 2) {
     return LIBRARY_FUNCTION_ERROR;
@@ -154,15 +167,7 @@ int state(WolframLibraryData libData, mint argc, MArgument* argv, MArgument resu
     const auto& state =
         systemFromID(MArgument_getInteger(argv[0])).state(static_cast<int>(MArgument_getInteger(argv[1])) - 1);
     MTensor output;
-    const mint dimensions[1] = {static_cast<mint>(state.tape.size() + 1)};
-    libData->MTensor_new(MType_Integer, 1, dimensions, &output);
-    mint position[1];
-    position[0] = 1;
-    libData->MTensor_setInteger(output, position, state.headState);
-    for (size_t i = 0; i < state.tape.size(); ++i) {
-      position[0] = i + 2;
-      libData->MTensor_setInteger(output, position, state.tape[i]);
-    }
+    putState(libData, state, &output);
     MArgument_setMTensor(result, output);
   } catch (...) {
     return LIBRARY_FUNCTION_ERROR;
@@ -209,6 +214,26 @@ int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument
       position[0] = i + 1;
       libData->MTensor_setInteger(output, position, inits[i] + 1);
     }
+    MArgument_setMTensor(result, output);
+  } catch (...) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  return LIBRARY_NO_ERROR;
+}
+
+PostTagHistory historyEvaluator_;
+
+int postTagSystemFinalState(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  if (argc != 3) {
+    return LIBRARY_FUNCTION_ERROR;
+  }
+
+  try {
+    const auto inState = getState(libData, MArgument_getInteger(argv[0]), MArgument_getMTensor(argv[1]));
+    const auto outState = historyEvaluator_.evaluate(inState, MArgument_getInteger(argv[2]));
+    MTensor output;
+    putState(libData, outState, &output);
     MArgument_setMTensor(result, output);
   } catch (...) {
     return LIBRARY_FUNCTION_ERROR;
@@ -265,4 +290,8 @@ EXTERN_C int cycleSources(WolframLibraryData libData, mint argc, MArgument* argv
 
 EXTERN_C int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   return PostTagSystem::initStates(libData, argc, argv, result);
+}
+
+EXTERN_C int postTagSystemFinalState(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return PostTagSystem::postTagSystemFinalState(libData, argc, argv, result);
 }

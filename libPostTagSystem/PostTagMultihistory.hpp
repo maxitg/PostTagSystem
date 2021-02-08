@@ -4,14 +4,9 @@
 #include <memory>
 #include <vector>
 
+#include "PostTagState.h"
+
 namespace PostTagSystem {
-struct PostTagState {
-  std::vector<uint8_t> tape;
-  int8_t headState;
-
-  bool empty() const { return tape.empty(); }
-};
-
 class PostTagMultihistory {
  public:
   PostTagMultihistory();
