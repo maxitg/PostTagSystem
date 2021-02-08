@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "PostTagHistory.hpp"
 #include "PostTagMultihistory.hpp"
+#include "TagSystemEvaluator.hpp"
 
 namespace PostTagSystem {
 TEST(PostTagSystem, simpleEvolution) {
@@ -17,7 +17,7 @@ TEST(PostTagSystem, simpleEvolution) {
 }
 
 TEST(PostTagSystem, chunkEvaluationTable) {
-  PostTagHistory history;
+  TagSystemEvaluator history(TagSystemEvaluator::postRules());
   ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 0).tape[8], 1);
   ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 8).tape.size(), 10);
   ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1}, 0}, 0).tape.size(), 8);

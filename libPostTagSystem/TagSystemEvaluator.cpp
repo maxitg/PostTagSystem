@@ -1,4 +1,4 @@
-#include "PostTagHistory.hpp"
+#include "TagSystemEvaluator.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,7 +7,7 @@
 #include <queue>
 
 namespace PostTagSystem {
-class PostTagHistory::Implementation {
+class TagSystemEvaluator::Implementation {
  private:
   struct ChunkOutput {
     uint16_t newTape;
@@ -21,17 +21,13 @@ class PostTagHistory::Implementation {
     uint8_t phase;
   };
 
-  static constexpr uint16_t chunkCount = 768;
-  using ChunkEvaluationTable = std::array<ChunkOutput, chunkCount>;
+  const Rules rules_;
 
-  static constexpr uint8_t outputTapes[] = {0, 0, 0, 3, 0, 1};
-  static constexpr uint8_t outputLengths[] = {1, 0, 1, 2, 1, 1};
-  static constexpr uint8_t outputPhases[] = {2, 0, 1, 1, 2, 0};
-
+  using ChunkEvaluationTable = std::vector<ChunkOutput>;
   const ChunkEvaluationTable chunkEvaluationTable_;
 
  public:
-  Implementation() : chunkEvaluationTable_(createChunkEvaluationTable()) {}
+  explicit Implementation(const Rules& rules) : rules_(rules), chunkEvaluationTable_(createChunkEvaluationTable()) {}
 
   PostTagState evaluate(const PostTagState& init, const uint64_t maxEvents) const {
     if (maxEvents % 8 != 0) {
@@ -45,11 +41,12 @@ class PostTagHistory::Implementation {
  private:
   ChunkEvaluationTable createChunkEvaluationTable() {
     ChunkEvaluationTable table;
+    table.reserve(256 * rules_.size() / 2);
     uint8_t inputTape = std::numeric_limits<uint8_t>::max();
     do {
       ++inputTape;
       for (uint8_t inputPhase = 0; inputPhase < 3; ++inputPhase) {
-        table[3 * inputTape + inputPhase] = createChunkOutput(inputTape, inputPhase);
+        table.push_back(createChunkOutput(inputTape, inputPhase));
       }
     } while (inputTape != std::numeric_limits<uint8_t>::max());
     return table;
@@ -64,9 +61,9 @@ class PostTagHistory::Implementation {
       bool poppedBit = (shiftedInputTape >> 7) & 1;
       shiftedInputTape <<= 1;
       uint8_t outputIndex = 3 * poppedBit + phase;
-      outputSize += outputLengths[outputIndex];
-      output = (output << outputLengths[outputIndex]) + outputTapes[outputIndex];
-      phase = outputPhases[outputIndex];
+      outputSize += rules_[outputIndex].tapeLength;
+      output = (output << rules_[outputIndex].tapeLength) + rules_[outputIndex].tapeContents;
+      phase = rules_[outputIndex].phase;
     }
     return {output, outputSize, phase};
   }
@@ -138,9 +135,10 @@ class PostTagHistory::Implementation {
   }
 };
 
-PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
+TagSystemEvaluator::TagSystemEvaluator(const TagSystemEvaluator::Rules& rules)
+    : implementation_(std::make_shared<Implementation>(rules)) {}
 
-PostTagState PostTagHistory::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
+PostTagState TagSystemEvaluator::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
   return implementation_->evaluate(init, maxEvents);
 }
 }  // namespace PostTagSystem
