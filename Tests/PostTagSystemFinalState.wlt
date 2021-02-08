@@ -25,15 +25,15 @@
         testUnevaluated[PostTagSystemFinalState[{0, nineZeros}, #],
                         {PostTagSystemFinalState::eventCountUneven}] & /@ {1, 2, 3, 4, 5, 6, 7, 9, 100},
 
-        VerificationTest[PostTagSystemFinalState[{0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}, 8], {2, {0, 0, 0, 0, 0, 0, 0}}],
-        VerificationTest[PostTagSystemFinalState[{1, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
-                         {2, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}],
+        VerificationTest[PostTagSystemFinalState[{0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}, 8], {1, {0, 0, 0, 0, 0, 0, 0}}],
+        VerificationTest[PostTagSystemFinalState[{2, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
+                         {1, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}],
         VerificationTest[PostTagSystemFinalState[{0, {}}, 8], {0, {}}],
         VerificationTest[PostTagSystemFinalState[{0, {0}}, 8], {0, {0}}],
         VerificationTest[PostTagSystemFinalState[{0, nineZeros}, 0], {0, nineZeros}],
 
         VerificationTest[PostTagSystemFinalState[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858040],
-                         {1, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}],
+                         {2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}],
         VerificationTest[PostTagSystemFinalState[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, #],
                          {0, {0, 0, 0, 0, 0, 0, 0}}] & /@ {20858048, 20858048 + 8, 2^32 - 8, 2^63 - 8},
 

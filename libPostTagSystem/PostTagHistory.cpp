@@ -24,9 +24,9 @@ class PostTagHistory::Implementation {
   static constexpr uint16_t chunkCount = 768;
   using ChunkEvaluationTable = std::array<ChunkOutput, chunkCount>;
 
-  static constexpr uint8_t outputTapes[] = {0, 0, 0, 3, 1, 0};
-  static constexpr uint8_t outputLengths[] = {1, 1, 0, 2, 1, 1};
-  static constexpr uint8_t outputPhases[] = {1, 2, 0, 2, 0, 1};
+  static constexpr uint8_t outputTapes[] = {0, 0, 0, 3, 0, 1};
+  static constexpr uint8_t outputLengths[] = {1, 0, 1, 2, 1, 1};
+  static constexpr uint8_t outputPhases[] = {2, 0, 1, 1, 2, 0};
 
   const ChunkEvaluationTable chunkEvaluationTable_;
 
