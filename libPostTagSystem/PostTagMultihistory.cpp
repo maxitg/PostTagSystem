@@ -92,12 +92,12 @@ class PostTagMultihistory::Implementation {
     PostTagState newState;
     newState.tape.insert(newState.tape.begin(), state.tape.begin() + 1, state.tape.end());
     if (state.tape.front() == 0) {
-      newState.headState = (state.headState + 1) % 3;
-      if (state.headState != 2) {
+      newState.headState = (state.headState + 2) % 3;
+      if (state.headState != 1) {
         newState.tape.push_back(0);
       }
     } else {
-      newState.headState = (state.headState + 2) % 3;
+      newState.headState = (state.headState + 1) % 3;
       switch (state.headState) {
         case 0:
           newState.tape.push_back(1);
@@ -105,11 +105,11 @@ class PostTagMultihistory::Implementation {
           break;
 
         case 1:
-          newState.tape.push_back(1);
+          newState.tape.push_back(0);
           break;
 
         case 2:
-          newState.tape.push_back(0);
+          newState.tape.push_back(1);
           break;
 
         default:
