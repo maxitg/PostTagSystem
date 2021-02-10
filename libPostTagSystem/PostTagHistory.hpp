@@ -10,8 +10,13 @@
 namespace PostTagSystem {
 class PostTagHistory {
  public:
+  struct EvaluationResult {
+    PostTagState finalState;
+    uint64_t eventCount;
+  };
+
   PostTagHistory();
-  PostTagState evaluate(const PostTagState& init, uint64_t maxEvents) const;
+  EvaluationResult evaluate(const PostTagState& init, uint64_t maxEvents) const;
 
  private:
   class Implementation;

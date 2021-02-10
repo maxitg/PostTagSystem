@@ -33,13 +33,13 @@ class PostTagHistory::Implementation {
  public:
   Implementation() : chunkEvaluationTable_(createChunkEvaluationTable()) {}
 
-  PostTagState evaluate(const PostTagState& init, const uint64_t maxEvents) const {
+  EvaluationResult evaluate(const PostTagState& init, const uint64_t maxEvents) const {
     if (maxEvents % 8 != 0) {
       return {{}, std::numeric_limits<uint8_t>::max()};
     }
     auto chunkedState = toChunkedState(init);
-    evaluate(&chunkedState, maxEvents / 8);
-    return fromChunkedStateDestructively(&chunkedState);
+    const auto eventCount = evaluate(&chunkedState, maxEvents);
+    return {fromChunkedStateDestructively(&chunkedState), eventCount};
   }
 
  private:
@@ -106,10 +106,12 @@ class PostTagHistory::Implementation {
     }
   }
 
-  void evaluate(ChunkedState* state, const uint64_t maxEvents) const {
-    for (uint64_t i = 0; i < maxEvents && state->chunks.size() > 1; ++i) {
+  uint64_t evaluate(ChunkedState* state, const uint64_t maxEvents) const {
+    uint64_t eventCount;
+    for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1; eventCount += 8) {
       evaluateOnce(state);
     }
+    return eventCount;
   }
 
   void evaluateOnce(ChunkedState* state) const {
@@ -140,7 +142,7 @@ class PostTagHistory::Implementation {
 
 PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
 
-PostTagState PostTagHistory::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
+PostTagHistory::EvaluationResult PostTagHistory::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
   return implementation_->evaluate(init, maxEvents);
 }
 }  // namespace PostTagSystem

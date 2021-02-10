@@ -12,7 +12,7 @@ PackageScope["cpp$stateSuccessors"]
 PackageScope["cpp$state"]
 PackageScope["cpp$cycleSources"]
 PackageScope["cpp$initStates"]
-PackageScope["cpp$postTagSystemFinalState"]
+PackageScope["cpp$evaluatePostTagSystem"]
 
 (* this function is defined now, but only run the *next* time Kernel/init.m is called, before all symbols
 are cleared. *)
@@ -98,13 +98,13 @@ $libraryFunctions = {
      {Integer, 1}],
     $Failed],
 
-  cpp$postTagSystemFinalState = If[$libraryFile =!= $Failed,
+  cpp$evaluatePostTagSystem = If[$libraryFile =!= $Failed,
     LibraryFunctionLoad[
       $libraryFile,
-      "postTagSystemFinalState",
+      "evaluatePostTagSystem",
       {Integer,      (* head state *)
        {Integer, 1}, (* tape state *)
        Integer},     (* event count *)
-      {Integer, 1}], (* {headState, tape[[1]], tape[[2]], ...} *)
+      {Integer, 1}], (* {eventCount, headState, tape[[1]], tape[[2]], ...} *)
     $Failed]
 };
