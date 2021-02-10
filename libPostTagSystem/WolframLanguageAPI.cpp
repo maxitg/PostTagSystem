@@ -146,14 +146,21 @@ int stateSuccessor([[maybe_unused]] WolframLibraryData libData, mint argc, MArgu
   return LIBRARY_NO_ERROR;
 }
 
-void putState(WolframLibraryData libData, const PostTagState& state, MTensor* output) {
-  const mint dimensions[1] = {static_cast<mint>(state.tape.size() + 1)};
+void putState(WolframLibraryData libData,
+              const PostTagState& state,
+              MTensor* output,
+              std::vector<uint64_t> prefix = {}) {
+  const mint dimensions[1] = {static_cast<mint>(state.tape.size() + prefix.size() + 1)};
   libData->MTensor_new(MType_Integer, 1, dimensions, output);
-  mint position[1];
-  position[0] = 1;
+  mint position[1] = {0};
+  for (size_t i = 0; i < prefix.size(); ++i) {
+    ++position[0];
+    libData->MTensor_setInteger(*output, position, prefix[i]);
+  }
+  ++position[0];
   libData->MTensor_setInteger(*output, position, state.headState);
   for (size_t i = 0; i < state.tape.size(); ++i) {
-    position[0] = i + 2;
+    ++position[0];
     libData->MTensor_setInteger(*output, position, state.tape[i]);
   }
 }
@@ -224,7 +231,7 @@ int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument
 
 PostTagHistory historyEvaluator_;
 
-int postTagSystemFinalState(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
   if (argc != 3) {
     return LIBRARY_FUNCTION_ERROR;
   }
@@ -233,7 +240,7 @@ int postTagSystemFinalState(WolframLibraryData libData, mint argc, MArgument* ar
     const auto inState = getState(libData, MArgument_getInteger(argv[0]), MArgument_getMTensor(argv[1]));
     const auto outState = historyEvaluator_.evaluate(inState, MArgument_getInteger(argv[2]));
     MTensor output;
-    putState(libData, outState, &output);
+    putState(libData, outState.finalState, &output, {outState.eventCount});
     MArgument_setMTensor(result, output);
   } catch (...) {
     return LIBRARY_FUNCTION_ERROR;
@@ -292,6 +299,6 @@ EXTERN_C int initStates(WolframLibraryData libData, mint argc, MArgument* argv, 
   return PostTagSystem::initStates(libData, argc, argv, result);
 }
 
-EXTERN_C int postTagSystemFinalState(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
-  return PostTagSystem::postTagSystemFinalState(libData, argc, argv, result);
+EXTERN_C int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
+  return PostTagSystem::evaluatePostTagSystem(libData, argc, argv, result);
 }

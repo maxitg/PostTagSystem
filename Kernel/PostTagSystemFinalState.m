@@ -30,7 +30,7 @@ expr : PostTagSystemFinalState[args___] := ModuleScope[
 
 postTagSystemFinalState[{initHead : 0 | 1 | 2, initTape : {(0 | 1) ...}},
                         maxEventCount_Integer ? (0 <= # < 2^63 && Mod[#, 8] == 0 &)] :=
-  Through[{First, Rest}[cpp$postTagSystemFinalState[initHead, initTape, maxEventCount]]]
+  Through[{#[[2]] &, #[[3 ;; ]] &}[cpp$evaluatePostTagSystem[initHead, initTape, maxEventCount]]]
 
 postTagSystemFinalState[init : Except[{_, _}], _] := throw[Failure["invalidStateFormat", <|"init" -> init|>]];
 
