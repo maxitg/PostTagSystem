@@ -12,33 +12,19 @@ If the system reaches a state with <= 8 tape cells before maxEventCount$ is reac
 
 SyntaxInformation[PostTagSystemFinalState] = {"ArgumentsPattern" -> {init_, maxEventCount_}};
 
-PostTagSystemFinalState::invalidStateFormat =
-  "Initial state `1` at position `2` in `3` must be a pair {phase, tape}.";
-PostTagSystemFinalState::invalidInitPhase = "Initial phase `1` at position `2` in `3` must be 0, 1, or 2.";
-PostTagSystemFinalState::invalidInitTape = "Initial tape `1` at position `2` in `3` must be a list of 0s and 1s.";
-PostTagSystemFinalState::eventCountNotInteger = "Max event count `1` at position `2` in `3` must be an integer.";
-PostTagSystemFinalState::eventCountNegative = "Max event count `1` at position `2` in `3` must not be negative.";
-PostTagSystemFinalState::eventCountTooLarge = "Max event count `1` at position `2` in `3` must be smaller than 2^63.";
-PostTagSystemFinalState::eventCountUneven = "Max event count `1` at position `2` in `3` must be a multiple of 8.";
+declareMessage[General::invalidStateFormat, "Initial state `init` in `expr` must be a pair {phase, tape}."];
+declareMessage[General::invalidInitPhase, "Initial phase `initPhase` in `expr` must be 0, 1, or 2."];
+declareMessage[General::invalidInitTape, "Initial tape `initTape` in `expr` must be a list of 0s and 1s."];
+declareMessage[General::eventCountNotInteger, "Max event count `eventCount` in `expr` must be an integer."];
+declareMessage[General::eventCountNegative, "Max event count `eventCount` in `expr` must not be negative."];
+declareMessage[General::eventCountTooLarge, "Max event count `eventCount` in `expr` must be smaller than 2^63."];
+declareMessage[General::eventCountUneven, "Max event count `eventCount` in `expr` must be a multiple of 8."];
+declareMessage[
+  PostTagSystemFinalState::invalidArgumentCount, "Expected `expected` arguments in `expr` instead of `actual`."];
 
 expr : PostTagSystemFinalState[args___] := ModuleScope[
-  result = Catch[postTagSystemFinalState[args]];
-  If[FailureQ[result], Switch[result[[1]],
-    "invalidStateFormat",
-      Message[PostTagSystemFinalState::invalidStateFormat, result[[2, "Init"]], 1, HoldForm[expr]],
-    "invalidInitPhase",
-      Message[PostTagSystemFinalState::invalidInitPhase, result[[2, "InitPhase"]], {1, 1}, HoldForm[expr]],
-    "invalidInitTape",
-      Message[PostTagSystemFinalState::invalidInitTape, result[[2, "InitTape"]], {1, 2}, HoldForm[expr]],
-    "eventCountNotInteger",
-      Message[PostTagSystemFinalState::eventCountNotInteger, result[[2, "EventCount"]], 2, HoldForm[expr]],
-    "eventCountNegative",
-      Message[PostTagSystemFinalState::eventCountNegative, result[[2, "EventCount"]], 2, HoldForm[expr]],
-    "eventCountTooLarge",
-      Message[PostTagSystemFinalState::eventCountTooLarge, result[[2, "EventCount"]], 2, HoldForm[expr]],
-    "eventCountUneven",
-      Message[PostTagSystemFinalState::eventCountUneven, result[[2, "EventCount"]], 2, HoldForm[expr]]
-  ]];
+  result = Catch[
+    postTagSystemFinalState[args], _ ? FailureQ, message[PostTagSystemFinalState, #, <|"expr" -> HoldForm[expr]|>] &];
   result /; !FailureQ[result]
 ];
 
@@ -46,27 +32,25 @@ postTagSystemFinalState[{initHead : 0 | 1 | 2, initTape : {(0 | 1) ...}},
                         maxEventCount_Integer ? (0 <= # < 2^63 && Mod[#, 8] == 0 &)] :=
   Through[{First, Rest}[cpp$postTagSystemFinalState[initHead, initTape, maxEventCount]]]
 
-postTagSystemFinalState[init : Except[{_, _}], _] := Throw[Failure["invalidStateFormat", <|"Init" -> init|>]];
+postTagSystemFinalState[init : Except[{_, _}], _] := throw[Failure["invalidStateFormat", <|"init" -> init|>]];
 
 postTagSystemFinalState[{initHead : Except[0 | 1 | 2], _}, _] :=
-  Throw[Failure["invalidInitPhase", <|"InitPhase" -> initHead|>]];
+  throw[Failure["invalidInitPhase", <|"initPhase" -> initHead|>]];
 
 postTagSystemFinalState[{_, initTape : Except[{(0 | 1) ...}]}, _] :=
-  Throw[Failure["invalidInitTape", <|"InitTape" -> initTape|>]];
+  throw[Failure["invalidInitTape", <|"initTape" -> initTape|>]];
 
 postTagSystemFinalState[{_, _}, maxEventCount : Except[_Integer]] :=
-  Throw[Failure["eventCountNotInteger", <|"EventCount" -> maxEventCount|>]];
+  throw[Failure["eventCountNotInteger", <|"eventCount" -> maxEventCount|>]];
 
 postTagSystemFinalState[{_, _}, maxEventCount_Integer ? (# < 0 &)] :=
-  Throw[Failure["eventCountNegative", <|"EventCount" -> maxEventCount|>]];
+  throw[Failure["eventCountNegative", <|"eventCount" -> maxEventCount|>]];
 
 postTagSystemFinalState[{_, _}, maxEventCount_Integer ? (# >= 2^63 &)] :=
-  Throw[Failure["eventCountTooLarge", <|"EventCount" -> maxEventCount|>]];
+  throw[Failure["eventCountTooLarge", <|"eventCount" -> maxEventCount|>]];
 
 postTagSystemFinalState[{_, _}, maxEventCount_Integer ? (0 <= # < 2^63 && Mod[#, 8] != 0 &)] :=
-  Throw[Failure["eventCountUneven", <|"EventCount" -> maxEventCount|>]];
+  throw[Failure["eventCountUneven", <|"eventCount" -> maxEventCount|>]];
 
-postTagSystemFinalState[args___] := (
-  Developer`CheckArgumentCount[PostTagSystemFinalState[args], 2, 2];
-  Throw[Failure["invalidArgumentCount"]];
-);
+postTagSystemFinalState[args___] :=
+  throw[Failure["invalidArgumentCount", <|"expected" -> 2, "actual" -> Length[{args}]|>]];
