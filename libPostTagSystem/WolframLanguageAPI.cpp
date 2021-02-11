@@ -91,6 +91,31 @@ PostTagState getState(WolframLibraryData libData, const mint headState, const MT
   return result;
 }
 
+std::vector<PostTagState> getStateVector(WolframLibraryData libData,
+                                         const MTensor heads,
+                                         const MTensor tapeLengths,
+                                         const MTensor catenatedTapes) {
+  const auto stateCount = libData->MTensor_getFlattenedLength(heads);
+  const auto headsData = libData->MTensor_getIntegerData(heads);
+  const auto lengthsData = libData->MTensor_getIntegerData(tapeLengths);
+  const auto catenatedTapesData = libData->MTensor_getIntegerData(catenatedTapes);
+
+  std::vector<PostTagState> result;
+  result.reserve(stateCount);
+  size_t catenatedTapesPosition = 0;
+  for (mint stateIndex = 0; stateIndex < stateCount; ++stateIndex) {
+    std::vector<bool> tape;
+    tape.reserve(lengthsData[stateIndex]);
+    const auto tapeEnd = catenatedTapesPosition + lengthsData[stateIndex];
+    for (; catenatedTapesPosition < tapeEnd; ++catenatedTapesPosition) {
+      tape.push_back(catenatedTapesData[catenatedTapesPosition]);
+    }
+    result.push_back({tape, static_cast<uint8_t>(headsData[stateIndex])});
+  }
+
+  return result;
+}
+
 int addEvolutionStartingFromState(WolframLibraryData libData, mint argc, MArgument* argv) {
   if (argc != 3) {
     return LIBRARY_FUNCTION_ERROR;
@@ -232,13 +257,15 @@ int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument
 PostTagHistory historyEvaluator_;
 
 int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
-  if (argc != 3) {
+  if (argc != 6) {
     return LIBRARY_FUNCTION_ERROR;
   }
 
   try {
     const auto inState = getState(libData, MArgument_getInteger(argv[0]), MArgument_getMTensor(argv[1]));
-    const auto outState = historyEvaluator_.evaluate(inState, MArgument_getInteger(argv[2]));
+    const auto checkpoints = getStateVector(
+        libData, MArgument_getMTensor(argv[3]), MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]));
+    const auto outState = historyEvaluator_.evaluate(inState, MArgument_getInteger(argv[2]), checkpoints);
     MTensor output;
     putState(libData, outState.finalState, &output, {outState.eventCount});
     MArgument_setMTensor(result, output);
