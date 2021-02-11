@@ -19,6 +19,10 @@ class PostTagHistory::Implementation {
     std::queue<uint8_t> chunks;
     uint8_t lastChunkSize;
     uint8_t phase;
+
+    bool operator==(const ChunkedState& other) const {
+      return phase == other.phase && lastChunkSize == other.lastChunkSize && chunks == other.chunks;
+    }
   };
 
   static constexpr uint16_t chunkCount = 768;
@@ -33,12 +37,19 @@ class PostTagHistory::Implementation {
  public:
   Implementation() : chunkEvaluationTable_(createChunkEvaluationTable()) {}
 
-  EvaluationResult evaluate(const PostTagState& init, const uint64_t maxEvents) const {
+  EvaluationResult evaluate(const PostTagState& init,
+                            const uint64_t maxEvents,
+                            const std::vector<PostTagState>& checkpoints) const {
     if (maxEvents % 8 != 0) {
       return {{}, std::numeric_limits<uint8_t>::max()};
     }
     auto chunkedState = toChunkedState(init);
-    const auto eventCount = evaluate(&chunkedState, maxEvents);
+    std::vector<ChunkedState> chunkedCheckpoints;
+    chunkedCheckpoints.reserve(checkpoints.size());
+    for (const auto& checkpoint : checkpoints) {
+      chunkedCheckpoints.push_back(toChunkedState(checkpoint));
+    }
+    const auto eventCount = evaluate(&chunkedState, maxEvents, chunkedCheckpoints);
     return {fromChunkedStateDestructively(&chunkedState), eventCount};
   }
 
@@ -106,9 +117,12 @@ class PostTagHistory::Implementation {
     }
   }
 
-  uint64_t evaluate(ChunkedState* state, const uint64_t maxEvents) const {
+  uint64_t evaluate(ChunkedState* state, const uint64_t maxEvents, const std::vector<ChunkedState>& checkpoints) const {
     uint64_t eventCount;
     for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1; eventCount += 8) {
+      for (const auto& checkpoint : checkpoints) {
+        if (checkpoint == *state) return eventCount;
+      }
       evaluateOnce(state);
     }
     return eventCount;
@@ -142,7 +156,9 @@ class PostTagHistory::Implementation {
 
 PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
 
-PostTagHistory::EvaluationResult PostTagHistory::evaluate(const PostTagState& init, const uint64_t maxEvents) const {
-  return implementation_->evaluate(init, maxEvents);
+PostTagHistory::EvaluationResult PostTagHistory::evaluate(const PostTagState& init,
+                                                          const uint64_t maxEvents,
+                                                          const std::vector<PostTagState>& checkpoints) const {
+  return implementation_->evaluate(init, maxEvents, checkpoints);
 }
 }  // namespace PostTagSystem
