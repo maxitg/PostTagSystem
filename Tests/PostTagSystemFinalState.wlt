@@ -9,8 +9,8 @@
       testSymbolLeak[PostTagSystemFinalState[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858048]],
 
       With[{nineZeros = ConstantArray[0, 9]}, {
-        testUnevaluated[PostTagSystemFinalState[], {PostTagSystemFinalState::invalidArgumentCount}],
-        testUnevaluated[PostTagSystemFinalState[1, 2, 3], {PostTagSystemFinalState::invalidArgumentCount}],
+        testUnevaluated[PostTagSystemFinalState[], {PostTagSystemFinalState::invalidArgumentCountRange}],
+        testUnevaluated[PostTagSystemFinalState[1, 2, 3], {PostTagSystemFinalState::invalidArgumentCountRange}],
         testUnevaluated[PostTagSystemFinalState[#, 8],
                         {PostTagSystemFinalState::invalidStateFormat}] & /@ {1, {1, 2, 3}, {1}},
         testUnevaluated[PostTagSystemFinalState[{#, nineZeros}, 8],
