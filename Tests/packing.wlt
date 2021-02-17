@@ -41,7 +41,10 @@
       testUnevaluated[
         FromPackedTagSystemState["002211", 2][{0, {1}}], FromPackedTagSystemState::invalidArgumentCountRange],
       testUnevaluated[
-        FromPackedTagSystemState["002211"][{0, {1}}, 4], FromPackedTagSystemState::invalidArgumentCountRange]
+        FromPackedTagSystemState["002211"][{0, {1}}, 4], FromPackedTagSystemState::invalidArgumentCountRange],
+
+      VerificationTest[ToPackedTagSystemState["000010111"][{0, 0, 1, 0, 1}], {0, {0, 0, 1, 0, 1}}],
+      VerificationTest[FromPackedTagSystemState["000010111"][{0, {0, 0, 1, 0, 1}}], {0, 0, 1, 0, 1}]
     }
   |>
 |>

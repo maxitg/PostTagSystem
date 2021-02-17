@@ -76,6 +76,16 @@
                                    {0, {0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}},
                                    656],
           <|"EventCount" -> 656, "FinalState" -> {1, {0, 0, 1, 0, 0, 0, 0, 0, 0, 0}}|>
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["000010111", {0, IntegerDigits[716, 2, 10]}, 10^9],
+          <|"EventCount" -> 100280, "FinalState" -> {0, {0, 0, 0, 0, 0, 0}}|>
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["000010111", {0, IntegerDigits[345, 2, 9]}, 10^9],
+          <|"EventCount" -> 26760, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>
         ]
       }]
     }

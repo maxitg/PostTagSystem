@@ -21,7 +21,7 @@ expr : ToPackedTagSystemState[args1___][args2___] := ModuleScope[
   result /; !FailureQ[result]
 ];
 
-$systems = {"Post", "002211"};
+$systems = {"Post", "002211", "000010111"};
 
 With[{systems = $systems},
   FE`Evaluate[FEPrivate`AddSpecialArgCompletion["ToPackedTagSystemState" -> {systems}]]
@@ -47,6 +47,10 @@ toPackedTagSystemState["Post"][unpackedTape_] :=
 toPackedTagSystemState["002211"][unpackedTape : {(0 | 1 | 2 | Verbatim[_]) ...}] := toPackedState[2, 2][unpackedTape];
 toPackedTagSystemState["002211"][unpackedTape_] :=
   throw[Failure["invalidUnpackedTape", <|"tape" -> unpackedTape, "maxCellValue" -> 2|>]];
+
+toPackedTagSystemState["000010111"][unpackedTape : {(0 | 1 | Verbatim[_]) ...}] := toPackedState[1, 1][unpackedTape];
+toPackedTagSystemState["000010111"][unpackedTape_] :=
+  throw[Failure["invalidUnpackedTape", <|"tape" -> unpackedTape, "maxCellValue" -> 1|>]];
 
 toPackedTagSystemState[args1___][args2___] /; (Length[{args1}] =!= 1 || Length[{args2}] =!= 1) :=
   throw[Failure["invalidArgumentCountRange",
@@ -86,6 +90,10 @@ fromPackedTagSystemState["Post"][packedState_] := throw[Failure["invalidStateFor
 fromPackedTagSystemState["002211"][packedState : {0 | 1, {(0 | 1) ...}}] /; Mod[Length[packedState], 2] == 0 :=
   fromPackedState[2, 2][packedState];
 fromPackedTagSystemState["002211"][packedState_] := throw[Failure["invalidStateFormat", <|"init" -> packedState|>]];
+
+fromPackedTagSystemState["000010111"][packedState_ : {0, {(0 | 1) ...}}] := fromPackedState[1, 1][packedState];
+fromPackedTagSystemState["000010111"][packedState : Except[{0, {(0 | 1) ...}}]] :=
+  throw[Failure["invalidStateFormat", <|"init" -> packedState|>]];
 
 fromPackedTagSystemState[args1___][args2___] /; (Length[{args1}] =!= 1 || Length[{args2}] =!= 1) :=
   throw[Failure["invalidArgumentCountRange",

@@ -40,7 +40,7 @@ expr : GenerateTagSystemHistory[args___] := ModuleScope[
   result /; !FailureQ[result]
 ];
 
-$systems = <|"Post" -> 0, "002211" -> 1|>;
+$systems = <|"Post" -> 0, "002211" -> 1, "000010111" -> 2|>;
 
 With[{systems = Keys[$systems]},
   FE`Evaluate[FEPrivate`AddSpecialArgCompletion["GenerateTagSystemHistory" -> {systems, 0, 0, 0}]]
@@ -49,7 +49,7 @@ With[{systems = Keys[$systems]},
 $systemPattern = Alternatives @@ Keys[$systems];
 $statePattern = {0 | 1 | 2, {(0 | 1) ...}};
 
-$stepsAtATime = <|"Post" -> 8, "002211" -> 4|>;
+$stepsAtATime = <|"Post" -> 8, "002211" -> 4, "000010111" -> 4|>;
 maxEventCountPattern[system_] := (_Integer ? (0 <= # < 2^63 && Mod[#, $stepsAtATime[system]] == 0 &));
 
 generateTagSystemHistory[system : $systemPattern,
