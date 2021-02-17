@@ -27,8 +27,8 @@ class PostTagHistory::Implementation {
   };
 
   struct ChunkedRule {
-    int tapeAtomLength;
-    int phaseCount;
+    uint8_t tapeAtomLength;
+    uint8_t phaseCount;
     std::vector<uint8_t> outputTapes;
     std::vector<uint8_t> outputLengths;
     std::vector<uint8_t> outputPhases;
