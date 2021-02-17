@@ -9,8 +9,9 @@
       testSymbolLeak[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858048]],
 
       With[{nineZeros = ConstantArray[0, 9]}, {
-        testUnevaluated[GeneratePostTagSystemHistory[], {GeneratePostTagSystemHistory::invalidArgumentCount}],
-        testUnevaluated[GeneratePostTagSystemHistory[1, 2, 3], {GeneratePostTagSystemHistory::invalidArgumentCount}],
+        testUnevaluated[GeneratePostTagSystemHistory[], {GeneratePostTagSystemHistory::invalidArgumentCountRange}],
+        testUnevaluated[GeneratePostTagSystemHistory[1, 2, 3],
+                        {GeneratePostTagSystemHistory::invalidArgumentCountRange}],
         testUnevaluated[GeneratePostTagSystemHistory[#, 8],
                         {GeneratePostTagSystemHistory::invalidStateFormat}] & /@ {1, {1, 2, 3}, {1}},
         testUnevaluated[GeneratePostTagSystemHistory[{#, nineZeros}, 8],
@@ -25,6 +26,8 @@
                         {GeneratePostTagSystemHistory::eventCountTooLarge}],
         testUnevaluated[GeneratePostTagSystemHistory[{0, nineZeros}, #],
                         {GeneratePostTagSystemHistory::eventCountUneven}] & /@ {1, 2, 3, 4, 5, 6, 7, 9, 100},
+        testUnevaluated[GeneratePostTagSystemHistory[{0, nineZeros}, 8, #],
+                        {GeneratePostTagSystemHistory::invalidCheckpoints}] & /@ {0, {0, 0}, {{0, nineZeros}, 0}},
 
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}, 8],
                          <|"EventCount" -> 8, "FinalState" -> {1, {0, 0, 0, 0, 0, 0, 0}}|>],
@@ -40,6 +43,21 @@
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, #],
                          <|"EventCount" -> 20858048, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>] & /@
           {20858048, 20858048 + 8, 2^32 - 8, 2^63 - 8},
+
+        VerificationTest[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
+                                                      208570000,
+                                                      {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}],
+                         <|"EventCount" -> 20858000,
+                           "FinalState" -> {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}|>],
+        VerificationTest[
+          GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
+                                       208570000,
+                                       {{2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}},
+                                        {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1,
+                                             1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}}],
+          <|"EventCount" -> 20857000,
+            "FinalState" -> {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1,
+                                 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}|>],
 
         randomInit[seed_] := ModuleScope[BlockRandom[
           phase = RandomInteger[{0, 2}];
@@ -58,10 +76,14 @@
 
         With[{randomInits = randomInit /@ Range[1000]},
           Function[{init}, MapIndexed[With[{
-              eventCount = 8 * (#2[[1]] - 1)},
+              eventCount = 8 * (#2[[1]] - 1)}, {
             VerificationTest[GeneratePostTagSystemHistory[init, eventCount],
-                             <|"EventCount" -> eventCount, "FinalState" -> #1|>]
-          ] &, stateList[init, 8, 8]]] /@ randomInits
+                             <|"EventCount" -> eventCount, "FinalState" -> #1|>],
+            VerificationTest[
+              GeneratePostTagSystemHistory[init, eventCount, PostTagSystemFinalState[init, Round[eventCount / 2, 8]]],
+              <|"EventCount" -> Round[eventCount / 2, 8],
+                "FinalState" -> PostTagSystemFinalState[init, Round[eventCount / 2, 8]]|>]
+          }] &, stateList[init, 8, 8]]] /@ randomInits
         ]
       }]
     }

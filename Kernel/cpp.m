@@ -102,9 +102,12 @@ $libraryFunctions = {
     LibraryFunctionLoad[
       $libraryFile,
       "evaluatePostTagSystem",
-      {Integer,      (* head state *)
-       {Integer, 1}, (* tape state *)
-       Integer},     (* event count *)
+      {Integer,       (* head state *)
+       {Integer, 1},  (* tape state *)
+       Integer,       (* event count *)
+       {Integer, 1},  (* checkpoint heads *)
+       {Integer, 1},  (* checkpoint lengths *)
+       {Integer, 1}}, (* catenated checkpoint tapes *)
       {Integer, 1}], (* {eventCount, headState, tape[[1]], tape[[2]], ...} *)
     $Failed]
 };

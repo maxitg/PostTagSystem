@@ -16,7 +16,9 @@ class PostTagHistory {
   };
 
   PostTagHistory();
-  EvaluationResult evaluate(const PostTagState& init, uint64_t maxEvents) const;
+  EvaluationResult evaluate(const PostTagState& init,
+                            uint64_t maxEvents,
+                            const std::vector<PostTagState>& checkpoints = {}) const;
 
  private:
   class Implementation;
