@@ -257,15 +257,16 @@ int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument
 PostTagHistory historyEvaluator_;
 
 int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
-  if (argc != 6) {
+  if (argc != 7) {
     return LIBRARY_FUNCTION_ERROR;
   }
 
   try {
-    const auto inState = getState(libData, MArgument_getInteger(argv[0]), MArgument_getMTensor(argv[1]));
+    const PostTagHistory::NamedRule systemCode = static_cast<PostTagHistory::NamedRule>(MArgument_getInteger(argv[0]));
+    const auto inState = getState(libData, MArgument_getInteger(argv[1]), MArgument_getMTensor(argv[2]));
     const auto checkpoints = getStateVector(
-        libData, MArgument_getMTensor(argv[3]), MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]));
-    const auto outState = historyEvaluator_.evaluate(inState, MArgument_getInteger(argv[2]), checkpoints);
+        libData, MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]), MArgument_getMTensor(argv[6]));
+    const auto outState = historyEvaluator_.evaluate(systemCode, inState, MArgument_getInteger(argv[3]), checkpoints);
     MTensor output;
     putState(libData, outState.finalState, &output, {outState.eventCount});
     MArgument_setMTensor(result, output);

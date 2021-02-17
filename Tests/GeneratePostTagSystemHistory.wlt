@@ -11,7 +11,7 @@
       With[{nineZeros = ConstantArray[0, 9]}, {
         testUnevaluated[GeneratePostTagSystemHistory[], {GeneratePostTagSystemHistory::invalidArgumentCountRange}],
         testUnevaluated[GeneratePostTagSystemHistory[1, 2, 3],
-                        {GeneratePostTagSystemHistory::invalidArgumentCountRange}],
+                        {GeneratePostTagSystemHistory::invalidStateFormat}],
         testUnevaluated[GeneratePostTagSystemHistory[#, 8],
                         {GeneratePostTagSystemHistory::invalidStateFormat}] & /@ {1, {1, 2, 3}, {1}},
         testUnevaluated[GeneratePostTagSystemHistory[{#, nineZeros}, 8],

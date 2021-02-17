@@ -15,10 +15,13 @@ class PostTagHistory {
     uint64_t eventCount;
   };
 
+  enum class NamedRule { Post = 0, Rule002211 = 1 };
+
   PostTagHistory();
-  EvaluationResult evaluate(const PostTagState& init,
+  EvaluationResult evaluate(const NamedRule& rule,
+                            const PostTagState& init,
                             uint64_t maxEvents,
-                            const std::vector<PostTagState>& checkpoints = {}) const;
+                            const std::vector<PostTagState>& checkpoints = {});
 
  private:
   class Implementation;

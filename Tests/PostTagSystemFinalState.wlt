@@ -10,7 +10,7 @@
 
       With[{nineZeros = ConstantArray[0, 9]}, {
         testUnevaluated[PostTagSystemFinalState[], {PostTagSystemFinalState::invalidArgumentCountRange}],
-        testUnevaluated[PostTagSystemFinalState[1, 2, 3], {PostTagSystemFinalState::invalidArgumentCountRange}],
+        testUnevaluated[PostTagSystemFinalState[1, 2, 3], {PostTagSystemFinalState::invalidStateFormat}],
         testUnevaluated[PostTagSystemFinalState[#, 8],
                         {PostTagSystemFinalState::invalidStateFormat}] & /@ {1, {1, 2, 3}, {1}},
         testUnevaluated[PostTagSystemFinalState[{#, nineZeros}, 8],
