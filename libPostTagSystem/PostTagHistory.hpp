@@ -15,7 +15,7 @@ class PostTagHistory {
     uint64_t eventCount;
   };
 
-  enum class NamedRule { Post = 0, Rule002211 = 1 };
+  enum class NamedRule { Post = 0, Rule002211 = 1, Rule000010111 = 2 };
 
   PostTagHistory();
   EvaluationResult evaluate(const NamedRule& rule,
