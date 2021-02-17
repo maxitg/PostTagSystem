@@ -18,11 +18,17 @@ TEST(PostTagSystem, simpleEvolution) {
 
 TEST(PostTagSystem, chunkEvaluationTable) {
   PostTagHistory history;
-  ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 0).finalState.tape[8], 1);
-  ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 8).finalState.tape.size(), 10);
-  ASSERT_EQ(history.evaluate({{1, 0, 1, 1, 1, 0, 1, 1}, 0}, 0).finalState.tape.size(), 8);
-  ASSERT_EQ(history.evaluate({{1, 1, 1, 1, 1, 1, 1, 1, 0}, 2}, 8).finalState.tape.size(), 12);
-  ASSERT_EQ(history.evaluate({{}, 0}, 8).finalState.tape.size(), 0);
+  ASSERT_EQ(history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 0).finalState.tape[8],
+            1);
+  ASSERT_EQ(
+      history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 8).finalState.tape.size(),
+      10);
+  ASSERT_EQ(history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1}, 0}, 0).finalState.tape.size(),
+            8);
+  ASSERT_EQ(
+      history.evaluate(PostTagHistory::NamedRule::Post, {{1, 1, 1, 1, 1, 1, 1, 1, 0}, 2}, 8).finalState.tape.size(),
+      12);
+  ASSERT_EQ(history.evaluate(PostTagHistory::NamedRule::Post, {{}, 0}, 8).finalState.tape.size(), 0);
 }
 
 TEST(PostTagHistory, checkpoints) {
@@ -30,7 +36,8 @@ TEST(PostTagHistory, checkpoints) {
   const PostTagState init = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}, 0};
   constexpr uint64_t lateCheckpointEventCount = 20858000;
   const PostTagState lateCheckpoint = {{0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, 2};
-  const auto lateEvaluationResult = history.evaluate(init, 10 * lateCheckpointEventCount, {lateCheckpoint});
+  const auto lateEvaluationResult =
+      history.evaluate(PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {lateCheckpoint});
   ASSERT_EQ(lateEvaluationResult.eventCount, lateCheckpointEventCount);
   ASSERT_EQ(lateEvaluationResult.finalState.headState, lateCheckpoint.headState);
   ASSERT_EQ(lateEvaluationResult.finalState.tape, lateCheckpoint.tape);
@@ -39,10 +46,28 @@ TEST(PostTagHistory, checkpoints) {
   const PostTagState earlyCheckpoint = {{1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1,
                                          1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1},
                                         1};
-  const auto earlyEvaluationResult =
-      history.evaluate(init, 10 * lateCheckpointEventCount, {lateCheckpoint, earlyCheckpoint});
+  const auto earlyEvaluationResult = history.evaluate(
+      PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {lateCheckpoint, earlyCheckpoint});
   ASSERT_EQ(earlyEvaluationResult.eventCount, earlyCheckpointEventCount);
   ASSERT_EQ(earlyEvaluationResult.finalState.headState, earlyCheckpoint.headState);
   ASSERT_EQ(earlyEvaluationResult.finalState.tape, earlyCheckpoint.tape);
+}
+
+TEST(PostTagSystem, rule002211) {
+  PostTagHistory history;
+  const PostTagState init = {{0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}, 0};
+  constexpr uint64_t eventCount = 4;
+  const auto evaluationResult = history.evaluate(PostTagHistory::NamedRule::Rule002211, init, eventCount);
+  ASSERT_EQ(evaluationResult.eventCount, 4);
+  ASSERT_EQ(evaluationResult.finalState.headState, 1);
+  std::vector<bool> expectedTape = {0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0};
+  ASSERT_EQ(evaluationResult.finalState.tape, expectedTape);
+
+  const PostTagState anotherInit = {{0, 0, 0, 1, 1, 0, 1, 0, 0, 0}, 0};
+  const auto anotherEvaluationResult = history.evaluate(PostTagHistory::NamedRule::Rule002211, anotherInit, 4);
+  ASSERT_EQ(anotherEvaluationResult.eventCount, 4);
+  ASSERT_EQ(anotherEvaluationResult.finalState.headState, 1);
+  std::vector<bool> anotherExpectedTape = {0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1};
+  ASSERT_EQ(anotherEvaluationResult.finalState.tape, anotherExpectedTape);
 }
 }  // namespace PostTagSystem
