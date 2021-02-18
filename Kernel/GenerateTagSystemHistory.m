@@ -64,7 +64,9 @@ generateTagSystemHistory[system : $systemPattern,
                                         First /@ checkpoints,
                                         Length /@ Last /@ checkpoints,
                                         Catenate[Last /@ checkpoints]];
-  <|"EventCount" -> First[cppOutput], "FinalState" -> Through[{#[[2]] &, #[[3 ;; ]] &}[cppOutput]]|>
+  <|"EventCount" -> cppOutput[[1]],
+    "MaxTapeLength" -> cppOutput[[2]],
+    "FinalState" -> Through[{#[[3]] &, #[[4 ;; ]] &}[cppOutput]]|>
 ];
 
 generateTagSystemHistory[

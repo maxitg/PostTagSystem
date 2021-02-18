@@ -58,7 +58,7 @@ class PostTagHistory::Implementation {
                             const std::vector<PostTagState>& checkpoints) {
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (maxEvents % chunkEvaluationTable.eventsAtOnce != 0) {
-      return {{}, std::numeric_limits<uint8_t>::max()};
+      return {{{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
     std::vector<ChunkedState> chunkedCheckpoints;
@@ -66,8 +66,10 @@ class PostTagHistory::Implementation {
     for (const auto& checkpoint : checkpoints) {
       chunkedCheckpoints.push_back(toChunkedState(checkpoint));
     }
-    const auto eventCount = evaluate(chunkEvaluationTable, &chunkedState, maxEvents, chunkedCheckpoints);
-    return {fromChunkedStateDestructively(&chunkedState), eventCount};
+    uint64_t maxTapeLength = tapeLength(chunkedState);
+    const auto eventCount =
+        evaluate(chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, chunkedCheckpoints);
+    return {fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
   }
 
  private:
@@ -147,6 +149,7 @@ class PostTagHistory::Implementation {
 
   uint64_t evaluate(const ChunkEvaluationTable& evaluationTable,
                     ChunkedState* state,
+                    uint64_t* maxTapeLength,
                     const uint64_t maxEvents,
                     const std::vector<ChunkedState>& checkpoints) const {
     uint64_t eventCount;
@@ -156,8 +159,13 @@ class PostTagHistory::Implementation {
         if (checkpoint == *state) return eventCount;
       }
       evaluateOnce(evaluationTable, state);
+      *maxTapeLength = std::max(*maxTapeLength, tapeLength(*state));
     }
     return eventCount;
+  }
+
+  uint64_t tapeLength(const ChunkedState& state) const {
+    return std::max(0, static_cast<int>(state.chunks.size()) - 1) * 8 + state.lastChunkSize;
   }
 
   void evaluateOnce(const ChunkEvaluationTable& evaluationTable, ChunkedState* state) const {
