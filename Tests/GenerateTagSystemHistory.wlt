@@ -31,19 +31,25 @@
                         {GenerateTagSystemHistory::invalidCheckpoints}] & /@ {0, {0, 0}, {{0, nineZeros}, 0}},
 
         VerificationTest[GenerateTagSystemHistory["Post", {0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}, 8],
-                         <|"EventCount" -> 8, "FinalState" -> {1, {0, 0, 0, 0, 0, 0, 0}}|>],
-        VerificationTest[GenerateTagSystemHistory["Post", {2, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
-                         <|"EventCount" -> 8, "FinalState" -> {1, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}|>],
-        VerificationTest[GenerateTagSystemHistory["Post", {0, {}}, 8], <|"EventCount" -> 0, "FinalState" -> {0, {}}|>],
+                         <|"EventCount" -> 8, "MaxTapeLength" -> 9, "FinalState" -> {1, {0, 0, 0, 0, 0, 0, 0}}|>],
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {2, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
+          <|"EventCount" -> 8, "MaxTapeLength" -> 12, "FinalState" -> {1, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}|>],
+        VerificationTest[GenerateTagSystemHistory["Post", {0, {}}, 8],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 0, "FinalState" -> {0, {}}|>],
         VerificationTest[GenerateTagSystemHistory["Post", {0, {0}}, 8],
-                         <|"EventCount" -> 0, "FinalState" -> {0, {0}}|>],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 1, "FinalState" -> {0, {0}}|>],
         VerificationTest[GenerateTagSystemHistory["Post", {0, nineZeros}, 0],
-                         <|"EventCount" -> 0, "FinalState" -> {0, nineZeros}|>],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 9, "FinalState" -> {0, nineZeros}|>],
 
         VerificationTest[GenerateTagSystemHistory["Post", {0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858040],
-                         <|"EventCount" -> 20858040, "FinalState" -> {2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}|>],
+                         <|"EventCount" -> 20858040,
+                           "MaxTapeLength" -> 6783,
+                           "FinalState" -> {2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}|>],
         VerificationTest[GenerateTagSystemHistory["Post", {0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, #],
-                         <|"EventCount" -> 20858048, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>] & /@
+                         <|"EventCount" -> 20858048,
+                           "MaxTapeLength" -> 6783,
+                           "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>] & /@
           {20858048, 20858048 + 8, 2^32 - 8, 2^63 - 8},
 
         VerificationTest[GenerateTagSystemHistory["Post",
@@ -51,6 +57,7 @@
                                                   208570000,
                                                   {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}],
                          <|"EventCount" -> 20858000,
+                           "MaxTapeLength" -> 6783,
                            "FinalState" -> {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}|>],
         VerificationTest[
           GenerateTagSystemHistory["Post",
@@ -60,6 +67,7 @@
                                     {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1,
                                          1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}}],
           <|"EventCount" -> 20857000,
+            "MaxTapeLength" -> 6783,
             "FinalState" -> {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1,
                                  0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}|>],
 
@@ -68,6 +76,7 @@
                                    {0, {0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}},
                                    600],
           <|"EventCount" -> 600,
+            "MaxTapeLength" -> 40,
             "FinalState" -> {1, {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1}}|>
         ],
 
@@ -75,17 +84,27 @@
           GenerateTagSystemHistory["002211",
                                    {0, {0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}},
                                    656],
-          <|"EventCount" -> 656, "FinalState" -> {1, {0, 0, 1, 0, 0, 0, 0, 0, 0, 0}}|>
+          <|"EventCount" -> 656, "MaxTapeLength" -> 40, "FinalState" -> {1, {0, 0, 1, 0, 0, 0, 0, 0, 0, 0}}|>
         ],
 
         VerificationTest[
           GenerateTagSystemHistory["000010111", {0, IntegerDigits[716, 2, 10]}, 10^9],
-          <|"EventCount" -> 100280, "FinalState" -> {0, {0, 0, 0, 0, 0, 0}}|>
+          <|"EventCount" -> 100280, "MaxTapeLength" -> 992, "FinalState" -> {0, {0, 0, 0, 0, 0, 0}}|>
         ],
 
         VerificationTest[
           GenerateTagSystemHistory["000010111", {0, IntegerDigits[345, 2, 9]}, 10^9],
-          <|"EventCount" -> 26760, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>
+          <|"EventCount" -> 26760, "MaxTapeLength" -> 557, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {0, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 88]["MaxTapeLength"],
+          20
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {0, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 96]["MaxTapeLength"],
+          20
         ]
       }]
     }

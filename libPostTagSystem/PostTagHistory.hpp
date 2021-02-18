@@ -13,6 +13,7 @@ class PostTagHistory {
   struct EvaluationResult {
     PostTagState finalState;
     uint64_t eventCount;
+    uint64_t maxTapeLength;
   };
 
   enum class NamedRule { Post = 0, Rule002211 = 1, Rule000010111 = 2 };

@@ -268,7 +268,7 @@ int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv
         libData, MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]), MArgument_getMTensor(argv[6]));
     const auto outState = historyEvaluator_.evaluate(systemCode, inState, MArgument_getInteger(argv[3]), checkpoints);
     MTensor output;
-    putState(libData, outState.finalState, &output, {outState.eventCount});
+    putState(libData, outState.finalState, &output, {outState.eventCount, outState.maxTapeLength});
     MArgument_setMTensor(result, output);
   } catch (...) {
     return LIBRARY_FUNCTION_ERROR;

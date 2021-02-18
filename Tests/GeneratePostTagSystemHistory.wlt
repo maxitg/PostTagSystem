@@ -30,24 +30,38 @@
                         {GeneratePostTagSystemHistory::invalidCheckpoints}] & /@ {0, {0, 0}, {{0, nineZeros}, 0}},
 
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 0, 0, 0, 0, 0, 0, 0, 0}}, 8],
-                         <|"EventCount" -> 8, "FinalState" -> {1, {0, 0, 0, 0, 0, 0, 0}}|>],
-        VerificationTest[GeneratePostTagSystemHistory[{2, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
-                         <|"EventCount" -> 8, "FinalState" -> {1, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}|>],
-        VerificationTest[GeneratePostTagSystemHistory[{0, {}}, 8], <|"EventCount" -> 0, "FinalState" -> {0, {}}|>],
-        VerificationTest[GeneratePostTagSystemHistory[{0, {0}}, 8], <|"EventCount" -> 0, "FinalState" -> {0, {0}}|>],
+                         <|"EventCount" -> 8, "MaxTapeLength" -> 9, "FinalState" -> {1, {0, 0, 0, 0, 0, 0, 0}}|>],
+        VerificationTest[
+          GeneratePostTagSystemHistory[{2, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 8],
+          <|"EventCount" -> 8, "MaxTapeLength" -> 12, "FinalState" -> {1, {1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1}}|>],
+        VerificationTest[GeneratePostTagSystemHistory[{0, {}}, 8],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 0, "FinalState" -> {0, {}}|>],
+        VerificationTest[GeneratePostTagSystemHistory[{0, {0}}, 8],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 1, "FinalState" -> {0, {0}}|>],
         VerificationTest[GeneratePostTagSystemHistory[{0, nineZeros}, 0],
-                         <|"EventCount" -> 0, "FinalState" -> {0, nineZeros}|>],
+                         <|"EventCount" -> 0, "MaxTapeLength" -> 9, "FinalState" -> {0, nineZeros}|>],
+
+        (* Tape length verification code (takes ~10 mins to run):
+           Max @ First @ Last @ Reap @ Nest[
+             GeneratePostTagSystemHistory[(Sow @ Length @ Last @ #; #) & @ #["FinalState"], 8] &,
+             <|"FinalState" -> {0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}|>,
+             2607255] *)
 
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858040],
-                         <|"EventCount" -> 20858040, "FinalState" -> {2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}|>],
+                         <|"EventCount" -> 20858040,
+                           "MaxTapeLength" -> 6783,
+                           "FinalState" -> {2, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}|>],
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, #],
-                         <|"EventCount" -> 20858048, "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>] & /@
+                         <|"EventCount" -> 20858048,
+                           "MaxTapeLength" -> 6783,
+                           "FinalState" -> {0, {0, 0, 0, 0, 0, 0, 0}}|>] & /@
           {20858048, 20858048 + 8, 2^32 - 8, 2^63 - 8},
 
         VerificationTest[GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
                                                       208570000,
                                                       {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}],
                          <|"EventCount" -> 20858000,
+                           "MaxTapeLength" -> 6783,
                            "FinalState" -> {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}|>],
         VerificationTest[
           GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
@@ -56,6 +70,7 @@
                                         {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1,
                                              1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}}],
           <|"EventCount" -> 20857000,
+            "MaxTapeLength" -> 6783,
             "FinalState" -> {1, {1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1,
                                  0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1}}|>],
 
@@ -78,11 +93,14 @@
           Function[{init}, MapIndexed[With[{
               eventCount = 8 * (#2[[1]] - 1)}, {
             VerificationTest[GeneratePostTagSystemHistory[init, eventCount],
-                             <|"EventCount" -> eventCount, "FinalState" -> #1|>],
+                             <|"EventCount" -> eventCount, "MaxTapeLength" -> _, "FinalState" -> #1|>,
+                             SameTest -> MatchQ],
             VerificationTest[
               GeneratePostTagSystemHistory[init, eventCount, PostTagSystemFinalState[init, Round[eventCount / 2, 8]]],
               <|"EventCount" -> Round[eventCount / 2, 8],
-                "FinalState" -> PostTagSystemFinalState[init, Round[eventCount / 2, 8]]|>]
+                "MaxTapeLength" -> _,
+                "FinalState" -> PostTagSystemFinalState[init, Round[eventCount / 2, 8]]|>,
+              SameTest -> MatchQ]
           }] &, stateList[init, 8, 8]]] /@ randomInits
         ]
       }]
