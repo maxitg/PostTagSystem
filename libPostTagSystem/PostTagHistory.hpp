@@ -18,11 +18,20 @@ class PostTagHistory {
 
   enum class NamedRule { Post = 0, Rule002211 = 1, Rule000010111 = 2 };
 
+  struct CheckpointSpecFlags {
+    bool powerOfTwoEventCounts;
+  };
+
+  struct CheckpointSpec {
+    std::vector<PostTagState> states;
+    CheckpointSpecFlags flags;
+  };
+
   PostTagHistory();
   EvaluationResult evaluate(const NamedRule& rule,
                             const PostTagState& init,
                             uint64_t maxEvents,
-                            const std::vector<PostTagState>& checkpoints = {});
+                            const CheckpointSpec& checkpointSpec = CheckpointSpec());
 
  private:
   class Implementation;

@@ -108,7 +108,8 @@ $libraryFunctions = {
        Integer,       (* event count *)
        {Integer, 1},  (* checkpoint heads *)
        {Integer, 1},  (* checkpoint lengths *)
-       {Integer, 1}}, (* catenated checkpoint tapes *)
+       {Integer, 1},  (* catenated checkpoint tapes *)
+       {Integer, 1}}, (* special checkpoint flags *)
       {Integer, 1}],  (* {eventCount, maxTapeLength, headState, tape[[1]], tape[[2]], ...} *)
     $Failed]
 };

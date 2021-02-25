@@ -12,6 +12,8 @@ system$ starting from a state with head initPhase$ and tape initTape$ for at mos
 an association containing information about that evolution.
 GeneratePostTagSystemHistory[system$, init$, maxEventCount$, checkpointList$] terminates the evolution once any of the \
 states from checkpointList$ is reached. The states in checkpointList$ are specified using the same format as init$.
+\"PowerOfTwo\" can be used as a special value to automatically create checkpoints from states \
+{0, 1, 2, 4, $$, 2^k, $$}.
 If the system reaches a state with <= 8 bits of tape cells before maxEventCount$ is reached, that state is returned \
 instead.
 ";
@@ -42,8 +44,12 @@ expr : GenerateTagSystemHistory[args___] := ModuleScope[
 
 $systems = <|"Post" -> 0, "002211" -> 1, "000010111" -> 2|>;
 
-With[{systems = Keys[$systems]},
-  FE`Evaluate[FEPrivate`AddSpecialArgCompletion["GenerateTagSystemHistory" -> {systems, 0, 0, 0}]]
+$checkpointSpecSpecialValues = {"PowerOfTwoEventCounts"};
+
+With[{
+    systems = Keys[$systems],
+    checkpointStrings = $checkpointSpecSpecialValues},
+  FE`Evaluate[FEPrivate`AddSpecialArgCompletion["GenerateTagSystemHistory" -> {systems, 0, 0, checkpointStrings}]]
 ];
 
 $systemPattern = Alternatives @@ Keys[$systems];
@@ -52,18 +58,32 @@ $statePattern = {0 | 1 | 2, {(0 | 1) ...}};
 $stepsAtATime = <|"Post" -> 8, "002211" -> 4, "000010111" -> 4|>;
 maxEventCountPattern[system_] := (_Integer ? (0 <= # < 2^63 && Mod[#, $stepsAtATime[system]] == 0 &));
 
+$checkpointSpecPattern = {($statePattern | Alternatives @@ $checkpointSpecSpecialValues) ...};
+
+parseCheckpointSpec[spec_] := ModuleScope[
+  statesOnly = DeleteCases[spec, _String];
+  {
+    First /@ statesOnly,
+    Length /@ Last /@ statesOnly,
+    Catenate[Last /@ statesOnly],
+    Boole /@ (MemberQ[spec, #] &) /@ $checkpointSpecSpecialValues
+  }
+];
+
 generateTagSystemHistory[system : $systemPattern,
                          {initHead : 0 | 1 | 2, initTape : {(0 | 1) ...}},
                          maxEventCount_,
-                         checkpoints : {$statePattern ...} : {}] /;
+                         checkpointSpec : $checkpointSpecPattern : {}] /;
     MatchQ[maxEventCount, maxEventCountPattern[system]] := ModuleScope[
+  {checkpointHeads, checkpointLengths, checkpointTapes, checkpointFlags} = parseCheckpointSpec[checkpointSpec];
   cppOutput = cpp$evaluatePostTagSystem[$systems[system],
                                         initHead,
                                         initTape,
                                         maxEventCount,
-                                        First /@ checkpoints,
-                                        Length /@ Last /@ checkpoints,
-                                        Catenate[Last /@ checkpoints]];
+                                        checkpointHeads,
+                                        checkpointLengths,
+                                        checkpointTapes,
+                                        checkpointFlags];
   <|"EventCount" -> cppOutput[[1]],
     "MaxTapeLength" -> cppOutput[[2]],
     "FinalState" -> Through[{#[[3]] &, #[[4 ;; ]] &}[cppOutput]]|>
