@@ -55,15 +55,15 @@ class PostTagHistory::Implementation {
   EvaluationResult evaluate(const NamedRule& rule,
                             const PostTagState& init,
                             const uint64_t maxEvents,
-                            const std::vector<PostTagState>& checkpoints) {
+                            const CheckpointSpec& checkpointSpec) {
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (maxEvents % chunkEvaluationTable.eventsAtOnce != 0) {
       return {{{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
     std::vector<ChunkedState> chunkedCheckpoints;
-    chunkedCheckpoints.reserve(checkpoints.size());
-    for (const auto& checkpoint : checkpoints) {
+    chunkedCheckpoints.reserve(checkpointSpec.states.size());
+    for (const auto& checkpoint : checkpointSpec.states) {
       chunkedCheckpoints.push_back(toChunkedState(checkpoint));
     }
     uint64_t maxTapeLength = tapeLength(chunkedState);
@@ -199,7 +199,7 @@ PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementati
 PostTagHistory::EvaluationResult PostTagHistory::evaluate(const NamedRule& rule,
                                                           const PostTagState& init,
                                                           const uint64_t maxEvents,
-                                                          const std::vector<PostTagState>& checkpoints) {
+                                                          const CheckpointSpec& checkpoints) {
   return implementation_->evaluate(rule, init, maxEvents, checkpoints);
 }
 }  // namespace PostTagSystem
