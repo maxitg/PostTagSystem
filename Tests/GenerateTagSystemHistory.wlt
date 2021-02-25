@@ -105,6 +105,40 @@
         VerificationTest[
           GenerateTagSystemHistory["Post", {0, {1, 1, 1, 1, 1, 1, 1, 1, 1}}, 96]["MaxTapeLength"],
           20
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {1, {1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1}}, 128, {"PowerOfTwoEventCounts"}][[
+            {"EventCount", "FinalState"}]],
+          <|"EventCount" -> 40, "FinalState" -> {1, {1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1}}|>
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {1, {1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1}}, 128, {}]["EventCount"],
+          128
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {0, {0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1}}, 128, {"PowerOfTwoEventCounts"}][
+            "EventCount"],
+          48
+        ],
+
+        VerificationTest[
+          GenerateTagSystemHistory["Post", {2, {0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0}}, 128, {"PowerOfTwoEventCounts"}][[
+            {"EventCount", "FinalState"}]],
+          <|"EventCount" -> 88,
+            "FinalState" -> GenerateTagSystemHistory[
+              "Post", {2, {0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0}}, 64, {"PowerOfTwoEventCounts"}]["FinalState"]|>
+        ],
+
+        VerificationTest[
+          Max @ BlockRandom[
+            Table[
+              GenerateTagSystemHistory[
+                "Post", {RandomInteger[2], RandomInteger[1, 32]}, 10^12, {"PowerOfTwoEventCounts"}],
+              1000]
+          , RandomSeeding -> 0][[All, "EventCount"]] < 10^12
         ]
       }]
     }
