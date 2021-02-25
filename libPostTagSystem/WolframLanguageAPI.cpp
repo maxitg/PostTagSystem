@@ -116,6 +116,12 @@ std::vector<PostTagState> getStateVector(WolframLibraryData libData,
   return result;
 }
 
+PostTagHistory::CheckpointSpecFlags getCheckpointFlags(WolframLibraryData libData, const MTensor flags) {
+  if (libData->MTensor_getFlattenedLength(flags) != 1) throw LIBRARY_FUNCTION_ERROR;
+  const auto flagData = libData->MTensor_getIntegerData(flags);
+  return {static_cast<bool>(flagData[0])};
+}
+
 int addEvolutionStartingFromState(WolframLibraryData libData, mint argc, MArgument* argv) {
   if (argc != 3) {
     return LIBRARY_FUNCTION_ERROR;
@@ -257,7 +263,7 @@ int initStates(WolframLibraryData libData, mint argc, MArgument* argv, MArgument
 PostTagHistory historyEvaluator_;
 
 int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv, MArgument result) {
-  if (argc != 7) {
+  if (argc != 8) {
     return LIBRARY_FUNCTION_ERROR;
   }
 
@@ -266,8 +272,9 @@ int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv
     const auto inState = getState(libData, MArgument_getInteger(argv[1]), MArgument_getMTensor(argv[2]));
     const auto checkpoints = getStateVector(
         libData, MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]), MArgument_getMTensor(argv[6]));
+    const auto checkpointFlags = getCheckpointFlags(libData, MArgument_getMTensor(argv[7]));
     const auto outState =
-        historyEvaluator_.evaluate(systemCode, inState, MArgument_getInteger(argv[3]), {checkpoints, false});
+        historyEvaluator_.evaluate(systemCode, inState, MArgument_getInteger(argv[3]), {checkpoints, checkpointFlags});
     MTensor output;
     putState(libData, outState.finalState, &output, {outState.eventCount, outState.maxTapeLength});
     MArgument_setMTensor(result, output);
