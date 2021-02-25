@@ -13,7 +13,7 @@ an association containing information about that evolution.
 GeneratePostTagSystemHistory[system$, init$, maxEventCount$, checkpointList$] terminates the evolution once any of the \
 states from checkpointList$ is reached. The states in checkpointList$ are specified using the same format as init$.
 \"PowerOfTwo\" can be used as a special value to automatically create checkpoints from states \
-{0, 1, 2, 4, $$, 2$$k, $$}.
+{0, 1, 2, 4, $$, 2^k, $$}.
 If the system reaches a state with <= 8 bits of tape cells before maxEventCount$ is reached, that state is returned \
 instead.
 ";
