@@ -36,8 +36,8 @@ TEST(PostTagHistory, checkpoints) {
   const PostTagState init = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}, 0};
   constexpr uint64_t lateCheckpointEventCount = 20858000;
   const PostTagState lateCheckpoint = {{0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, 2};
-  const auto lateEvaluationResult =
-      history.evaluate(PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {lateCheckpoint});
+  const auto lateEvaluationResult = history.evaluate(
+      PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {{lateCheckpoint}, {false}});
   ASSERT_EQ(lateEvaluationResult.eventCount, lateCheckpointEventCount);
   ASSERT_EQ(lateEvaluationResult.finalState.headState, lateCheckpoint.headState);
   ASSERT_EQ(lateEvaluationResult.finalState.tape, lateCheckpoint.tape);
@@ -46,8 +46,10 @@ TEST(PostTagHistory, checkpoints) {
   const PostTagState earlyCheckpoint = {{1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1,
                                          1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1},
                                         1};
-  const auto earlyEvaluationResult = history.evaluate(
-      PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {lateCheckpoint, earlyCheckpoint});
+  const auto earlyEvaluationResult = history.evaluate(PostTagHistory::NamedRule::Post,
+                                                      init,
+                                                      10 * lateCheckpointEventCount,
+                                                      {{lateCheckpoint, earlyCheckpoint}, {false}});
   ASSERT_EQ(earlyEvaluationResult.eventCount, earlyCheckpointEventCount);
   ASSERT_EQ(earlyEvaluationResult.finalState.headState, earlyCheckpoint.headState);
   ASSERT_EQ(earlyEvaluationResult.finalState.tape, earlyCheckpoint.tape);
