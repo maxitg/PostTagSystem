@@ -67,8 +67,8 @@ class PostTagHistory::Implementation {
       chunkedCheckpoints.push_back(toChunkedState(checkpoint));
     }
     uint64_t maxTapeLength = tapeLength(chunkedState);
-    const auto eventCount =
-        evaluate(chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, chunkedCheckpoints);
+    const auto eventCount = evaluate(
+        chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, &chunkedCheckpoints, checkpointSpec.flags);
     return {fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
   }
 
@@ -151,18 +151,24 @@ class PostTagHistory::Implementation {
                     ChunkedState* state,
                     uint64_t* maxTapeLength,
                     const uint64_t maxEvents,
-                    const std::vector<ChunkedState>& checkpoints) const {
+                    std::vector<ChunkedState>* checkpoints,
+                    const CheckpointSpecFlags& checkpointFlags) const {
     uint64_t eventCount;
     for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      for (const auto& checkpoint : checkpoints) {
+      for (const auto& checkpoint : *checkpoints) {
         if (checkpoint == *state) return eventCount;
+      }
+      if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
+        checkpoints->push_back(*state);
       }
       evaluateOnce(evaluationTable, state);
       *maxTapeLength = std::max(*maxTapeLength, tapeLength(*state));
     }
     return eventCount;
   }
+
+  static inline bool isPowerOfTwo(const uint64_t number) { return number & (number - 1); }
 
   uint64_t tapeLength(const ChunkedState& state) const {
     return std::max(0, static_cast<int>(state.chunks.size()) - 1) * 8 + state.lastChunkSize;
