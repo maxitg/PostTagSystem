@@ -9,6 +9,7 @@
 # VS Code
 
 *.code-workspace
+.vscode/
 
 # Files specifically requesting to be ignored
 
