@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "PostTagState.h"
+#include "PostTagState.hpp"
 
 namespace PostTagSystem {
 class PostTagHistory {

@@ -7,6 +7,8 @@
 #include <queue>
 #include <unordered_map>
 
+#include "ChunkedState.hpp"
+
 namespace PostTagSystem {
 class PostTagHistory::Implementation {
  private:
@@ -14,16 +16,6 @@ class PostTagHistory::Implementation {
     uint16_t newTape;
     uint8_t newTapeSize;
     uint8_t newPhase;
-  };
-
-  struct ChunkedState {
-    std::queue<uint8_t> chunks;
-    uint8_t lastChunkSize;
-    uint8_t phase;
-
-    bool operator==(const ChunkedState& other) const {
-      return phase == other.phase && lastChunkSize == other.lastChunkSize && chunks == other.chunks;
-    }
   };
 
   struct ChunkedRule {
@@ -115,7 +107,7 @@ class PostTagHistory::Implementation {
   ChunkedState toChunkedState(const PostTagState& state) const {
     ChunkedState result;
     for (size_t i = 0; i < state.tape.size(); ++i) {
-      if (i % 8 == 0) result.chunks.push(0);
+      if (i % 8 == 0) result.chunks.push_back(0);
       result.chunks.back() <<= 1;
       result.chunks.back() += state.tape[i];
     }
@@ -131,10 +123,10 @@ class PostTagHistory::Implementation {
       tape.reserve(8 * (chunkedState->chunks.size() - 1) + chunkedState->lastChunkSize);
       while (chunkedState->chunks.size() > 1) {
         pushBitsFromChunk(&tape, &chunkedState->chunks.front(), 8);
-        chunkedState->chunks.pop();
+        chunkedState->chunks.pop_front();
       }
       pushBitsFromChunk(&tape, &chunkedState->chunks.front(), chunkedState->lastChunkSize);
-      chunkedState->chunks.pop();
+      chunkedState->chunks.pop_front();
     }
     return {tape, chunkedState->phase};
   }
@@ -177,7 +169,7 @@ class PostTagHistory::Implementation {
   void evaluateOnce(const ChunkEvaluationTable& evaluationTable, ChunkedState* state) const {
     const auto nextChunkIndex = evaluationTable.phaseCount * state->chunks.front() + state->phase;
     const auto& chunkOutput = evaluationTable.outputs[nextChunkIndex];
-    state->chunks.pop();
+    state->chunks.pop_front();
     state->phase = chunkOutput.newPhase;
     auto remainingBitCountToStore = chunkOutput.newTapeSize;
     while (remainingBitCountToStore > 0) {
@@ -193,7 +185,7 @@ class PostTagHistory::Implementation {
 
       remainingBitCountToStore -= bitCountToStoreNow;
       if (remainingBitCountToStore) {
-        state->chunks.push(0);
+        state->chunks.push_back(0);
         state->lastChunkSize = 0;
       }
     }
