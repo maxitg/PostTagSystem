@@ -15,5 +15,4 @@ target_include_directories(wolfram-postproject
 target_compile_options(wolfram-postproject
   PRIVATE ${POST_TAG_SYSTEM_COMPILE_OPTIONS})
 
-
 target_link_libraries(wolfram-postproject ${_link_libraries})
