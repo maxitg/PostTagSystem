@@ -60,7 +60,8 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Size of initial condition sequences")
     ("initstart,s",   po::value<uint64_t>()->value_name("start"),
       "Starting initial condition")
-    ("initcount,n",   po::value<uint64_t>()->value_name("count"),
+    ("initcount,n",   po::value<uint64_t>()->default_value(1)->value_name("count")
+                          ->notifier(validator_uint_greater_equal("initcount", 1)),
       "Number of initial conditions")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps")
                           ->notifier(validator_uint_greater_equal("maxsteps", 1)),
