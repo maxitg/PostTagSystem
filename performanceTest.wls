@@ -14,6 +14,13 @@ Check[
 
 Check[
   tests = Hold @ <|
+    "PowerOfTwoCheckpoints" -> BlockRandom[
+      Table[
+        GenerateTagSystemHistory[
+          "Post", {RandomInteger[2], RandomInteger[1, 32]}, 10^12, {"PowerOfTwoEventCounts"}],
+        1000]
+      , RandomSeeding -> 0
+    ]
   |>;
 
   $defaultMeasurementsCount = 5;
