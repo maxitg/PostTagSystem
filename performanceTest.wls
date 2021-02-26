@@ -14,13 +14,22 @@ Check[
 
 Check[
   tests = Hold @ <|
+    "LongEvolution" -> GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}}, 20858048],
+    "SingleCheckpoint" -> GeneratePostTagSystemHistory[{0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
+                                                       208570000,
+                                                       {2, {0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}}],
     "PowerOfTwoCheckpoints" -> BlockRandom[
       Table[
         GenerateTagSystemHistory[
           "Post", {RandomInteger[2], RandomInteger[1, 32]}, 10^12, {"PowerOfTwoEventCounts"}],
         1000]
-      , RandomSeeding -> 0
-    ]
+    , RandomSeeding -> 0],
+    "ThousandCheckpoints" -> BlockRandom[
+      GenerateTagSystemHistory["Post",
+                               {0, {0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}},
+                               20858048,
+                               Table[{RandomInteger[2], RandomInteger[1, 1000]}, 1000]]
+    , RandomSeeding -> 0]
   |>;
 
   $defaultMeasurementsCount = 5;
