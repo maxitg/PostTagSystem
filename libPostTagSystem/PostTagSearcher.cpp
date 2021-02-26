@@ -1,5 +1,7 @@
 #include "PostTagSearcher.hpp"
 
+#include "PostTagHistory.hpp"
+
 namespace PostTagSystem {
 class PostTagSearcher::Implementation {
  public:
@@ -8,6 +10,12 @@ class PostTagSearcher::Implementation {
   std::vector<EvaluationResult> evaluateRange(const PostTagState& begin,
                                               const PostTagState& end,
                                               const EvaluationParameters& parameters) {
+    PostTagHistory evaluator;
+    // for (auto state = begin; state != end; ++state) {
+    //   const auto singleHistoryResult =
+    //       evaluator.evaluate(PostTagHistory::NamedRule::Post, state, parameters.maxEventCount);
+    // }
+
     // TODO: implement
     return {};
   }

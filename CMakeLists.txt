@@ -58,7 +58,7 @@ message(STATUS "POST_TAG_SYSTEM_COMPILE_OPTIONS: ${POST_TAG_SYSTEM_COMPILE_OPTIO
 
 set(libPostTagSystem_headers
     WolframLanguageAPI.hpp
-    PostTagState.hpp
+    TagState.hpp
     PostTagMultihistory.hpp
     ChunkedState.hpp
     CheckpointsTrie.hpp
@@ -67,6 +67,7 @@ set(libPostTagSystem_headers
     )
 set(libPostTagSystem_sources
     WolframLanguageAPI.cpp
+    TagState.cpp
     PostTagMultihistory.cpp
     CheckpointsTrie.cpp
     PostTagHistory.cpp

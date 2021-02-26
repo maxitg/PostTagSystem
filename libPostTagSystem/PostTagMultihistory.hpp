@@ -4,20 +4,20 @@
 #include <memory>
 #include <vector>
 
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 
 namespace PostTagSystem {
 class PostTagMultihistory {
  public:
   PostTagMultihistory();
 
-  void addEvolutionStartingFromState(const PostTagState& state);
+  void addEvolutionStartingFromState(const TagState& state);
 
   size_t stateCount() const;
 
   const std::vector<int>& stateSuccessors() const;
 
-  const PostTagState& state(int index) const;
+  const TagState& state(int index) const;
 
   const std::vector<int> cycleSources() const;
 

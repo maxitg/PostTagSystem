@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 
 namespace PostTagSystem {
 class PostTagSearcher {

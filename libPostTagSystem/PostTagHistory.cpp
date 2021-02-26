@@ -46,7 +46,7 @@ class PostTagHistory::Implementation {
   Implementation() {}
 
   EvaluationResult evaluate(const NamedRule& rule,
-                            const PostTagState& init,
+                            const TagState& init,
                             const uint64_t maxEvents,
                             const CheckpointSpec& checkpointSpec) {
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
@@ -104,7 +104,7 @@ class PostTagHistory::Implementation {
     return {output, outputSize, phase};
   }
 
-  ChunkedState toChunkedState(const PostTagState& state) const {
+  ChunkedState toChunkedState(const TagState& state) const {
     ChunkedState result;
     for (size_t i = 0; i < state.tape.size(); ++i) {
       if (i % 8 == 0) result.chunks.push_back(0);
@@ -117,7 +117,7 @@ class PostTagHistory::Implementation {
     return result;
   }
 
-  PostTagState fromChunkedStateDestructively(ChunkedState* chunkedState) const {
+  TagState fromChunkedStateDestructively(ChunkedState* chunkedState) const {
     std::vector<bool> tape;
     if (chunkedState->chunks.size()) {
       tape.reserve(8 * (chunkedState->chunks.size() - 1) + chunkedState->lastChunkSize);
@@ -193,7 +193,7 @@ class PostTagHistory::Implementation {
 PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
 
 PostTagHistory::EvaluationResult PostTagHistory::evaluate(const NamedRule& rule,
-                                                          const PostTagState& init,
+                                                          const TagState& init,
                                                           const uint64_t maxEvents,
                                                           const CheckpointSpec& checkpoints) {
   return implementation_->evaluate(rule, init, maxEvents, checkpoints);

@@ -7,7 +7,7 @@
 
 namespace PostTagSystem {
 TEST(PostTagSystem, simpleEvolution) {
-  PostTagState state;
+  TagState state;
   state.headState = 0;
   state.tape = {0, 0, 0};
 
@@ -33,9 +33,9 @@ TEST(PostTagSystem, chunkEvaluationTable) {
 
 TEST(PostTagHistory, checkpoints) {
   PostTagHistory history;
-  const PostTagState init = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}, 0};
+  const TagState init = {{0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0}, 0};
   constexpr uint64_t lateCheckpointEventCount = 20858000;
-  const PostTagState lateCheckpoint = {{0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, 2};
+  const TagState lateCheckpoint = {{0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0}, 2};
   const auto lateEvaluationResult = history.evaluate(
       PostTagHistory::NamedRule::Post, init, 10 * lateCheckpointEventCount, {{lateCheckpoint}, {false}});
   ASSERT_EQ(lateEvaluationResult.eventCount, lateCheckpointEventCount);
@@ -43,9 +43,9 @@ TEST(PostTagHistory, checkpoints) {
   ASSERT_EQ(lateEvaluationResult.finalState.tape, lateCheckpoint.tape);
 
   constexpr uint64_t earlyCheckpointEventCount = 20857000;
-  const PostTagState earlyCheckpoint = {{1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1,
-                                         1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1},
-                                        1};
+  const TagState earlyCheckpoint = {{1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1,
+                                     1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1},
+                                    1};
   const auto earlyEvaluationResult = history.evaluate(PostTagHistory::NamedRule::Post,
                                                       init,
                                                       10 * lateCheckpointEventCount,
@@ -57,7 +57,7 @@ TEST(PostTagHistory, checkpoints) {
 
 TEST(PostTagSystem, rule002211) {
   PostTagHistory history;
-  const PostTagState init = {{0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}, 0};
+  const TagState init = {{0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0}, 0};
   constexpr uint64_t eventCount = 4;
   const auto evaluationResult = history.evaluate(PostTagHistory::NamedRule::Rule002211, init, eventCount);
   ASSERT_EQ(evaluationResult.eventCount, 4);
@@ -65,7 +65,7 @@ TEST(PostTagSystem, rule002211) {
   std::vector<bool> expectedTape = {0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0};
   ASSERT_EQ(evaluationResult.finalState.tape, expectedTape);
 
-  const PostTagState anotherInit = {{0, 0, 0, 1, 1, 0, 1, 0, 0, 0}, 0};
+  const TagState anotherInit = {{0, 0, 0, 1, 1, 0, 1, 0, 0, 0}, 0};
   const auto anotherEvaluationResult = history.evaluate(PostTagHistory::NamedRule::Rule002211, anotherInit, 4);
   ASSERT_EQ(anotherEvaluationResult.eventCount, 4);
   ASSERT_EQ(anotherEvaluationResult.finalState.headState, 1);
