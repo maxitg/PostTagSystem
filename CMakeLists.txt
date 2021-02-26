@@ -63,12 +63,14 @@ set(libPostTagSystem_headers
     ChunkedState.hpp
     CheckpointsTrie.hpp
     PostTagHistory.hpp
+    PostTagSearcher.hpp
     )
 set(libPostTagSystem_sources
     WolframLanguageAPI.cpp
     PostTagMultihistory.cpp
     CheckpointsTrie.cpp
     PostTagHistory.cpp
+    PostTagSearcher.cpp
     )
 list(TRANSFORM libPostTagSystem_headers PREPEND "libPostTagSystem/")
 list(TRANSFORM libPostTagSystem_sources PREPEND "libPostTagSystem/")

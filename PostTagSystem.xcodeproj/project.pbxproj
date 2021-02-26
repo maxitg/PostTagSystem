@@ -22,6 +22,9 @@
 		69C8940125E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */; };
 		69C8940225E89B0F009BB606 /* CheckpointsTrie.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69C893FE25E89B0F009BB606 /* CheckpointsTrie.hpp */; };
 		69C8940A25E93BD2009BB606 /* CheckpointsTrie_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */; };
+		69C8943125E990AB009BB606 /* PostTagSearcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8942F25E990AB009BB606 /* PostTagSearcher.cpp */; };
+		69C8943225E990AB009BB606 /* PostTagSearcher.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8942F25E990AB009BB606 /* PostTagSearcher.cpp */; };
+		69C8943325E990AB009BB606 /* PostTagSearcher.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69C8943025E990AB009BB606 /* PostTagSearcher.hpp */; };
 		69CAF8762257B23B006F9C60 /* WolframLanguageAPI.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -50,6 +53,8 @@
 		69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckpointsTrie.cpp; sourceTree = "<group>"; };
 		69C893FE25E89B0F009BB606 /* CheckpointsTrie.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CheckpointsTrie.hpp; sourceTree = "<group>"; };
 		69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckpointsTrie_test.cpp; sourceTree = "<group>"; };
+		69C8942F25E990AB009BB606 /* PostTagSearcher.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PostTagSearcher.cpp; sourceTree = "<group>"; };
+		69C8943025E990AB009BB606 /* PostTagSearcher.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PostTagSearcher.hpp; sourceTree = "<group>"; };
 		69CAF8682257B062006F9C60 /* libPostTagSystem.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPostTagSystem.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WolframLanguageAPI.cpp; sourceTree = "<group>"; };
 		69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WolframLanguageAPI.hpp; sourceTree = "<group>"; };
@@ -113,6 +118,8 @@
 				69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */,
 				6938719125C890CB00FB6FBE /* PostTagHistory.hpp */,
 				6938719025C890CB00FB6FBE /* PostTagHistory.cpp */,
+				69C8943025E990AB009BB606 /* PostTagSearcher.hpp */,
+				69C8942F25E990AB009BB606 /* PostTagSearcher.cpp */,
 				691E07792471CED500D2BDD5 /* test */,
 			);
 			path = libPostTagSystem;
@@ -129,6 +136,7 @@
 				6938719425C890CB00FB6FBE /* PostTagHistory.hpp in Headers */,
 				69CAF8762257B23B006F9C60 /* WolframLanguageAPI.hpp in Headers */,
 				69C893FF25E89B0F009BB606 /* ChunkedState.hpp in Headers */,
+				69C8943325E990AB009BB606 /* PostTagSearcher.hpp in Headers */,
 				69C8940225E89B0F009BB606 /* CheckpointsTrie.hpp in Headers */,
 				693871A425C9D46300FB6FBE /* PostTagState.hpp in Headers */,
 			);
@@ -212,6 +220,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				69C8943225E990AB009BB606 /* PostTagSearcher.cpp in Sources */,
 				693A211525BB55760033672D /* PostTagMultihistory.cpp in Sources */,
 				69C8940A25E93BD2009BB606 /* CheckpointsTrie_test.cpp in Sources */,
 				69C8940125E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */,
@@ -228,6 +237,7 @@
 				6914D3D42532B1B600B2B197 /* WolframLanguageAPI.cpp in Sources */,
 				6938719225C890CB00FB6FBE /* PostTagHistory.cpp in Sources */,
 				693A211425BB55760033672D /* PostTagMultihistory.cpp in Sources */,
+				69C8943125E990AB009BB606 /* PostTagSearcher.cpp in Sources */,
 				69C8940025E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
