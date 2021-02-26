@@ -2,10 +2,10 @@
 
 #include "PostTagHistory.hpp"
 #include "PostTagMultihistory.hpp"
-
 #include "arguments.hpp"
 
-using namespace PostTagSystem;
+using PostTagSystem::PostTagHistory, PostTagSystem::PostTagState;
+
 namespace po = boost::program_options;
 
 std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
@@ -31,7 +31,7 @@ int run_mode_chase(po::variables_map args) {
   auto count = args["initcount"].as<uint64_t>();
   auto max_steps = args["maxsteps"].as<uint64_t>();
 
-  PostTagHistory::CheckpointSpec checkpoint_spec;  // TODO: load states into checkpoint_spec
+  PostTagHistory::CheckpointSpec checkpoint_spec;  // TODO(jessef): load states into checkpoint_spec
 
   PostTagState init_state;
   PostTagHistory system;
