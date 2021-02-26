@@ -1,5 +1,6 @@
 #include "CheckpointsTrie.hpp"
 
+#include <algorithm>
 #include <deque>
 #include <memory>
 #include <unordered_map>
