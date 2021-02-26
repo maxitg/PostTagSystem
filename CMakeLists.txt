@@ -5,6 +5,7 @@ project(PostTagSystem
 message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
 option(POST_TAG_SYSTEM_BUILD_TESTING "Enable cpp testing." OFF)
+option(POST_TAG_SYSTEM_BUILD_CLI "Build command-line interface." OFF)
 include(GNUInstallDirs) # Define CMAKE_INSTALL_xxx: LIBDIR, INCLUDEDIR
 set(PostTagSystem_export_file "${PROJECT_BINARY_DIR}/PostTagSystemTargets.cmake")
 
@@ -54,6 +55,7 @@ endif()
 message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
 message(STATUS "POST_TAG_SYSTEM_BUILD_TESTING: ${POST_TAG_SYSTEM_BUILD_TESTING}")
+message(STATUS "POST_TAG_SYSTEM_BUILD_CLI: ${POST_TAG_SYSTEM_BUILD_CLI}")
 message(STATUS "POST_TAG_SYSTEM_COMPILE_OPTIONS: ${POST_TAG_SYSTEM_COMPILE_OPTIONS}")
 
 set(libPostTagSystem_headers
@@ -126,6 +128,10 @@ if(POST_TAG_SYSTEM_BUILD_TESTING)
   #############################################################################
 
   add_subdirectory(libPostTagSystem/test)
+endif()
+
+if(POST_TAG_SYSTEM_BUILD_CLI)
+  add_subdirectory(CLI)
 endif()
 
 # INSTALL
