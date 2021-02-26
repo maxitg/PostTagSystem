@@ -76,22 +76,6 @@ for file in "${cppFiles[@]}"; do
   formatWithCommand clang-format "$file"
 done
 
-for file in "${bashFiles[@]}"; do
-  if [ $formatInPlace -eq 1 ]; then
-    shfmt -w -i 2 "$file"
-  else
-    shfmt -l -d -i 2 "$file" || exitStatus=1
-  fi
-done
-
-for file in "${markdownFiles[@]}"; do
-  if [ $formatInPlace -eq 1 ]; then
-    markdownlint -f "$file" || :
-  else
-    markdownlint "$file" || exitStatus=1
-  fi
-done
-
 for file in "${remainingFiles[@]}"; do
   formatWithCommand ./scripts/whitespaceFormat.sh "$file"
 done
@@ -104,10 +88,6 @@ fi
 
 for file in "${cppFiles[@]}"; do
   cpplint --quiet --extensions=hpp,cpp "$file" || exitStatus=1
-done
-
-for file in "${bashFiles[@]}"; do
-  shellcheck "$file" || exitStatus=1
 done
 
 widthLimit=120
