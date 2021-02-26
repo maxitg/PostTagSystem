@@ -1,8 +1,7 @@
 #include "arguments.hpp"
 
 #include <iostream>
-
-#include <boost/program_options.hpp>
+#include <string>
 
 namespace po = boost::program_options;
 
@@ -16,7 +15,7 @@ auto validator_uint_greater_equal(const char* const option_name, uint64_t min) {
 
 void validate_option_existence(po::variables_map args, const char* const option_name) {
   if (args.count(option_name) == 0) {
-    // TODO: better exception
+    // TODO(jessef): better exception
     throw po::validation_error(po::validation_error::at_least_one_value_required, option_name);
   }
 }
@@ -28,7 +27,7 @@ void mode_validate_chase(po::variables_map args) {
 }
 
 void mode_validate_pounce(po::variables_map args) {
-  // TODO
+  // TODO(jessef)
 }
 
 po::variables_map parse_arguments(int argc, char** argv) {
