@@ -26,39 +26,46 @@ void print_bits(std::vector<bool> bits) {
 }
 
 int run_mode_chase(po::variables_map args) {
-  printf("Chasing...\n");
   auto size = args["initsize"].as<uint64_t>();
   auto start = args["initstart"].as<uint64_t>();
   auto count = args["initcount"].as<uint64_t>();
   auto max_steps = args["maxsteps"].as<uint64_t>();
 
 
+  PostTagHistory::CheckpointSpec checkpoint_spec; // TODO: load states into checkpoint_spec
+
   PostTagState init_state;
-  init_state.headState = 0;
-  init_state.tape = integer_bits(start, size);
-
-  printf("Initial condition: ");
-  print_bits(init_state.tape);
-  printf(" %i\n", init_state.headState);
-
-  PostTagHistory::CheckpointSpec checkpoint_spec;
-  // TODO: load states into checkpoint_spec
-
   PostTagHistory system;
-  auto result = system.evaluate(
-    PostTagHistory::NamedRule::Post,
-    init_state,
-    max_steps,
-    checkpoint_spec
-  );
+  PostTagHistory::EvaluationResult result;
+
+  printf("Chasing...\n");
+  printf("--------------\n");
+
+  for (uint64_t init = start; init < (start + count); init++)
+  {
+    init_state.headState = 0;
+    init_state.tape = integer_bits(init, size);
+
+    printf("Initial condition: %lu (", init);
+    print_bits(init_state.tape);
+    printf(") - %u\n", init_state.headState);
+
+    result = system.evaluate(
+      PostTagHistory::NamedRule::Post,
+      init_state,
+      max_steps,
+      checkpoint_spec
+    );
+
+    printf("Event count: %lu\n", result.eventCount);
+    printf("Max tape length: %lu\n", result.maxTapeLength);
+    printf("Final condition: ");
+    print_bits(result.finalState.tape);
+    printf(" - %u\n", result.finalState.headState);
+    printf("--------------\n");
+  }
 
   printf("Done chasing!\n");
-
-  printf("Event count: %lu\n", result.eventCount);
-  printf("Max tape length: %lu\n", result.maxTapeLength);
-  printf("Final condition: ");
-  print_bits(result.finalState.tape);
-  printf(" %i\n", result.finalState.headState);
 
   return 0;
 }
