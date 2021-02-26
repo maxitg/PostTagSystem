@@ -9,6 +9,8 @@
 namespace PostTagSystem {
 class PostTagSearcher {
  public:
+  PostTagSearcher();
+
   enum class TerminationReason {
     Terminated,
     ReachedCycle,
