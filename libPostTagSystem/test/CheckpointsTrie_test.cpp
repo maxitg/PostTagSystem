@@ -5,23 +5,13 @@
 #include <vector>
 
 namespace PostTagSystem {
-TEST(CheckpointsTrie, singleInsertion) {
-  CheckpointsTrie trie;
-  trie.insert({{1, 2, 3}, 10, 2});
-  ASSERT_TRUE(trie.contains({{1, 2, 3}, 10, 2}));
-  ASSERT_FALSE(trie.contains({{1, 2, 4}, 10, 2}));
-  ASSERT_FALSE(trie.contains({{2, 2, 3}, 10, 2}));
-  ASSERT_FALSE(trie.contains({{1, 2, 3}, 2, 2}));
-  ASSERT_FALSE(trie.contains({{1, 2, 3}, 10, 3}));
-}
-
 namespace {
 void checkStateInsertion(const std::vector<ChunkedState>& insertedStates,
                          const std::vector<ChunkedState>& missingStates) {
   CheckpointsTrie trie;
   for (auto insertionIt = insertedStates.begin(); insertionIt != insertedStates.end(); ++insertionIt) {
     trie.insert(*insertionIt);
-    for (auto checkIt = insertedStates.begin(); checkIt != insertionIt; ++checkIt) {
+    for (auto checkIt = insertedStates.begin(); checkIt != insertionIt + 1; ++checkIt) {
       ASSERT_TRUE(trie.contains(*checkIt));
     }
   }
@@ -31,6 +21,11 @@ void checkStateInsertion(const std::vector<ChunkedState>& insertedStates,
   }
 }
 }  // namespace
+
+TEST(CheckpointsTrie, singleInsertion) {
+  checkStateInsertion({{{1, 2, 3}, 10, 2}},
+                      {{{1, 2, 4}, 10, 2}, {{2, 2, 3}, 10, 2}, {{1, 2, 3}, 2, 2}, {{1, 2, 3}, 10, 3}});
+}
 
 TEST(CheckpointsTrie, multipleInsertion) {
   checkStateInsertion({{{1, 2, 3}, 10, 2},
@@ -48,4 +43,6 @@ TEST(CheckpointsTrie, multipleInsertion) {
                        {{1, 2, 5}, 10, 2},
                        {{1, 2, 3, 3}, 10, 2}});
 }
+
+TEST(CheckpointsTrie, emptyStates) { checkStateInsertion({{{}, 0, 2}}, {{{}, 0, 3}}); }
 }  // namespace PostTagSystem

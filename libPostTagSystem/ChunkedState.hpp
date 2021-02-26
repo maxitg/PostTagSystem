@@ -8,10 +8,6 @@ struct ChunkedState {
   std::deque<uint8_t> chunks;
   uint8_t lastChunkSize;
   uint8_t phase;
-
-  bool operator==(const ChunkedState& other) const {
-    return phase == other.phase && lastChunkSize == other.lastChunkSize && chunks == other.chunks;
-  }
 };
 }  // namespace PostTagSystem
 

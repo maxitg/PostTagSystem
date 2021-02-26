@@ -14,10 +14,10 @@ class CheckpointsTrie::Implementation {
   using Suffixes = std::vector<std::vector<uint8_t>>;
 
   // metadataMap_[chunksCount][256 * lastChunkSize + phase] -> index
-  // positive index is from trieNodes_, negative index is from suffixes_
+  // non-negative index is from trieNodes_, negative index is from suffixes_
   MetadataMap metadataMap_;
   TrieNodes trieNodes_;
-  Suffixes reverseSuffixes_;  // suffixes are written in reverse for easy disambiguation
+  Suffixes reverseSuffixes_;  // suffixes are written in reverse order to optimize trie nodes extension
 
  public:
   void insert(const ChunkedState& state) {
