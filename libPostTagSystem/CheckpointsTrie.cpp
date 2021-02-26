@@ -25,21 +25,23 @@ class CheckpointsTrie::Implementation {
     const auto fixedChunkCountIt = metadataMap_.find(state.chunks.size());
     if (fixedChunkCountIt == metadataMap_.end()) {
       reverseSuffixes_.push_back(std::vector<uint8_t>(state.chunks.rbegin(), state.chunks.rend()));
-      metadataMap_.insert({state.chunks.size(), {{lastChunkSizePhaseIndex, -(reverseSuffixes_.size() - 1)}}});
+      metadataMap_.insert(
+          {state.chunks.size(), {{lastChunkSizePhaseIndex, fromReverseSuffixesIndex(reverseSuffixes_.size() - 1)}}});
       return;
     }
 
     const auto fixedMetadataIt = fixedChunkCountIt->second.find(lastChunkSizePhaseIndex);
     if (fixedMetadataIt == fixedChunkCountIt->second.end()) {
       reverseSuffixes_.push_back(std::vector<uint8_t>(state.chunks.rbegin(), state.chunks.rend()));
-      fixedChunkCountIt->second.insert({lastChunkSizePhaseIndex, -(reverseSuffixes_.size() - 1)});
+      fixedChunkCountIt->second.insert(
+          {lastChunkSizePhaseIndex, fromReverseSuffixesIndex(reverseSuffixes_.size() - 1)});
       return;
     }
 
     insertChunks(&fixedMetadataIt->second, state.chunks.begin(), state.chunks.end());
   }
 
-  bool contains(const ChunkedState& state) {
+  bool contains(const ChunkedState& state) const {
     const auto fixedChunkCountIt = metadataMap_.find(state.chunks.size());
     if (fixedChunkCountIt == metadataMap_.end()) return false;
     const auto fixedMetadataIt = fixedChunkCountIt->second.find(256 * state.lastChunkSize + state.phase);
@@ -52,12 +54,12 @@ class CheckpointsTrie::Implementation {
   void insertChunks(int64_t* index, ChunksIterator chunksBegin, ChunksIterator chunksEnd) {
     if (chunksBegin == chunksEnd) return;
 
-    if (*index > 0) {
+    if (*index >= 0) {
       const auto nextChunkIt = trieNodes_[*index].find(*chunksBegin);
       if (nextChunkIt == trieNodes_[*index].end()) {
         reverseSuffixes_.push_back(std::vector<uint8_t>(std::reverse_iterator<ChunksIterator>(chunksEnd),
                                                         std::reverse_iterator<ChunksIterator>(chunksBegin) - 1));
-        trieNodes_[*index].insert({*chunksBegin, -(reverseSuffixes_.size() - 1)});
+        trieNodes_[*index].insert({*chunksBegin, fromReverseSuffixesIndex(reverseSuffixes_.size() - 1)});
       } else {
         insertChunks(&nextChunkIt->second, chunksBegin + 1, chunksEnd);
       }
@@ -67,17 +69,21 @@ class CheckpointsTrie::Implementation {
     }
   }
 
-  int64_t pushChunk(int64_t index) {
-    const auto firstValue = reverseSuffixes_[-index].back();
-    reverseSuffixes_[-index].pop_back();
-    trieNodes_.push_back({{firstValue, -index}});
+  int64_t pushChunk(int64_t negativeIndex) {
+    const auto firstValue = reverseSuffixes_[toReverseSuffixesIndex(negativeIndex)].back();
+    reverseSuffixes_[toReverseSuffixesIndex(negativeIndex)].pop_back();
+    trieNodes_.push_back({{firstValue, negativeIndex}});
     return trieNodes_.size() - 1;
   }
 
-  bool containsChunks(int64_t index, ChunksIterator chunksBegin, ChunksIterator chunksEnd) {
+  static inline int64_t toReverseSuffixesIndex(int64_t negativeIndex) { return -negativeIndex - 1; }
+
+  static inline int64_t fromReverseSuffixesIndex(int64_t positiveIndex) { return -(positiveIndex + 1); }
+
+  bool containsChunks(int64_t index, ChunksIterator chunksBegin, ChunksIterator chunksEnd) const {
     if (chunksBegin == chunksEnd) return true;
 
-    if (index > 0) {
+    if (index >= 0) {
       const auto nextChunkIt = trieNodes_[index].find(*chunksBegin);
       if (nextChunkIt == trieNodes_[index].end()) {
         return false;
@@ -85,8 +91,10 @@ class CheckpointsTrie::Implementation {
         return containsChunks(nextChunkIt->second, chunksBegin + 1, chunksEnd);
       }
     } else {
-      const auto firstMismatch =
-          std::mismatch(chunksBegin, chunksEnd, reverseSuffixes_[-index].rbegin(), reverseSuffixes_[-index].rend());
+      const auto firstMismatch = std::mismatch(chunksBegin,
+                                               chunksEnd,
+                                               reverseSuffixes_[toReverseSuffixesIndex(index)].rbegin(),
+                                               reverseSuffixes_[toReverseSuffixesIndex(index)].rend());
       return firstMismatch.first == chunksEnd;
     }
   }
@@ -96,6 +104,6 @@ CheckpointsTrie::CheckpointsTrie() { implementation_ = std::make_shared<Implemen
 
 void CheckpointsTrie::insert(const ChunkedState& state) { implementation_->insert(state); }
 
-bool CheckpointsTrie::contains(const ChunkedState& state) { return implementation_->contains(state); }
+bool CheckpointsTrie::contains(const ChunkedState& state) const { return implementation_->contains(state); }
 
 }  // namespace PostTagSystem

@@ -21,6 +21,7 @@
 		69C8940025E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */; };
 		69C8940125E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */; };
 		69C8940225E89B0F009BB606 /* CheckpointsTrie.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69C893FE25E89B0F009BB606 /* CheckpointsTrie.hpp */; };
+		69C8940A25E93BD2009BB606 /* CheckpointsTrie_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */; };
 		69CAF8762257B23B006F9C60 /* WolframLanguageAPI.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
@@ -48,6 +49,7 @@
 		69C893FC25E89B0E009BB606 /* ChunkedState.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ChunkedState.hpp; sourceTree = "<group>"; };
 		69C893FD25E89B0E009BB606 /* CheckpointsTrie.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckpointsTrie.cpp; sourceTree = "<group>"; };
 		69C893FE25E89B0F009BB606 /* CheckpointsTrie.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CheckpointsTrie.hpp; sourceTree = "<group>"; };
+		69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckpointsTrie_test.cpp; sourceTree = "<group>"; };
 		69CAF8682257B062006F9C60 /* libPostTagSystem.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPostTagSystem.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WolframLanguageAPI.cpp; sourceTree = "<group>"; };
 		69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WolframLanguageAPI.hpp; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 			isa = PBXGroup;
 			children = (
 				691E077A2471CED500D2BDD5 /* CMakeLists.txt */,
+				69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */,
 				691E077C2471D1DD00D2BDD5 /* PostTagSystem_test.cpp */,
 			);
 			path = test;
@@ -210,6 +213,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				693A211525BB55760033672D /* PostTagMultihistory.cpp in Sources */,
+				69C8940A25E93BD2009BB606 /* CheckpointsTrie_test.cpp in Sources */,
 				69C8940125E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */,
 				6938719325C890CB00FB6FBE /* PostTagHistory.cpp in Sources */,
 				6914D3AA2532AEF300B2B197 /* PostTagSystem_test.cpp in Sources */,

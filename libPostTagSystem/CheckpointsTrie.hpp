@@ -10,7 +10,7 @@ class CheckpointsTrie {
  public:
   CheckpointsTrie();
   void insert(const ChunkedState& state);
-  bool contains(const ChunkedState& state);
+  bool contains(const ChunkedState& state) const;
 
  private:
   class Implementation;
