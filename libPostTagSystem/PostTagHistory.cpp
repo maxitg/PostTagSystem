@@ -7,6 +7,7 @@
 #include <queue>
 #include <unordered_map>
 
+#include "CheckpointsTrie.hpp"
 #include "ChunkedState.hpp"
 
 namespace PostTagSystem {
@@ -53,14 +54,13 @@ class PostTagHistory::Implementation {
       return {{{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
-    std::vector<ChunkedState> chunkedCheckpoints;
-    chunkedCheckpoints.reserve(checkpointSpec.states.size());
+    CheckpointsTrie checkpointsTrie;
     for (const auto& checkpoint : checkpointSpec.states) {
-      chunkedCheckpoints.push_back(toChunkedState(checkpoint));
+      checkpointsTrie.insert(toChunkedState(checkpoint));
     }
     uint64_t maxTapeLength = tapeLength(chunkedState);
     const auto eventCount = evaluate(
-        chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, &chunkedCheckpoints, checkpointSpec.flags);
+        chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, &checkpointsTrie, checkpointSpec.flags);
     return {fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
   }
 
@@ -143,16 +143,14 @@ class PostTagHistory::Implementation {
                     ChunkedState* state,
                     uint64_t* maxTapeLength,
                     const uint64_t maxEvents,
-                    std::vector<ChunkedState>* checkpoints,
+                    CheckpointsTrie* checkpoints,
                     const CheckpointSpecFlags& checkpointFlags) const {
     uint64_t eventCount;
     for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      for (const auto& checkpoint : *checkpoints) {
-        if (checkpoint == *state) return eventCount;
-      }
+      if (checkpoints->contains(*state)) return eventCount;
       if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
-        checkpoints->push_back(*state);
+        checkpoints->insert(*state);
       }
       evaluateOnce(evaluationTable, state);
       *maxTapeLength = std::max(*maxTapeLength, tapeLength(*state));
