@@ -30,7 +30,12 @@ int run_mode_chase(po::variables_map args) {
   auto size = args["initsize"].as<uint64_t>();
   auto start = args["initstart"].as<uint64_t>();
   auto count = args["initcount"].as<uint64_t>();
+  auto offset = args["initoffset"].as<uint64_t>();
   auto max_steps = args["maxsteps"].as<uint64_t>();
+
+  // allows several jobs of the same size to be run
+  // at different offsets from the starting point
+  start += count * offset;
 
   PostTagHistory::CheckpointSpec checkpoint_spec;
 

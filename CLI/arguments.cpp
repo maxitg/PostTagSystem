@@ -62,6 +62,8 @@ po::variables_map parse_arguments(int argc, char** argv) {
     ("initcount,n",   po::value<uint64_t>()->default_value(1)->value_name("count")
                           ->notifier(validator_uint_greater_equal("initcount", 1)),
       "Number of initial conditions")
+    ("initoffset,e",   po::value<uint64_t>()->default_value(0)->value_name("offset"),
+      "Initial condition offset (for use with zero-indexed array jobs)")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps")
                           ->notifier(validator_uint_greater_equal("maxsteps", 1)),
       "Maximum number of steps to evaluate each initial condition to");
