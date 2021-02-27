@@ -3,6 +3,7 @@
 #include "PostTagHistory.hpp"
 #include "PostTagMultihistory.hpp"
 #include "arguments.hpp"
+#include "files/PostTagCribFile.hpp"
 
 using PostTagSystem::PostTagHistory, PostTagSystem::PostTagState;
 
@@ -20,7 +21,7 @@ std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
 }
 
 void print_bits(std::vector<bool> bits) {
-  for (auto i = bits.begin(); i != bits.end(); ++i) {
+  for (auto i = bits.begin(); i != bits.end(); i++) {
     std::cout << *i;
   }
 }
@@ -32,6 +33,17 @@ int run_mode_chase(po::variables_map args) {
   auto max_steps = args["maxsteps"].as<uint64_t>();
 
   PostTagHistory::CheckpointSpec checkpoint_spec;  // TODO(jessef): load states into checkpoint_spec
+
+  if (args.count("cribfile")) {
+    PostTagCribFileReader crib_file_reader(args["cribfile"].as<std::string>(), std::ios::binary);
+    PostTagCribFile crib_file = crib_file_reader.read_file();
+
+    for (size_t sequence_index = 0; sequence_index < crib_file.sequence_count; sequence_index++) {
+      print_bits(crib_file.sequences[sequence_index]);
+      printf("\n");
+    }
+    return 0;
+  }
 
   PostTagState init_state;
   PostTagHistory system;
