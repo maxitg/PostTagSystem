@@ -43,7 +43,7 @@ std::vector<bool> PostTagFileReader::read_bits(uint64_t bit_count) {
   // process all the full bytes
   for (size_t byte_index = 0; byte_index < full_bytes; byte_index++) {
     uint8_t byte = read_u8();
-    for (int8_t bit = 0; bit < 8; bit++) {
+    for (size_t bit = 0; bit < 8; bit++) {
       bits[(byte_index * 8) + bit] = (byte >> (7 - bit)) & 1;
     }
   }

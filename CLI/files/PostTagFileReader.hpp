@@ -4,12 +4,6 @@
 #include <fstream>
 #include <vector>
 
-enum PostTagFileVersion : uint8_t { V1 = 1 };
-
-enum PostTagFileMagic : uint8_t {
-  CribFileMagic = 'C'  // 70 //static_cast<uint8_t>('C')
-};
-
 class PostTagFileReader : public std::ifstream {
  public:
   using std::ifstream::ifstream;
