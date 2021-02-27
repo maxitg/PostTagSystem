@@ -7,7 +7,9 @@ set(_link_libraries
   ${Boost_LIBRARIES}
   )
 
-add_executable(wolfram-postproject main.cpp arguments.cpp)
+add_executable(wolfram-postproject
+  main.cpp arguments.cpp
+  files/PostTagFileReader.cpp files/PostTagCribFile.cpp)
 
 target_include_directories(wolfram-postproject
   PRIVATE ${Boost_INCLUDE_DIR})
