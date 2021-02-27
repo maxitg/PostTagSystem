@@ -43,13 +43,12 @@ int run_mode_chase(po::variables_map args) {
 
     PostTagCribFile crib_file = crib_file_reader.read_file();
 
-    checkpoint_spec.states.reserve(crib_file.sequence_count);
+    checkpoint_spec.states = crib_file.checkpoints;
 
-    for (size_t sequence_index = 0; sequence_index < crib_file.sequence_count; sequence_index++) {
-      print_bits(crib_file.sequences[sequence_index]);
-      printf("\n");
-
-      checkpoint_spec.states.push_back({crib_file.sequences[sequence_index], 0});
+    for (size_t i = 0; i < checkpoint_spec.states.size(); i++) {
+      auto checkpoint = checkpoint_spec.states[i];
+      print_bits(checkpoint.tape);
+      printf(" - %u\n", checkpoint.headState);
     }
     return 0;
   }

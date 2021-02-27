@@ -2,6 +2,8 @@
 
 #include <boost/format.hpp>
 
+using PostTagSystem::PostTagState;
+
 PostTagCribFile PostTagCribFileReader::read_file() {
   uint8_t file_magic = read_u8();
   PostTagFileMagic format_magic = CribFileMagic;
@@ -25,17 +27,18 @@ PostTagCribFile PostTagCribFileReader::read_file() {
 PostTagCribFile PostTagCribFileReader::read_file_V1() {
   PostTagCribFile file;
   file.version = V1;
-  file.sequence_count = read_u64();
-  file.sequences = read_sequences(file.sequence_count);
+  file.checkpoint_count = read_u64();
+  file.checkpoints = read_checkpoints(file.checkpoint_count);
 
   return file;
 }
 
-std::vector<std::vector<bool>> PostTagCribFileReader::read_sequences(uint64_t sequence_count) {
-  std::vector<std::vector<bool>> sequences(sequence_count);
-  for (size_t i = 0; i < sequence_count; i++) {
-    sequences[i] = read_prefixed_bits();
+std::vector<PostTagState> PostTagCribFileReader::read_checkpoints(uint64_t checkpoint_count) {
+  std::vector<PostTagState> checkpoints(checkpoint_count);
+  for (size_t i = 0; i < checkpoint_count; i++) {
+    checkpoints[i].headState = read_u8();
+    checkpoints[i].tape = read_prefixed_bits();
   }
 
-  return sequences;
+  return checkpoints;
 }
