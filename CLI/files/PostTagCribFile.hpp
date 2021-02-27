@@ -5,12 +5,13 @@
 #include <vector>
 
 #include "PostTagFileReader.hpp"
+#include "PostTagState.hpp"
 
 struct PostTagCribFile {
   PostTagFileVersion version;
-  uint64_t sequence_count;
+  uint64_t checkpoint_count;
 
-  std::vector<std::vector<bool>> sequences;
+  std::vector<PostTagSystem::PostTagState> checkpoints;
 };
 
 class PostTagCribFileReader : public PostTagFileReader {
@@ -22,7 +23,7 @@ class PostTagCribFileReader : public PostTagFileReader {
  private:
   PostTagCribFile read_file_V1();
 
-  std::vector<std::vector<bool>> read_sequences(uint64_t sequence_count);
+  std::vector<PostTagSystem::PostTagState> read_checkpoints(uint64_t checkpoint_count);
 };
 
 #endif  // CLI_FILES_POSTTAGCRIBFILE_HPP_
