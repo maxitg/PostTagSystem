@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "PostTagHistory.hpp"
-#include "PostTagMultihistory.hpp"
+#include "PostTagState.hpp"
 #include "arguments.hpp"
 #include "files/PostTagCribFile.hpp"
 
@@ -32,15 +32,24 @@ int run_mode_chase(po::variables_map args) {
   auto count = args["initcount"].as<uint64_t>();
   auto max_steps = args["maxsteps"].as<uint64_t>();
 
-  PostTagHistory::CheckpointSpec checkpoint_spec;  // TODO(jessef): load states into checkpoint_spec
+  PostTagHistory::CheckpointSpec checkpoint_spec;
 
   if (args.count("cribfile")) {
-    PostTagCribFileReader crib_file_reader(args["cribfile"].as<std::string>(), std::ios::binary);
+    auto crib_file_path = args["cribfile"].as<std::string>();
+    PostTagCribFileReader crib_file_reader(crib_file_path, std::ios::binary);
+    if (!crib_file_reader.is_open()) {
+      throw std::runtime_error("Failed to open crib file '" + crib_file_path + "'");
+    }
+
     PostTagCribFile crib_file = crib_file_reader.read_file();
+
+    checkpoint_spec.states.reserve(crib_file.sequence_count);
 
     for (size_t sequence_index = 0; sequence_index < crib_file.sequence_count; sequence_index++) {
       print_bits(crib_file.sequences[sequence_index]);
       printf("\n");
+
+      checkpoint_spec.states.push_back({crib_file.sequences[sequence_index], 0});
     }
     return 0;
   }
