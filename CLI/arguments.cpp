@@ -83,6 +83,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
 
   if (args["help"].as<bool>()) {
     std::cout << all_options << "\n";
+    return args;
   }
 
   if (args["chase"].as<bool>() && args["pounce"].as<bool>()) {
