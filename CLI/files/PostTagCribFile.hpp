@@ -4,6 +4,7 @@
 #include <fstream>
 #include <vector>
 
+#include "PostTagFile.hpp"
 #include "PostTagFileReader.hpp"
 #include "PostTagState.hpp"
 
