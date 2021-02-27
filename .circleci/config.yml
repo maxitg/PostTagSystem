@@ -63,7 +63,7 @@ jobs:
           name: Install Required Tools
           command: |
             apk add --no-cache \
-              bash boost boost-program_options git g++ make cmake \
+              bash boost-dev boost-static git g++ make cmake \
               clang py-pip shellcheck shfmt grep npm
             pip install cpplint
             npm install -g markdownlint-cli
