@@ -19,11 +19,17 @@ add_executable(wolfram-postproject
   files/PostTagCribFile.cpp files/PostTagResultFile.cpp
   )
 
-target_include_directories(wolfram-postproject
-  PRIVATE ${Boost_INCLUDE_DIR})
+target_include_directories(wolfram-postproject PRIVATE
+  ${Boost_INCLUDE_DIR})
 
-target_compile_options(wolfram-postproject
-  PRIVATE ${POST_TAG_SYSTEM_COMPILE_OPTIONS})
+target_compile_options(wolfram-postproject PRIVATE
+  ${POST_TAG_SYSTEM_COMPILE_OPTIONS})
+
+target_compile_definitions(wolfram-postproject PRIVATE
+  POST_TAG_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+  POST_TAG_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+  POST_TAG_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
+  )
 
 if(POST_TAG_SYSTEM_CLI_STATIC_BUILD)
   target_link_options(wolfram-postproject PUBLIC "-static")
