@@ -23,4 +23,4 @@ FROM alpine:3.12.1
 
 COPY --from=build /working/build/CLI/wolfram-postproject /usr/bin/wolfram-postproject
 
-ENTRYPOINT /usr/bin/wolfram-postproject
+ENTRYPOINT ["/usr/bin/wolfram-postproject"]
