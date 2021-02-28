@@ -51,9 +51,6 @@ po::variables_map parse_arguments(int argc, char** argv) {
   chase_options.add_options()
     ("cribfile,f",    po::value<std::string>()->value_name("path.postcrib"),
       "Path to crib file (list of known sequences)")
-    ("cribsize,b",    po::value<uint32_t>()->value_name("size")
-                          ->notifier(validator_uint_greater_equal("cribsize", 2)),
-      "Size of sequences in crib file")
     ("initsize,l",    po::value<uint64_t>()->default_value(30)->value_name("size")
                           ->notifier(validator_uint_greater_equal("initsize", 1)),
       "Size of initial condition sequences")
@@ -63,7 +60,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
                           ->notifier(validator_uint_greater_equal("initcount", 1)),
       "Number of initial conditions")
     ("initoffset,e",  po::value<uint64_t>()->default_value(0)->value_name("offset"),
-      "Initial condition offset (for use with zero-indexed array jobs)")
+      "Shifts starting condition by offset * count (for use with zero-indexed array jobs)")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps")
                           ->notifier(validator_uint_greater_equal("maxsteps", 1)),
       "Maximum number of steps to evaluate each initial condition to");
