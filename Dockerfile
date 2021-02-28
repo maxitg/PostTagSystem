@@ -17,7 +17,7 @@ RUN ./lint.sh \
     -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
     -DPOST_TAG_SYSTEM_CLI_STATIC_BUILD=ON \
     -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON \
-  && cmake --build .
+  && cmake --build . --config Release
 
 FROM alpine:3.12.1
 
