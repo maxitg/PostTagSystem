@@ -21,7 +21,7 @@ std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
   return bits;
 }
 
-void print_bits(std::vector<bool> bits) {
+void print_bits(const std::vector<bool>& bits) {
   for (auto i = bits.begin(); i != bits.end(); i++) {
     std::cout << *i;
   }
