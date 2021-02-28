@@ -37,6 +37,8 @@ po::variables_map parse_arguments(int argc, char** argv) {
   general_options.add_options()
     ("help,h",        po::bool_switch(),
       "Print help text")
+    ("version,v",     po::bool_switch(),
+      "Print program version")
     ("chase,c",       po::bool_switch(),
       "Chase mode (breadth search)")
     ("pounce,p",      po::bool_switch(),
@@ -49,10 +51,10 @@ po::variables_map parse_arguments(int argc, char** argv) {
   chase_options.add_options()
     ("cribfile,f",    po::value<std::string>()->value_name("path"),
       "Path to crib file (list of known sequences)")
-    ("cribsize,b",  po::value<uint32_t>()->value_name("size")
+    ("cribsize,b",    po::value<uint32_t>()->value_name("size")
                           ->notifier(validator_uint_greater_equal("cribsize", 2)),
       "Size of sequences in crib file")
-    ("initsize,l",  po::value<uint64_t>()->default_value(30)->value_name("size")
+    ("initsize,l",    po::value<uint64_t>()->default_value(30)->value_name("size")
                           ->notifier(validator_uint_greater_equal("initsize", 1)),
       "Size of initial condition sequences")
     ("initstart,s",   po::value<uint64_t>()->value_name("start"),
@@ -60,7 +62,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
     ("initcount,n",   po::value<uint64_t>()->default_value(1)->value_name("count")
                           ->notifier(validator_uint_greater_equal("initcount", 1)),
       "Number of initial conditions")
-    ("initoffset,e",   po::value<uint64_t>()->default_value(0)->value_name("offset"),
+    ("initoffset,e",  po::value<uint64_t>()->default_value(0)->value_name("offset"),
       "Initial condition offset (for use with zero-indexed array jobs)")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps")
                           ->notifier(validator_uint_greater_equal("maxsteps", 1)),
@@ -83,6 +85,19 @@ po::variables_map parse_arguments(int argc, char** argv) {
 
   if (args["help"].as<bool>()) {
     std::cout << all_options << "\n";
+    return args;
+  }
+
+  if (args["version"].as<bool>()) {
+#if defined(POST_TAG_VERSION_MAJOR) && defined(POST_TAG_VERSION_MINOR) && defined(POST_TAG_VERSION_PATCH)
+    printf("wolfram-postproject v%u.%u.%u =^._.^=\n",
+           POST_TAG_VERSION_MAJOR,
+           POST_TAG_VERSION_MINOR,
+           POST_TAG_VERSION_PATCH);
+#else
+    printf("wolfram-postproject unknown version =^._.^=\n");
+#endif
+
     return args;
   }
 

@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  if (args["help"].as<bool>()) {
+  if (args["help"].as<bool>() || args["version"].as<bool>()) {
     return 0;
   }
 
