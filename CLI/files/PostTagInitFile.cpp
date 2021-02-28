@@ -41,7 +41,6 @@ std::vector<PostTagState> PostTagInitFileReader::read_states(uint64_t state_coun
     states[i].headState = (state_header & 0b11000000) >> 6;
 
     uint8_t tape_length = (state_header & 0b00111111) + 1;
-    printf("%u\n", tape_length);
     states[i].tape.resize(tape_length);
 
     uint64_t tape_dec = read_u64();
