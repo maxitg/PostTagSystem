@@ -38,7 +38,7 @@ void PostTagFileWriter::write_bits(std::vector<bool> bits) {
 
   // process the single partial byte at the end, if applicable
   if (remainder_bits > 0) {
-    uint8_t last_byte;
+    uint8_t last_byte = 0;
     for (size_t bit = 0; bit < remainder_bits; bit++) {
       last_byte |= bits[(full_bytes * 8) + bit] << (7 - bit);
     }
