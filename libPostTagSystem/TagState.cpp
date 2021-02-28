@@ -1,10 +1,11 @@
 #include "TagState.hpp"
 
 namespace PostTagSystem {
-TagState::TagState(const std::vector<bool>& tape, uint8_t headState) : tape(tape), headState(headState) {}
+TagState::TagState(const std::vector<bool>& inputTape, uint8_t inputHeadState)
+    : tape(inputTape), headState(inputHeadState) {}
 
-TagState::TagState(uint64_t tapeLength, uint64_t tapeContents, uint8_t headState) {
-  this->headState = headState;
+TagState::TagState(uint64_t tapeLength, uint64_t tapeContents, uint8_t inputHeadState) {
+  this->headState = inputHeadState;
   tape.resize(tapeLength);
   for (auto tapeIt = tape.rbegin(); tapeIt != tape.rend(); ++tapeIt) {
     *tapeIt = tapeContents & 1;
