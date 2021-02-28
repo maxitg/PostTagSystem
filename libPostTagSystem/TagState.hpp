@@ -8,12 +8,17 @@ struct TagState {
   std::vector<bool> tape;
   uint8_t headState;
 
-  bool empty() const { return tape.empty(); }
-};
+  TagState() = default;
+  TagState(const std::vector<bool>& tape, uint8_t headState);
 
-struct PostTagState : TagState {
-  const uint8_t phaseCount;
-  PostTagState& operator++();
+  TagState(uint64_t tapeLength, uint64_t tapeContents, uint8_t headState);
+
+  bool empty() const;
+
+  bool operator==(const TagState& other) const;
+  bool operator!=(const TagState& other) const;
+
+  TagState& increment(uint8_t phaseCount);
 };
 }  // namespace PostTagSystem
 

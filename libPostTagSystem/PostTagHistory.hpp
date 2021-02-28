@@ -10,7 +10,10 @@
 namespace PostTagSystem {
 class PostTagHistory {
  public:
+  enum class ConclusionReason { InvalidInput, Terminated, ReachedCheckpoint, MaxEventCountExceeded };
+
   struct EvaluationResult {
+    ConclusionReason conclusionReason;
     TagState finalState;
     uint64_t eventCount;
     uint64_t maxTapeLength;

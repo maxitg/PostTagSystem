@@ -12,6 +12,7 @@ class PostTagSearcher {
   PostTagSearcher();
 
   enum class ConclusionReason {
+    InvalidInput,
     Terminated,
     ReachedCycle,
     ReachedKnownCheckpoint,
@@ -26,13 +27,13 @@ class PostTagSearcher {
     uint64_t eventCount;
     uint64_t maxTapeLength;
     uint64_t finalTapeLength;
-    PostTagState initialState;
-    PostTagState finalState;
+    TagState initialState;
+    TagState finalState;
   };
 
   // Note that the system run 8 events at a time. That means, the tape lengths don't change one at a time, they can
   // change upto 8 at a time, so it's not enough to keep only checkpoints of lengths 1000 to catch everything
-  using Checkpoints = std::vector<PostTagState>;
+  using Checkpoints = std::vector<TagState>;
 
   struct EvaluationParameters {
     uint64_t maxTapeLength;
@@ -52,8 +53,8 @@ class PostTagSearcher {
 
   // Computes results for states between begin and the one preceeding end.
   // The head state is incremeneted first, and once it reaches 3, it is reset to zero with an incremented tape.
-  std::vector<EvaluationResult> evaluateRange(const PostTagState& begin,
-                                              const PostTagState& end,
+  std::vector<EvaluationResult> evaluateRange(const TagState& begin,
+                                              const TagState& end,
                                               const EvaluationParameters& parameters);
 
   // Sets phases to zero and reads in tapeBegin and tapeEnd as binary digits.
@@ -63,7 +64,7 @@ class PostTagSearcher {
                                               const EvaluationParameters& parameters);
 
   // Evaluates for every state in states as an init.
-  std::vector<EvaluationResult> evaluateGroup(const std::vector<PostTagState>& states,
+  std::vector<EvaluationResult> evaluateGroup(const std::vector<TagState>& states,
                                               const EvaluationParameters& parameters);
 
   struct SmallState {
