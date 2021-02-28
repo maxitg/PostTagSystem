@@ -26,9 +26,7 @@ void mode_validate_chase(po::variables_map args) {
   validate_option_existence(args, "initcount");
 }
 
-void mode_validate_pounce(po::variables_map args) {
-  // TODO(jessef)
-}
+void mode_validate_pounce(po::variables_map args) { validate_option_existence(args, "initfile"); }
 
 po::variables_map parse_arguments(int argc, char** argv) {
   po::options_description general_options("General options");
@@ -43,7 +41,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Chase mode (breadth search)")
     ("pounce,p",      po::bool_switch(),
       "Pounce mode (depth search)")
-    ("outfile,o",     po::value<std::string>()->default_value("./posttag.dat")->value_name("path"),
+    ("outfile,o",     po::value<std::string>()->default_value("./output.tagresult")->value_name("path"),
       "Path to output file")
     ("timeout,t",     po::value<uint64_t>()->default_value(0)->value_name("secs"),
       "Total execution time constraint (seconds)");
