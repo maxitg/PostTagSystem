@@ -16,17 +16,18 @@ PostTagCribFile PostTagCribFileReader::read_file() {
 
   uint8_t version = read_u8();
   switch (version) {
-    case V1:
+    case Version1:
       return read_file_V1();
 
     default:
-      throw std::runtime_error((boost::format("Unknown file version %u") % static_cast<unsigned int>(version)).str());
+      throw std::runtime_error(
+          (boost::format("Unsupported file version %u") % static_cast<unsigned int>(version)).str());
   }
 }
 
 PostTagCribFile PostTagCribFileReader::read_file_V1() {
   PostTagCribFile file;
-  file.version = V1;
+  file.version = Version1;
   file.checkpoint_count = read_u64();
   file.checkpoints = read_checkpoints(file.checkpoint_count);
 
