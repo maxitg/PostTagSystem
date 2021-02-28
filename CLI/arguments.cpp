@@ -43,13 +43,13 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Chase mode (breadth search)")
     ("pounce,p",      po::bool_switch(),
       "Pounce mode (depth search)")
-    ("outfile,o",     po::value<std::string>()->default_value("./output.tagresult")->value_name("path"),
+    ("outfile,o",     po::value<std::string>()->default_value("./output.postresult")->value_name("path.postresult"),
       "Path to output file")
     ("timeout,t",     po::value<uint64_t>()->default_value(0)->value_name("secs"),
       "Total execution time constraint (seconds)");
 
   chase_options.add_options()
-    ("cribfile,f",    po::value<std::string>()->value_name("path"),
+    ("cribfile,f",    po::value<std::string>()->value_name("path.postcrib"),
       "Path to crib file (list of known sequences)")
     ("cribsize,b",    po::value<uint32_t>()->value_name("size")
                           ->notifier(validator_uint_greater_equal("cribsize", 2)),
@@ -69,7 +69,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Maximum number of steps to evaluate each initial condition to");
 
   pounce_options.add_options()
-    ("initfile,i",    po::value<std::string>()->value_name("path"),
+    ("initfile,i",    po::value<std::string>()->value_name("path.postinit"),
       "Path to file of initial conditions")
     ("maxsize,x",     po::value<unsigned int>()->default_value(1e9, "10^9")->value_name("size")
                           ->notifier(validator_uint_greater_equal("maxsize", 1)),
