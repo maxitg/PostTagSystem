@@ -204,6 +204,19 @@ jobs:
             echo "export PATH=\"$(pwd)/$cmakeDir/bin:$PATH\"" >> $BASH_ENV
 
       - run:
+          name: Install Boost libraries and headers
+          command: |
+            boostURL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.zip"
+            curl -L --output boost.zip $boostURL
+            unzip -q boost.zip
+            boostDir=$(dir -1 | findstr -i boost_*)
+            echo "export BOOST_ROOT=\"$(pwd)/$boostDir\"" >> $BASH_ENV
+            grep BOOST_ $BASH_ENV
+            cd $boostDir
+            ./bootstrap.bat
+            ./b2 --with-program_options
+
+      - run:
           name: Build
           command: |
             mkdir -p build
