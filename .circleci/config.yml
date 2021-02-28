@@ -213,11 +213,10 @@ jobs:
               -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
               -DPOST_TAG_SYSTEM_CLI_STATIC_BUILD=ON \
               -DCMAKE_BUILD_TYPE=Release
-            cmake --build . --config Release # Needed for multi-config generators
-            cd ..
+            cmake --build . --config Release
 
       - store_artifacts:
-          path: ./build/CLI
+          path: ./CLI
 
 workflows:
   version: 2
