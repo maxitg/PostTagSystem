@@ -69,6 +69,7 @@ class PostTagSearcher::Implementation {
           result.conclusionReason = ConclusionReason::MaxEventCountExceeded;
           break;
       }
+      results.push_back(result);
     }
     return results;
   }

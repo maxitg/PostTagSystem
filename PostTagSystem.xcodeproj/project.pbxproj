@@ -28,6 +28,7 @@
 		69C8944725E9AFEA009BB606 /* TagState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8944625E9AFEA009BB606 /* TagState.cpp */; };
 		69C8944825E9AFEA009BB606 /* TagState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69C8944625E9AFEA009BB606 /* TagState.cpp */; };
 		69CAF8762257B23B006F9C60 /* WolframLanguageAPI.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		69D81E1925EC44E000E14E09 /* PostTagSearcher_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 69D81E1825EC44E000E14E09 /* PostTagSearcher_test.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -61,6 +62,7 @@
 		69CAF8682257B062006F9C60 /* libPostTagSystem.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libPostTagSystem.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		69CAF8732257B23B006F9C60 /* WolframLanguageAPI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WolframLanguageAPI.cpp; sourceTree = "<group>"; };
 		69CAF8742257B23B006F9C60 /* WolframLanguageAPI.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WolframLanguageAPI.hpp; sourceTree = "<group>"; };
+		69D81E1825EC44E000E14E09 /* PostTagSearcher_test.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PostTagSearcher_test.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 				691E077A2471CED500D2BDD5 /* CMakeLists.txt */,
 				69C8940925E93BD2009BB606 /* CheckpointsTrie_test.cpp */,
 				691E077C2471D1DD00D2BDD5 /* PostTagSystem_test.cpp */,
+				69D81E1825EC44E000E14E09 /* PostTagSearcher_test.cpp */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -230,6 +233,7 @@
 				69C8940A25E93BD2009BB606 /* CheckpointsTrie_test.cpp in Sources */,
 				69C8940125E89B0F009BB606 /* CheckpointsTrie.cpp in Sources */,
 				6938719325C890CB00FB6FBE /* PostTagHistory.cpp in Sources */,
+				69D81E1925EC44E000E14E09 /* PostTagSearcher_test.cpp in Sources */,
 				6914D3AA2532AEF300B2B197 /* PostTagSystem_test.cpp in Sources */,
 				69015F4E257AA3FF00B01241 /* WolframLanguageAPI.cpp in Sources */,
 			);
