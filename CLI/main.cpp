@@ -4,6 +4,7 @@
 #include "PostTagState.hpp"
 #include "arguments.hpp"
 #include "files/PostTagCribFile.hpp"
+#include "files/PostTagInitFile.hpp"
 #include "files/PostTagResultFile.hpp"
 
 using boost::program_options::variables_map;
@@ -104,8 +105,22 @@ int run_mode_chase(variables_map args) {
 }
 
 int run_mode_pounce(variables_map args) {
-  throw std::logic_error("Pounce mode not implemented");
-  return 1;
+  auto init_file_path = args["initfile"].as<std::string>();
+  PostTagInitFileReader init_file_reader(init_file_path, std::ios::binary);
+  if (!init_file_reader.is_open()) {
+    throw std::runtime_error("Failed to open init file '" + init_file_path + "' for reading");
+  }
+
+  PostTagInitFile init_file = init_file_reader.read_file();
+
+  printf("Read %lu initial conditions\n", init_file.state_count);
+
+  for (PostTagState& state : init_file.states) {
+    print_bits(state.tape);
+    printf(" - %u\n", state.headState);
+  }
+
+  return 0;
 }
 
 int main(int argc, char** argv) {
