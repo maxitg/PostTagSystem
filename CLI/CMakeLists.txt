@@ -16,7 +16,8 @@ set(_link_libraries
 add_executable(wolfram-postproject
   main.cpp arguments.cpp
   files/PostTagFileReader.cpp files/PostTagFileWriter.cpp
-  files/PostTagCribFile.cpp files/PostTagResultFile.cpp
+  files/PostTagCribFile.cpp files/PostTagInitFile.cpp
+  files/PostTagResultFile.cpp
   )
 
 target_include_directories(wolfram-postproject PRIVATE
