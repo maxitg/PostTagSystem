@@ -95,7 +95,7 @@ int run_mode_chase(variables_map args) {
       throw std::runtime_error("Failed to open output file '" + result_file_path + "' for writing");
     }
 
-    PostTagResultFile result_file(V1, results);
+    PostTagResultFile result_file(Version1, results);
 
     result_file_writer.write_file(result_file);
   }

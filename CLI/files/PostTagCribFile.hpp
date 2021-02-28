@@ -10,8 +10,8 @@
 
 struct PostTagCribFile {
   PostTagFileVersion version;
-  uint64_t checkpoint_count;
 
+  uint64_t checkpoint_count;
   std::vector<PostTagSystem::PostTagState> checkpoints;
 };
 
