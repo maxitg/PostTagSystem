@@ -1,3 +1,4 @@
+#include <cinttypes>
 #include <iostream>
 
 #include "PostTagHistory.hpp"
@@ -73,14 +74,14 @@ int run_mode_chase(variables_map args) {
     init_state.headState = 0;
     init_state.tape = integer_bits(init, size);
 
-    printf("Initial condition: %lu (", init);
+    printf("Initial condition: %" PRIu64 " (", init);
     print_bits(init_state.tape);
     printf(") - %u\n", init_state.headState);
 
     results[i] = system.evaluate(PostTagHistory::NamedRule::Post, init_state, max_steps, checkpoint_spec);
 
-    printf("Event count: %lu\n", results[i].eventCount);
-    printf("Max tape length: %lu\n", results[i].maxTapeLength);
+    printf("Event count: %" PRIu64 "\n", results[i].eventCount);
+    printf("Max tape length: %" PRIu64 "\n", results[i].maxTapeLength);
     printf("Final condition: ");
     print_bits(results[i].finalState.tape);
     printf(" - %u\n", results[i].finalState.headState);
@@ -113,7 +114,7 @@ int run_mode_pounce(variables_map args) {
 
   PostTagInitFile init_file = init_file_reader.read_file();
 
-  printf("Read %lu initial conditions\n", init_file.state_count);
+  printf("Read %" PRIu64 " initial conditions\n", init_file.state_count);
 
   for (PostTagState& state : init_file.states) {
     print_bits(state.tape);
