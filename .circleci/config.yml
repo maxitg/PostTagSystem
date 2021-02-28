@@ -116,6 +116,7 @@ jobs:
             mkdir build
             cd build
             cmake .. -DPOST_TAG_SYSTEM_BUILD_TESTING=ON \
+                     -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
                      -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON
             cmake --build .
 
