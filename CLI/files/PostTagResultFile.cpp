@@ -10,7 +10,7 @@ void PostTagResultFileWriter::write_file(const PostTagResultFile& file) {
   write_u8(file.version);
 
   switch (file.version) {
-    case V1:
+    case Version1:
       return write_file_V1(file);
 
     default:
