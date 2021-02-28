@@ -46,12 +46,12 @@ class PostTagHistory::Implementation {
   Implementation() {}
 
   EvaluationResult evaluate(const NamedRule& rule,
-                            const PostTagState& init,
+                            const TagState& init,
                             const uint64_t maxEvents,
                             const CheckpointSpec& checkpointSpec) {
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (maxEvents % chunkEvaluationTable.eventsAtOnce != 0) {
-      return {{{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
+      return {ConclusionReason::InvalidInput, {{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
     CheckpointsTrie checkpointsTrie;
@@ -59,9 +59,15 @@ class PostTagHistory::Implementation {
       checkpointsTrie.insert(toChunkedState(checkpoint));
     }
     uint64_t maxTapeLength = tapeLength(chunkedState);
-    const auto eventCount = evaluate(
-        chunkEvaluationTable, &chunkedState, &maxTapeLength, maxEvents, &checkpointsTrie, checkpointSpec.flags);
-    return {fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
+    ConclusionReason conclusionReason;
+    const auto eventCount = evaluate(chunkEvaluationTable,
+                                     &chunkedState,
+                                     &conclusionReason,
+                                     &maxTapeLength,
+                                     maxEvents,
+                                     &checkpointsTrie,
+                                     checkpointSpec.flags);
+    return {conclusionReason, fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
   }
 
  private:
@@ -104,7 +110,7 @@ class PostTagHistory::Implementation {
     return {output, outputSize, phase};
   }
 
-  ChunkedState toChunkedState(const PostTagState& state) const {
+  ChunkedState toChunkedState(const TagState& state) const {
     ChunkedState result;
     for (size_t i = 0; i < state.tape.size(); ++i) {
       if (i % 8 == 0) result.chunks.push_back(0);
@@ -117,7 +123,7 @@ class PostTagHistory::Implementation {
     return result;
   }
 
-  PostTagState fromChunkedStateDestructively(ChunkedState* chunkedState) const {
+  TagState fromChunkedStateDestructively(ChunkedState* chunkedState) const {
     std::vector<bool> tape;
     if (chunkedState->chunks.size()) {
       tape.reserve(8 * (chunkedState->chunks.size() - 1) + chunkedState->lastChunkSize);
@@ -141,6 +147,7 @@ class PostTagHistory::Implementation {
 
   uint64_t evaluate(const ChunkEvaluationTable& evaluationTable,
                     ChunkedState* state,
+                    ConclusionReason* conclusionReason,
                     uint64_t* maxTapeLength,
                     const uint64_t maxEvents,
                     CheckpointsTrie* checkpoints,
@@ -148,12 +155,20 @@ class PostTagHistory::Implementation {
     uint64_t eventCount;
     for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      if (checkpoints->contains(*state)) return eventCount;
+      if (checkpoints->contains(*state)) {
+        *conclusionReason = ConclusionReason::ReachedCheckpoint;
+        return eventCount;
+      }
       if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
         checkpoints->insert(*state);
       }
       evaluateOnce(evaluationTable, state);
       *maxTapeLength = std::max(*maxTapeLength, tapeLength(*state));
+    }
+    if (eventCount == maxEvents) {
+      *conclusionReason = ConclusionReason::MaxEventCountExceeded;
+    } else {
+      *conclusionReason = ConclusionReason::Terminated;
     }
     return eventCount;
   }
@@ -193,7 +208,7 @@ class PostTagHistory::Implementation {
 PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementation>()) {}
 
 PostTagHistory::EvaluationResult PostTagHistory::evaluate(const NamedRule& rule,
-                                                          const PostTagState& init,
+                                                          const TagState& init,
                                                           const uint64_t maxEvents,
                                                           const CheckpointSpec& checkpoints) {
   return implementation_->evaluate(rule, init, maxEvents, checkpoints);

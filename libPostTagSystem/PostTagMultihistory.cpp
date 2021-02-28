@@ -11,7 +11,7 @@ namespace {
 // Hashes the values of the matches, not the pointer itself.
 class PostTagStateHasher {
  public:
-  size_t operator()(const PostTagState& state) const {
+  size_t operator()(const TagState& state) const {
     std::size_t result = 0;
     hash_combine(&result, state.headState);
     for (const bool tapeValue : state.tape) {
@@ -31,7 +31,7 @@ class PostTagStateHasher {
 
 class PostTagStateEquality {
  public:
-  size_t operator()(const PostTagState& a, const PostTagState& b) const {
+  size_t operator()(const TagState& a, const TagState& b) const {
     if (a.headState != b.headState || a.tape.size() != b.tape.size()) {
       return false;
     }
@@ -44,15 +44,15 @@ class PostTagStateEquality {
 
 class PostTagMultihistory::Implementation {
  private:
-  std::vector<PostTagState> states_;
+  std::vector<TagState> states_;
   std::vector<int> nextStates_;
-  std::unordered_map<PostTagState, int, PostTagStateHasher, PostTagStateEquality> statesIndex_;
+  std::unordered_map<TagState, int, PostTagStateHasher, PostTagStateEquality> statesIndex_;
 
   std::vector<int> initStates_;
 
  public:
-  void addEvolutionStartingFromState(const PostTagState& state) {
-    PostTagState currentState = state;
+  void addEvolutionStartingFromState(const TagState& state) {
+    TagState currentState = state;
     while (!statesIndex_.count(currentState)) {
       states_.push_back(currentState);
       statesIndex_[currentState] = static_cast<int>(states_.size() - 1);
@@ -71,7 +71,7 @@ class PostTagMultihistory::Implementation {
 
   const std::vector<int>& stateSuccessors() const { return nextStates_; }
 
-  const PostTagState& state(const int index) const { return states_[index]; }
+  const TagState& state(const int index) const { return states_[index]; }
 
   const std::vector<int> cycleSources() const {
     std::vector<bool> isEverVisited(states_.size(), false);
@@ -88,8 +88,8 @@ class PostTagMultihistory::Implementation {
   const std::vector<int>& initStates() const { return initStates_; }
 
  private:
-  PostTagState nextState(const PostTagState& state) {
-    PostTagState newState;
+  TagState nextState(const TagState& state) {
+    TagState newState;
     newState.tape.insert(newState.tape.begin(), state.tape.begin() + 1, state.tape.end());
     if (state.tape.front() == 0) {
       newState.headState = (state.headState + 2) % 3;
@@ -134,7 +134,7 @@ class PostTagMultihistory::Implementation {
 
 PostTagMultihistory::PostTagMultihistory() : implementation_(std::make_shared<Implementation>()) {}
 
-void PostTagMultihistory::addEvolutionStartingFromState(const PostTagState& state) {
+void PostTagMultihistory::addEvolutionStartingFromState(const TagState& state) {
   implementation_->addEvolutionStartingFromState(state);
 }
 
@@ -142,7 +142,7 @@ size_t PostTagMultihistory::stateCount() const { return implementation_->stateCo
 
 const std::vector<int>& PostTagMultihistory::stateSuccessors() const { return implementation_->stateSuccessors(); }
 
-const PostTagState& PostTagMultihistory::state(int index) const { return implementation_->state(index); }
+const TagState& PostTagMultihistory::state(int index) const { return implementation_->state(index); }
 
 const std::vector<int> PostTagMultihistory::cycleSources() const { return implementation_->cycleSources(); }
 

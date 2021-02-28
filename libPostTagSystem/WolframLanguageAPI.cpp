@@ -78,10 +78,10 @@ int stateCount(mint argc, MArgument* argv, MArgument result) {
   return LIBRARY_NO_ERROR;
 }
 
-PostTagState getState(WolframLibraryData libData, const mint headState, const MTensor tape) {
+TagState getState(WolframLibraryData libData, const mint headState, const MTensor tape) {
   const auto tapeData = libData->MTensor_getIntegerData(tape);
   const auto tapeLength = libData->MTensor_getFlattenedLength(tape);
-  PostTagState result;
+  TagState result;
   result.headState = static_cast<uint8_t>(headState);
 
   result.tape.reserve(tapeLength);
@@ -91,16 +91,16 @@ PostTagState getState(WolframLibraryData libData, const mint headState, const MT
   return result;
 }
 
-std::vector<PostTagState> getStateVector(WolframLibraryData libData,
-                                         const MTensor heads,
-                                         const MTensor tapeLengths,
-                                         const MTensor catenatedTapes) {
+std::vector<TagState> getStateVector(WolframLibraryData libData,
+                                     const MTensor heads,
+                                     const MTensor tapeLengths,
+                                     const MTensor catenatedTapes) {
   const auto stateCount = libData->MTensor_getFlattenedLength(heads);
   const auto headsData = libData->MTensor_getIntegerData(heads);
   const auto lengthsData = libData->MTensor_getIntegerData(tapeLengths);
   const auto catenatedTapesData = libData->MTensor_getIntegerData(catenatedTapes);
 
-  std::vector<PostTagState> result;
+  std::vector<TagState> result;
   result.reserve(stateCount);
   size_t catenatedTapesPosition = 0;
   for (mint stateIndex = 0; stateIndex < stateCount; ++stateIndex) {
@@ -177,10 +177,7 @@ int stateSuccessor([[maybe_unused]] WolframLibraryData libData, mint argc, MArgu
   return LIBRARY_NO_ERROR;
 }
 
-void putState(WolframLibraryData libData,
-              const PostTagState& state,
-              MTensor* output,
-              std::vector<uint64_t> prefix = {}) {
+void putState(WolframLibraryData libData, const TagState& state, MTensor* output, std::vector<uint64_t> prefix = {}) {
   const mint dimensions[1] = {static_cast<mint>(state.tape.size() + prefix.size() + 1)};
   libData->MTensor_new(MType_Integer, 1, dimensions, output);
   mint position[1] = {0};

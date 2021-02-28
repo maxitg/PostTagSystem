@@ -5,13 +5,16 @@
 #include <memory>
 #include <vector>
 
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 
 namespace PostTagSystem {
 class PostTagHistory {
  public:
+  enum class ConclusionReason { InvalidInput, Terminated, ReachedCheckpoint, MaxEventCountExceeded };
+
   struct EvaluationResult {
-    PostTagState finalState;
+    ConclusionReason conclusionReason;
+    TagState finalState;
     uint64_t eventCount;
     uint64_t maxTapeLength;
   };
@@ -23,13 +26,13 @@ class PostTagHistory {
   };
 
   struct CheckpointSpec {
-    std::vector<PostTagState> states;
+    std::vector<TagState> states;
     CheckpointSpecFlags flags;
   };
 
   PostTagHistory();
   EvaluationResult evaluate(const NamedRule& rule,
-                            const PostTagState& init,
+                            const TagState& init,
                             uint64_t maxEvents,
                             const CheckpointSpec& checkpointSpec = CheckpointSpec());
 
