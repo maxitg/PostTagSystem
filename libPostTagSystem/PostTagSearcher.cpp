@@ -53,10 +53,6 @@ class PostTagSearcher::Implementation {
       result.initialState = init;
       result.finalState = singleInitResult.finalState;
       switch (singleInitResult.conclusionReason) {
-        case PostTagHistory::ConclusionReason::InvalidInput:
-          result.conclusionReason = ConclusionReason::InvalidInput;
-          break;
-
         case PostTagHistory::ConclusionReason::Terminated:
           result.conclusionReason = ConclusionReason::Terminated;
           break;
@@ -68,6 +64,9 @@ class PostTagSearcher::Implementation {
         case PostTagHistory::ConclusionReason::MaxEventCountExceeded:
           result.conclusionReason = ConclusionReason::MaxEventCountExceeded;
           break;
+
+        default:
+          result.conclusionReason = ConclusionReason::InvalidInput;
       }
       results.push_back(result);
     }
