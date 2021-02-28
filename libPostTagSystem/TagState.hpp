@@ -1,6 +1,7 @@
 #ifndef LIBPOSTTAGSYSTEM_TAGSTATE_HPP_
 #define LIBPOSTTAGSYSTEM_TAGSTATE_HPP_
 
+#include <cstdint>
 #include <vector>
 
 namespace PostTagSystem {
