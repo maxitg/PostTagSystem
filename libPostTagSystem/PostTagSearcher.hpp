@@ -11,20 +11,23 @@ class PostTagSearcher {
  public:
   PostTagSearcher();
 
-  enum class TerminationReason {
+  enum class ConclusionReason {
     Terminated,
     ReachedCycle,
     ReachedKnownCheckpoint,
     MaxTapeLengthExceeded,
     MaxEventCountExceeded,
-    TimeConstraintExceeded
+    TimeConstraintExceeded,
+    NotEvaluated
   };
 
   struct EvaluationResult {
-    TerminationReason terminationReason;
+    ConclusionReason conclusionReason;
     uint64_t eventCount;
     uint64_t maxTapeLength;
     uint64_t finalTapeLength;
+    PostTagState initialState;
+    PostTagState finalState;
   };
 
   // Note that the system run 8 events at a time. That means, the tape lengths don't change one at a time, they can
@@ -36,7 +39,7 @@ class PostTagSearcher {
     uint64_t maxEventCount;
     // Unlike tape length and event count constraints, time constraint applies to the entire range/group.
     // If the time constraint is exceeded the current EvaluationResult and all the remaining ones will have
-    // TimeConstraintExceeded termination reason. The aborted evaluations will have EvaluationResult filled in with
+    // TimeConstraintExceeded conclusion reason. The aborted evaluations will have EvaluationResult filled in with
     // values obtained so far. The remaining ones will be filled with zeros.
     uint64_t groupTimeConstraintNs;
     Checkpoints checkpoints;
@@ -54,7 +57,7 @@ class PostTagSearcher {
                                               const EvaluationParameters& parameters);
 
   // Sets phases to zero and reads in tapeBegin and tapeEnd as binary digits.
-  std::vector<EvaluationResult> evaluateRange(uint64_t tapeLength,
+  std::vector<EvaluationResult> evaluateRange(uint8_t tapeLength,
                                               uint64_t tapeBegin,
                                               uint64_t tapeEnd,
                                               const EvaluationParameters& parameters);
@@ -65,6 +68,7 @@ class PostTagSearcher {
 
   struct SmallState {
     uint64_t tape;
+    uint8_t tapeLength;
     uint8_t headState;
   };
 
