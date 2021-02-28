@@ -4,10 +4,10 @@
 #include "PostTagState.hpp"
 #include "arguments.hpp"
 #include "files/PostTagCribFile.hpp"
+#include "files/PostTagResultFile.hpp"
 
+using boost::program_options::variables_map;
 using PostTagSystem::PostTagHistory, PostTagSystem::PostTagState;
-
-namespace po = boost::program_options;
 
 std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
   std::vector<bool> bits(bit_count, false);
@@ -26,7 +26,7 @@ void print_bits(std::vector<bool> bits) {
   }
 }
 
-int run_mode_chase(po::variables_map args) {
+int run_mode_chase(variables_map args) {
   auto size = args["initsize"].as<uint64_t>();
   auto start = args["initstart"].as<uint64_t>();
   auto count = args["initcount"].as<uint64_t>();
@@ -43,7 +43,7 @@ int run_mode_chase(po::variables_map args) {
     auto crib_file_path = args["cribfile"].as<std::string>();
     PostTagCribFileReader crib_file_reader(crib_file_path, std::ios::binary);
     if (!crib_file_reader.is_open()) {
-      throw std::runtime_error("Failed to open crib file '" + crib_file_path + "'");
+      throw std::runtime_error("Failed to open crib file '" + crib_file_path + "' for reading");
     }
 
     PostTagCribFile crib_file = crib_file_reader.read_file();
@@ -60,12 +60,15 @@ int run_mode_chase(po::variables_map args) {
 
   PostTagState init_state;
   PostTagHistory system;
-  PostTagHistory::EvaluationResult result;
+
+  std::vector<PostTagHistory::EvaluationResult> results(count);
 
   printf("Chasing...\n");
   printf("--------------\n");
 
-  for (uint64_t init = start; init < (start + count); init++) {
+  for (size_t i = 0; i < count; i++) {
+    uint64_t init = start + i;
+
     init_state.headState = 0;
     init_state.tape = integer_bits(init, size);
 
@@ -73,28 +76,40 @@ int run_mode_chase(po::variables_map args) {
     print_bits(init_state.tape);
     printf(") - %u\n", init_state.headState);
 
-    result = system.evaluate(PostTagHistory::NamedRule::Post, init_state, max_steps, checkpoint_spec);
+    results[i] = system.evaluate(PostTagHistory::NamedRule::Post, init_state, max_steps, checkpoint_spec);
 
-    printf("Event count: %lu\n", result.eventCount);
-    printf("Max tape length: %lu\n", result.maxTapeLength);
+    printf("Event count: %lu\n", results[i].eventCount);
+    printf("Max tape length: %lu\n", results[i].maxTapeLength);
     printf("Final condition: ");
-    print_bits(result.finalState.tape);
-    printf(" - %u\n", result.finalState.headState);
+    print_bits(results[i].finalState.tape);
+    printf(" - %u\n", results[i].finalState.headState);
     printf("--------------\n");
   }
 
   printf("Done chasing!\n");
 
+  if (args.count("outfile")) {
+    auto result_file_path = args["outfile"].as<std::string>();
+    PostTagResultFileWriter result_file_writer(result_file_path, std::ios::binary);
+    if (!result_file_writer.is_open()) {
+      throw std::runtime_error("Failed to open output file '" + result_file_path + "' for writing");
+    }
+
+    PostTagResultFile result_file(V1, results);
+
+    result_file_writer.write_file(result_file);
+  }
+
   return 0;
 }
 
-int run_mode_pounce(po::variables_map args) {
+int run_mode_pounce(variables_map args) {
   throw std::logic_error("Pounce mode not implemented");
   return 1;
 }
 
 int main(int argc, char** argv) {
-  po::variables_map args;
+  variables_map args;
   try {
     args = parse_arguments(argc, argv);
   } catch (const std::exception& err) {
