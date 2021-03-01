@@ -59,8 +59,10 @@ Diagram shows a sequence of 19 bits followed by one of 16 bits.
     - Bits 0-1: Head state as unsigned 2-bit integer (0 to 3)
     - Bits 2-7: Bit count (number of significant bits in following `u64`)
       - Unsigned 6-bit integer; zero-indexed (`0` means 1 bit; `63` means 64 bits)
-  - Tape bits: `u64`
-    - Up to 64 bits, encoded as a decimal integer
+  - Bits: packed bit array of up to 64 bits, padded at the end with zeroes to the nearest 8-bit boundary
+    - Number of significant bits indicated by bits 2-7 of the state header
+
+Diagram shows a single initial state of 25 bits.
 
 ```
  0                   1                   2                   3  
@@ -71,11 +73,10 @@ Diagram shows a sequence of 19 bits followed by one of 16 bits.
 |                          State count                          |
 +                               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                               | HS| Bit count |               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+               +
-|                              Bits                             |
-+                                               +-+-+-+-+-+-+-+-+
-|                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               Bits              |   Padding   |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 
-`Magic ['I']:8,Version [0x01]:8,State count:64,HS:2,Bit count:6,Bits:64`
+`Magic ['I']:8,Version [0x01]:8,State count:64,HS:2,Bit count:6,Bits:25,Padding:7`
+
