@@ -288,6 +288,7 @@
 				HEADER_SEARCH_PATHS = "build/_deps/googletest-src/googletest/include";
 				LIBRARY_SEARCH_PATHS = build/lib;
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lgtest",
 					"-lgtest_main",
