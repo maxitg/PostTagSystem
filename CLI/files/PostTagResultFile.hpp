@@ -6,15 +6,15 @@
 
 #include "PostTagFile.hpp"
 #include "PostTagFileWriter.hpp"
-#include "PostTagHistory.hpp"
+#include "PostTagSearcher.hpp"
 
 struct PostTagResultFile {
   PostTagFileVersion version;
 
   uint64_t result_count;
-  const std::vector<PostTagSystem::PostTagHistory::EvaluationResult>& results;
+  const std::vector<PostTagSystem::PostTagSearcher::EvaluationResult>& results;
 
-  PostTagResultFile(PostTagFileVersion v, const std::vector<PostTagSystem::PostTagHistory::EvaluationResult>& r)
+  PostTagResultFile(PostTagFileVersion v, const std::vector<PostTagSystem::PostTagSearcher::EvaluationResult>& r)
       : version(v), results(r) {
     result_count = results.size();
   }
@@ -29,7 +29,7 @@ class PostTagResultFileWriter : public PostTagFileWriter {
  private:
   void write_file_V1(const PostTagResultFile& file);
 
-  void write_result(const PostTagSystem::PostTagHistory::EvaluationResult& result, bool write_final_state);
+  void write_result(const PostTagSystem::PostTagSearcher::EvaluationResult& result, bool write_final_state);
 };
 
 #endif  // CLI_FILES_POSTTAGRESULTFILE_HPP_
