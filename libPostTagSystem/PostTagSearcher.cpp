@@ -46,7 +46,7 @@ class PostTagSearcher::Implementation {
     limits.maxTapeLength = parameters.maxTapeLength;
     const auto singleInitResults =
         evaluator.evaluate(PostTagHistory::NamedRule::Post, states, limits, {parameters.checkpoints, {true}});
-    for (int initIndex = 0; initIndex < states.size(); ++initIndex) {
+    for (size_t initIndex = 0; initIndex < states.size(); ++initIndex) {
       EvaluationResult result;
       result.eventCount = singleInitResults[initIndex].eventCount;
       result.maxTapeLength = singleInitResults[initIndex].maxIntermediateTapeLength;
