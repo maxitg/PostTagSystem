@@ -47,7 +47,7 @@ class PostTagSearcher {
     // values obtained so far. The remaining ones will be filled with zeros.
     int64_t groupTimeConstraintNs = std::numeric_limits<int64_t>::max();
     Checkpoints checkpoints = {};
-    // TODO(maxitg): Add an option to omit returning unevaluated states
+    bool includeUnevaluatedStates = false;
   };
 
   // The functions below use two tries. One for the input checkpoints which is shared among all of them. The other trie
