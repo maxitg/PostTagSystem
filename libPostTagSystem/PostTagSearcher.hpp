@@ -1,6 +1,7 @@
 #ifndef LIBPOSTTAGSYSTEM_POSTTAGSEARCHER_HPP_
 #define LIBPOSTTAGSYSTEM_POSTTAGSEARCHER_HPP_
 
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -36,14 +37,14 @@ class PostTagSearcher {
   using Checkpoints = std::vector<TagState>;
 
   struct EvaluationParameters {
-    uint64_t maxTapeLength;
-    uint64_t maxEventCount;
+    uint64_t maxTapeLength = std::numeric_limits<uint64_t>::max();
+    uint64_t maxEventCount = std::numeric_limits<uint64_t>::max() - 7;
     // Unlike tape length and event count constraints, time constraint applies to the entire range/group.
     // If the time constraint is exceeded the current EvaluationResult and all the remaining ones will have
     // TimeConstraintExceeded conclusion reason. The aborted evaluations will have EvaluationResult filled in with
     // values obtained so far. The remaining ones will be filled with zeros.
-    uint64_t groupTimeConstraintNs;
-    Checkpoints checkpoints;
+    uint64_t groupTimeConstraintNs = std::numeric_limits<uint64_t>::max();
+    Checkpoints checkpoints = {};
   };
 
   // The functions below use two tries. One for the input checkpoints which is shared among all of them. The other trie
