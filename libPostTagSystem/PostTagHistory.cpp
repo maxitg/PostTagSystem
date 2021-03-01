@@ -51,7 +51,8 @@ class PostTagHistory::Implementation {
                             const CheckpointSpec& checkpointSpec) {
     constexpr uint64_t nsPerSec = 1000000000;
     const auto startClock = clock();
-    const clock_t endClock = startClock + limits.maxTimeNs / (nsPerSec / CLOCKS_PER_SEC);
+    const clock_t endClock =
+        startClock + std::llround(static_cast<double>(limits.maxTimeNs) * CLOCKS_PER_SEC / nsPerSec);
     EvaluationLimits singleEvaluationLimits = limits;
     singleEvaluationLimits.maxTimeNs = std::numeric_limits<uint64_t>::max();
     singleEvaluationLimits.terminationClock = endClock;
@@ -180,9 +181,10 @@ class PostTagHistory::Implementation {
     }
     CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
+    constexpr int eventsPerClockCheck = 10000;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      if (clock() > limits.terminationClock) {
+      if (eventCount % eventsPerClockCheck == 0 && clock() > limits.terminationClock) {
         *conclusionReason = ConclusionReason::TimeConstraintExceeded;
         return eventCount;
       }
