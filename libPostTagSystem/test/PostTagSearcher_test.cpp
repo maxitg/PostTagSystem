@@ -27,10 +27,11 @@ TEST(PostTagSearcher, emptyCases) {
 
 void compareResults(const TagState& init,
                     const PostTagSearcher::EvaluationResult& result,
-                    uint64_t eventLimit = std::numeric_limits<uint64_t>::max() - 7) {
+                    const PostTagHistory::EvaluationLimits& limits = PostTagHistory::EvaluationLimits(),
+                    const std::vector<TagState>& checkpoints = {}) {
   PostTagHistory singleHistoryEvaluator;
-  const auto singleResult = singleHistoryEvaluator.evaluate(
-      PostTagHistory::NamedRule::Post, init, PostTagHistory::EvaluationLimits(eventLimit), {{}, {true}});
+  const auto singleResult =
+      singleHistoryEvaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits, {checkpoints, {true}});
 
   if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::InvalidInput) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::InvalidInput);
@@ -102,7 +103,20 @@ TEST(PostTagSearcher, eventLimit) {
       {{0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 0}, {{0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 2}, parameters);
   ASSERT_EQ(result.size(), 2);
 
-  compareResults(TagState({0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 0), result[0], 104);
-  compareResults(TagState({0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 1), result[1], 104);
+  compareResults(
+      TagState({0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 0), result[0], PostTagHistory::EvaluationLimits(104));
+  compareResults(
+      TagState({0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 1), result[1], PostTagHistory::EvaluationLimits(104));
+}
+
+TEST(PostTagSearcher, checkpoints) {
+  PostTagSearcher searcher;
+  PostTagSearcher::EvaluationParameters parameters;
+  parameters.checkpoints = {{{0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0}, 2}};
+  const auto result = searcher.evaluateRange(20, 123, 125, parameters);
+  ASSERT_EQ(result.size(), 6);
+
+  compareResults(TagState(20, 123, 0), result[0], PostTagHistory::EvaluationLimits(), parameters.checkpoints);
+  compareResults(TagState(20, 124, 0), result[3], PostTagHistory::EvaluationLimits(), parameters.checkpoints);
 }
 }  // namespace PostTagSystem
