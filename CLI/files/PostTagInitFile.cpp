@@ -2,7 +2,7 @@
 
 #include <boost/format.hpp>
 
-using PostTagSystem::PostTagState;
+using PostTagSystem::TagState;
 
 PostTagInitFile PostTagInitFileReader::read_file() {
   uint8_t file_magic = read_u8();
@@ -34,8 +34,8 @@ PostTagInitFile PostTagInitFileReader::read_file_V1() {
   return file;
 }
 
-std::vector<PostTagState> PostTagInitFileReader::read_states(uint64_t state_count) {
-  std::vector<PostTagState> states(state_count);
+std::vector<TagState> PostTagInitFileReader::read_states(uint64_t state_count) {
+  std::vector<TagState> states(state_count);
   for (size_t i = 0; i < state_count; i++) {
     uint8_t state_header = read_u8();
     states[i].headState = (state_header & 0b11000000) >> 6;

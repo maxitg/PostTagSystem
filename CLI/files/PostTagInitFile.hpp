@@ -6,13 +6,13 @@
 
 #include "PostTagFile.hpp"
 #include "PostTagFileReader.hpp"
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 
 struct PostTagInitFile {
   PostTagFileVersion version;
 
   uint64_t state_count;
-  std::vector<PostTagSystem::PostTagState> states;  // TODO(jessef): use SmallState
+  std::vector<PostTagSystem::TagState> states;  // TODO(jessef): use SmallState
 };
 
 class PostTagInitFileReader : public PostTagFileReader {
@@ -24,7 +24,7 @@ class PostTagInitFileReader : public PostTagFileReader {
  private:
   PostTagInitFile read_file_V1();
 
-  std::vector<PostTagSystem::PostTagState> read_states(uint64_t state_count);
+  std::vector<PostTagSystem::TagState> read_states(uint64_t state_count);
 };
 
 #endif  // CLI_FILES_POSTTAGINITFILE_HPP_

@@ -6,13 +6,13 @@
 
 #include "PostTagFile.hpp"
 #include "PostTagFileReader.hpp"
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 
 struct PostTagCribFile {
   PostTagFileVersion version;
 
   uint64_t checkpoint_count;
-  std::vector<PostTagSystem::PostTagState> checkpoints;
+  std::vector<PostTagSystem::TagState> checkpoints;
 };
 
 class PostTagCribFileReader : public PostTagFileReader {
@@ -24,7 +24,7 @@ class PostTagCribFileReader : public PostTagFileReader {
  private:
   PostTagCribFile read_file_V1();
 
-  std::vector<PostTagSystem::PostTagState> read_checkpoints(uint64_t checkpoint_count);
+  std::vector<PostTagSystem::TagState> read_checkpoints(uint64_t checkpoint_count);
 };
 
 #endif  // CLI_FILES_POSTTAGCRIBFILE_HPP_
