@@ -29,8 +29,8 @@ void compareResults(const TagState& init,
                     const PostTagSearcher::EvaluationResult& result,
                     uint64_t eventLimit = std::numeric_limits<uint64_t>::max() - 7) {
   PostTagHistory singleHistoryEvaluator;
-  const auto singleResult =
-      singleHistoryEvaluator.evaluate(PostTagHistory::NamedRule::Post, init, eventLimit, {{}, {true}});
+  const auto singleResult = singleHistoryEvaluator.evaluate(
+      PostTagHistory::NamedRule::Post, init, PostTagHistory::EvaluationLimits(eventLimit), {{}, {true}});
 
   if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::InvalidInput) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::InvalidInput);
@@ -44,7 +44,7 @@ void compareResults(const TagState& init,
 
   ASSERT_EQ(result.finalState, singleResult.finalState);
   ASSERT_EQ(result.eventCount, singleResult.eventCount);
-  ASSERT_EQ(result.maxTapeLength, singleResult.maxTapeLength);
+  ASSERT_EQ(result.maxTapeLength, singleResult.maxIntermediateTapeLength);
   ASSERT_EQ(result.finalTapeLength, singleResult.finalState.tape.size());
   ASSERT_EQ(result.initialState, init);
 }
