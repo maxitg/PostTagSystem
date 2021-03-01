@@ -14,6 +14,15 @@ auto validator_uint_greater_equal(const char* const option_name, uint64_t min) {
   };
 }
 
+auto validator_uint_between(const char* const option_name, uint64_t min, uint64_t max) {
+  return [option_name, min, max](auto n) {
+    if (n < min || n > max) {
+      throw po::validation_error(
+          po::validation_error::invalid_option_value, option_name, std::to_string(static_cast<uint64_t>(n)));
+    }
+  };
+}
+
 void validate_option_existence(po::variables_map args, const char* const option_name) {
   if (args.count(option_name) == 0) {
     // TODO(jessef): better exception
@@ -56,8 +65,8 @@ po::variables_map parse_arguments(int argc, char** argv) {
   chase_options.add_options()
     ("cribfile,f",    po::value<std::string>()->value_name("path.postcrib"),
       "Path to crib file (list of known sequences)")
-    ("initsize,l",    po::value<uint8_t>()->default_value(30)->value_name("size")
-                          ->notifier(validator_uint_greater_equal("initsize", 1)),
+    ("initsize,l",    po::value<uint16_t>()->default_value(30)->value_name("size")
+                          ->notifier(validator_uint_between("initsize", 1, 64)),
       "Size of initial condition tapes")
     ("initstart,s",   po::value<uint64_t>()->value_name("start"),
       "Starting initial condition")
