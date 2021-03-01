@@ -8,7 +8,8 @@ namespace po = boost::program_options;
 auto validator_uint_greater_equal(const char* const option_name, uint64_t min) {
   return [option_name, min](auto n) {
     if (n < min) {
-      throw po::validation_error(po::validation_error::invalid_option_value, option_name, std::to_string(n));
+      throw po::validation_error(
+          po::validation_error::invalid_option_value, option_name, std::to_string(static_cast<uint64_t>(n)));
     }
   };
 }
@@ -40,37 +41,35 @@ po::variables_map parse_arguments(int argc, char** argv) {
     ("version,v",     po::bool_switch(),
       "Print program version")
     ("chase,c",       po::bool_switch(),
-      "Chase mode (breadth search)")
+      "Chase mode (range search)")
     ("pounce,p",      po::bool_switch(),
-      "Pounce mode (depth search)")
+      "Pounce mode (file search)")
     ("outfile,o",     po::value<std::string>()->default_value("./output.postresult")->value_name("path.postresult"),
       "Path to output file")
+    ("maxsize,x",     po::value<uint64_t>()->default_value(1e9, "10^9")->value_name("size"),
+      "Maximum tape length to evaluate each initial condition to (0 = no limit)")
+    ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps"),
+      "Maximum number of steps to evaluate each initial condition to (0 = no limit)")
     ("timeout,t",     po::value<uint64_t>()->default_value(0)->value_name("secs"),
-      "Total execution time constraint (seconds)");
+      "Total execution time constraint (seconds) (0 = no limit)");
 
   chase_options.add_options()
     ("cribfile,f",    po::value<std::string>()->value_name("path.postcrib"),
       "Path to crib file (list of known sequences)")
-    ("initsize,l",    po::value<uint64_t>()->default_value(30)->value_name("size")
+    ("initsize,l",    po::value<uint8_t>()->default_value(30)->value_name("size")
                           ->notifier(validator_uint_greater_equal("initsize", 1)),
-      "Size of initial condition sequences")
+      "Size of initial condition tapes")
     ("initstart,s",   po::value<uint64_t>()->value_name("start"),
       "Starting initial condition")
     ("initcount,n",   po::value<uint64_t>()->default_value(1)->value_name("count")
                           ->notifier(validator_uint_greater_equal("initcount", 1)),
       "Number of initial conditions")
     ("initoffset,e",  po::value<uint64_t>()->default_value(0)->value_name("offset"),
-      "Shifts starting condition by offset * count (for use with zero-indexed array jobs)")
-    ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps")
-                          ->notifier(validator_uint_greater_equal("maxsteps", 1)),
-      "Maximum number of steps to evaluate each initial condition to");
+      "Shifts starting condition by offset * count (for use with zero-indexed array jobs)");
 
   pounce_options.add_options()
     ("initfile,i",    po::value<std::string>()->value_name("path.postinit"),
-      "Path to file of initial conditions")
-    ("maxsize,x",     po::value<unsigned int>()->default_value(1e9, "10^9")->value_name("size")
-                          ->notifier(validator_uint_greater_equal("maxsize", 1)),
-      "Maximum size to evaluate to");
+      "Path to file of initial conditions");
   // clang-format on
 
   po::options_description all_options;
