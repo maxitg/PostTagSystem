@@ -10,13 +10,19 @@
 namespace PostTagSystem {
 class PostTagHistory {
  public:
-  enum class ConclusionReason { InvalidInput, Terminated, ReachedCheckpoint, MaxEventCountExceeded };
+  enum class ConclusionReason {
+    InvalidInput,
+    Terminated,
+    ReachedCheckpoint,
+    MaxEventCountExceeded,
+    MaxTapeLengthExceeded
+  };
 
   struct EvaluationResult {
     ConclusionReason conclusionReason;
     TagState finalState;
     uint64_t eventCount;
-    uint64_t maxTapeLength;
+    uint64_t maxIntermediateTapeLength;
   };
 
   enum class NamedRule { Post = 0, Rule002211 = 1, Rule000010111 = 2 };
@@ -30,10 +36,19 @@ class PostTagHistory {
     CheckpointSpecFlags flags;
   };
 
+  struct EvaluationLimits {
+    uint64_t maxEventCount = std::numeric_limits<uint64_t>::max() - 7;
+    uint64_t maxTapeLength = std::numeric_limits<uint64_t>::max();
+    uint64_t maxTimeNs = std::numeric_limits<uint64_t>::max();
+
+    EvaluationLimits() = default;
+    EvaluationLimits(uint64_t maxEventCountInput) : maxEventCount(maxEventCountInput) {}
+  };
+
   PostTagHistory();
   EvaluationResult evaluate(const NamedRule& rule,
                             const TagState& init,
-                            uint64_t maxEvents,
+                            const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec = CheckpointSpec());
 
  private:

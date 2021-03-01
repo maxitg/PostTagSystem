@@ -270,10 +270,12 @@ int evaluatePostTagSystem(WolframLibraryData libData, mint argc, MArgument* argv
     const auto checkpoints = getStateVector(
         libData, MArgument_getMTensor(argv[4]), MArgument_getMTensor(argv[5]), MArgument_getMTensor(argv[6]));
     const auto checkpointFlags = getCheckpointFlags(libData, MArgument_getMTensor(argv[7]));
-    const auto outState =
-        historyEvaluator_.evaluate(systemCode, inState, MArgument_getInteger(argv[3]), {checkpoints, checkpointFlags});
+    const auto outState = historyEvaluator_.evaluate(systemCode,
+                                                     inState,
+                                                     PostTagHistory::EvaluationLimits(MArgument_getInteger(argv[3])),
+                                                     {checkpoints, checkpointFlags});
     MTensor output;
-    putState(libData, outState.finalState, &output, {outState.eventCount, outState.maxTapeLength});
+    putState(libData, outState.finalState, &output, {outState.eventCount, outState.maxIntermediateTapeLength});
     MArgument_setMTensor(result, output);
   } catch (...) {
     return LIBRARY_FUNCTION_ERROR;
