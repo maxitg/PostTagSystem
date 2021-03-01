@@ -1,15 +1,18 @@
 #include <cinttypes>
 #include <iostream>
+#include <utility>
 
 #include "PostTagHistory.hpp"
+#include "PostTagSearcher.hpp"
 #include "TagState.hpp"
 #include "arguments.hpp"
+#include "boost/format.hpp"
 #include "files/PostTagCribFile.hpp"
 #include "files/PostTagInitFile.hpp"
 #include "files/PostTagResultFile.hpp"
 
 using boost::program_options::variables_map;
-using PostTagSystem::PostTagHistory, PostTagSystem::TagState;
+using PostTagSystem::PostTagHistory, PostTagSystem::TagState, PostTagSystem::PostTagSearcher;
 
 std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
   std::vector<bool> bits(bit_count, false);
@@ -28,18 +31,32 @@ void print_bits(const std::vector<bool>& bits) {
   }
 }
 
-int run_mode_chase(variables_map args) {
-  auto size = args["initsize"].as<uint64_t>();
-  auto start = args["initstart"].as<uint64_t>();
-  auto count = args["initcount"].as<uint64_t>();
-  auto offset = args["initoffset"].as<uint64_t>();
+PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& args) {
+  PostTagSearcher::EvaluationParameters eval_params;
+
+  auto max_size = args["maxsize"].as<uint64_t>();
+  if (max_size > 0) {
+    eval_params.maxTapeLength = max_size;
+    std::cout << boost::format("Maximum tape size: %u seconds\n") % max_size;
+  } else {
+    std::cout << "Maximum tape size: unlimited\n";
+  }
+
   auto max_steps = args["maxsteps"].as<uint64_t>();
+  if (max_steps > 0) {
+    eval_params.maxEventCount = max_steps;
+    std::cout << boost::format("Maximum step count: %u seconds\n") % max_steps;
+  } else {
+    std::cout << "Maximum step count: unlimited\n";
+  }
 
-  // allows several jobs of the same size to be run
-  // at different offsets from the starting point
-  start += count * offset;
-
-  PostTagHistory::CheckpointSpec checkpoint_spec;
+  auto timeout = args["timeout"].as<uint64_t>();
+  if (timeout > 0) {
+    eval_params.groupTimeConstraintNs = timeout * 1e9;  // seconds to ns
+    std::cout << boost::format("Total evaluation time limit: %u seconds\n") % timeout;
+  } else {
+    std::cout << "Total evaluation time limit: unlimited\n";
+  }
 
   if (args.count("cribfile")) {
     auto crib_file_path = args["cribfile"].as<std::string>();
@@ -50,62 +67,59 @@ int run_mode_chase(variables_map args) {
 
     PostTagCribFile crib_file = crib_file_reader.read_file();
 
-    checkpoint_spec.states = crib_file.checkpoints;
+    eval_params.checkpoints = std::move(crib_file.checkpoints);
 
-    for (size_t i = 0; i < checkpoint_spec.states.size(); i++) {
-      auto checkpoint = checkpoint_spec.states[i];
-      print_bits(checkpoint.tape);
-      printf(" - %u\n", checkpoint.headState);
-    }
-    return 0;
+    std::cout << boost::format("Loaded %u checkpoint(s) from crib file '%s'\n") % crib_file.checkpoint_count %
+                     crib_file_path;
+  } else {
+    std::cout << "No crib file specified; not loading checkpoints\n";
   }
 
-  TagState init_state;
-  PostTagHistory system;
+  // TODO(jessef): check that outfile can be opened prior to running the evaluation
 
-  std::vector<PostTagHistory::EvaluationResult> results(count);
+  return eval_params;
+}
 
-  printf("Chasing...\n");
-  printf("--------------\n");
+int run_mode_chase(const variables_map& args) {
+  auto tape_length = args["initsize"].as<uint8_t>();
+  auto start = args["initstart"].as<uint64_t>();
+  auto count = args["initcount"].as<uint64_t>();
+  auto offset = args["initoffset"].as<uint64_t>();
 
-  for (size_t i = 0; i < count; i++) {
-    uint64_t init = start + i;
+  // allows several jobs of the same size to be run
+  // at different offsets from the starting point
+  start += count * offset;
 
-    init_state.headState = 0;
-    init_state.tape = integer_bits(init, size);
+  PostTagSearcher searcher;
 
-    printf("Initial condition: %" PRIu64 " (", init);
-    print_bits(init_state.tape);
-    printf(") - %u\n", init_state.headState);
+  auto eval_params = get_eval_parameters(args);
+  std::cout << "\n";
 
-    results[i] = system.evaluate(PostTagHistory::NamedRule::Post, init_state, max_steps, checkpoint_spec);
+  std::cout << boost::format("Evaluating %u initial conditions, starting at %u...\n") % count % start;
+  std::cout << "----------------\n";
 
-    printf("Event count: %" PRIu64 "\n", results[i].eventCount);
-    printf("Max tape length: %" PRIu64 "\n", results[i].maxTapeLength);
-    printf("Final condition: ");
-    print_bits(results[i].finalState.tape);
-    printf(" - %u\n", results[i].finalState.headState);
-    printf("--------------\n");
+  std::vector<PostTagSearcher::EvaluationResult> results =
+      searcher.evaluateRange(tape_length, start, start + count, eval_params);
+  //std::cout << "----------------\n";
+
+  std::cout << boost::format("Evaluation finished with %i results\n") % results.size();
+
+  auto result_file_path = args["outfile"].as<std::string>();
+  std::cout << boost::format("Writing results to '%s'\n") % result_file_path;
+
+  PostTagResultFileWriter result_file_writer(result_file_path, std::ios::binary);
+  if (!result_file_writer.is_open()) {
+    throw std::runtime_error("Failed to open output file '" + result_file_path + "' for writing");
   }
 
-  printf("Done chasing!\n");
+  PostTagResultFile result_file(Version1, results);
 
-  if (args.count("outfile")) {
-    auto result_file_path = args["outfile"].as<std::string>();
-    PostTagResultFileWriter result_file_writer(result_file_path, std::ios::binary);
-    if (!result_file_writer.is_open()) {
-      throw std::runtime_error("Failed to open output file '" + result_file_path + "' for writing");
-    }
-
-    PostTagResultFile result_file(Version1, results);
-
-    result_file_writer.write_file(result_file);
-  }
+  result_file_writer.write_file(result_file);
 
   return 0;
 }
 
-int run_mode_pounce(variables_map args) {
+int run_mode_pounce(const variables_map& args) {
   auto init_file_path = args["initfile"].as<std::string>();
   PostTagInitFileReader init_file_reader(init_file_path, std::ios::binary);
   if (!init_file_reader.is_open()) {
