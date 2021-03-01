@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
-#include <ctime>
 #include <limits>
 #include <memory>
 #include <queue>
@@ -59,9 +59,8 @@ class PostTagHistory::Implementation {
                                          const EvaluationLimits& limits,
                                          const CheckpointSpec& checkpointSpec) {
     constexpr uint64_t nsPerSec = 1000000000;
-    const auto startClock = clock();
-    const clock_t endClock =
-        startClock + std::llround(static_cast<double>(limits.maxTimeNs) * CLOCKS_PER_SEC / nsPerSec);
+    const auto startClock = std::chrono::steady_clock::now();
+    const auto endClock = startClock + std::chrono::nanoseconds(limits.maxTimeNs);
 
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (limits.maxEventCount % chunkEvaluationTable.eventsAtOnce != 0) {
@@ -174,19 +173,19 @@ class PostTagHistory::Implementation {
                            ConclusionReason* conclusionReason,
                            uint64_t* maxIntermediateTapeLength,
                            const EvaluationLimits& limits,
-                           clock_t endClock,
+                           std::chrono::time_point<std::chrono::steady_clock> endClock,
                            const CheckpointsTrie& explicitCheckpoints,
                            const CheckpointSpecFlags& checkpointFlags) {
-    if (clock() > endClock) {
+    if (std::chrono::steady_clock::now() > endClock) {
       *conclusionReason = ConclusionReason::NotEvaluated;
       return 0;
     }
     CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
-    constexpr int eventsPerClockCheck = 10000;
+    constexpr int eventsPerClockCheck = 100;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      if (eventCount % eventsPerClockCheck == 0 && clock() > endClock) {
+      if (eventCount % eventsPerClockCheck == 0 && std::chrono::steady_clock::now() > endClock) {
         *conclusionReason = ConclusionReason::TimeConstraintExceeded;
         return eventCount;
       }
