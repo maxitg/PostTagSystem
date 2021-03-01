@@ -175,36 +175,7 @@ jobs:
             echo "export PATH=\"$(pwd)/$cmakeDir/bin:$PATH\"" >> $BASH_ENV
 
       - run:
-          name: Build
-          command: scripts/buildLibraryResources.sh
-
-      - persist_to_workspace:
-          root: LibraryResources
-          paths:
-            - Windows-x86-64
-
-      - store_artifacts:
-          path: ./LibraryResources/
-
-  windows-cli-build:
-    executor:
-      name: win/default
-      shell: bash.exe
-
-    steps:
-      - checkout
-
-      - run:
-          name: Install CMake
-          command: |
-            cmakeURL="https://github.com/Kitware/CMake/releases/download/v3.18.6/cmake-3.18.6-win64-x64.zip"
-            curl -L --output cmake.zip $cmakeURL
-            unzip -q cmake.zip
-            cmakeDir=$(dir -1 | findstr -i cmake-*)
-            echo "export PATH=\"$(pwd)/$cmakeDir/bin:$PATH\"" >> $BASH_ENV
-
-      - run:
-          name: Install Boost libraries and headers
+          name: Install Boost headers and build libraries
           command: |
             boostURL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.zip"
             curl -L --output boost.zip $boostURL
@@ -217,16 +188,22 @@ jobs:
             ./b2 --with-program_options
 
       - run:
-          name: Build
+          name: Set CMake build options
           command: |
-            mkdir -p build
-            cd build
-            cmake .. \
-              -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON \
-              -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
-              -DPOST_TAG_SYSTEM_CLI_STATIC_BUILD=ON \
-              -DCMAKE_BUILD_TYPE=Release
-            cmake --build . --config Release
+            echo "export CMAKE_POST_TAG_SYSTEM_BUILD_CLI=ON" >> $BASH_ENV
+            echo "export CMAKE_POST_TAG_SYSTEM_CLI_STATIC_BUILD=ON" >> $BASH_ENV
+
+      - run:
+          name: Build
+          command: scripts/buildLibraryResources.sh
+
+      - persist_to_workspace:
+          root: LibraryResources
+          paths:
+            - Windows-x86-64
+
+      - store_artifacts:
+          path: ./LibraryResources/
 
       - store_artifacts:
           path: ./build/CLI/Release
