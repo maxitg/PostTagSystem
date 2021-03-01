@@ -52,6 +52,11 @@ class PostTagHistory {
                             const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec = CheckpointSpec());
 
+  std::vector<EvaluationResult> evaluate(const NamedRule& rule,
+                                         const std::vector<TagState>& inits,
+                                         const EvaluationLimits& limits,
+                                         const CheckpointSpec& checkpointSpec = CheckpointSpec());
+
  private:
   class Implementation;
   std::shared_ptr<Implementation> implementation_;
