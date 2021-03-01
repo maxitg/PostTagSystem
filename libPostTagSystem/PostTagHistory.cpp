@@ -49,20 +49,18 @@ class PostTagHistory::Implementation {
                             const TagState& init,
                             const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec) {
-    constexpr uint64_t nsPerSec = 1000000000;
-    const auto startClock = clock();
-    const clock_t endClock =
-        startClock + std::llround(static_cast<double>(limits.maxTimeNs) * CLOCKS_PER_SEC / nsPerSec);
-    EvaluationLimits singleEvaluationLimits = limits;
-    singleEvaluationLimits.maxTimeNs = std::numeric_limits<uint64_t>::max();
-    singleEvaluationLimits.terminationClock = endClock;
-    return evaluate(rule, std::vector<TagState>({init}), singleEvaluationLimits, checkpointSpec).front();
+    return evaluate(rule, std::vector<TagState>({init}), limits, checkpointSpec).front();
   }
 
   std::vector<EvaluationResult> evaluate(const NamedRule& rule,
                                          const std::vector<TagState>& inits,
                                          const EvaluationLimits& limits,
                                          const CheckpointSpec& checkpointSpec) {
+    constexpr uint64_t nsPerSec = 1000000000;
+    const auto startClock = clock();
+    const clock_t endClock =
+        startClock + std::llround(static_cast<double>(limits.maxTimeNs) * CLOCKS_PER_SEC / nsPerSec);
+
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (limits.maxEventCount % chunkEvaluationTable.eventsAtOnce != 0) {
       return std::vector<EvaluationResult>(
@@ -84,6 +82,7 @@ class PostTagHistory::Implementation {
                                        &conclusionReason,
                                        &maxIntermediateTapeLength,
                                        limits,
+                                       endClock,
                                        explicitCheckpointsTrie,
                                        checkpointSpec.flags);
       results.push_back(
@@ -173,9 +172,10 @@ class PostTagHistory::Implementation {
                            ConclusionReason* conclusionReason,
                            uint64_t* maxIntermediateTapeLength,
                            const EvaluationLimits& limits,
+                           clock_t endClock,
                            const CheckpointsTrie& explicitCheckpoints,
                            const CheckpointSpecFlags& checkpointFlags) {
-    if (clock() > limits.terminationClock) {
+    if (clock() > endClock) {
       *conclusionReason = ConclusionReason::NotEvaluated;
       return 0;
     }
@@ -184,7 +184,7 @@ class PostTagHistory::Implementation {
     constexpr int eventsPerClockCheck = 10000;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
-      if (eventCount % eventsPerClockCheck == 0 && clock() > limits.terminationClock) {
+      if (eventCount % eventsPerClockCheck == 0 && clock() > endClock) {
         *conclusionReason = ConclusionReason::TimeConstraintExceeded;
         return eventCount;
       }
