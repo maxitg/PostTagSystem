@@ -67,14 +67,14 @@ po::variables_map parse_arguments(int argc, char** argv) {
   chase_options.add_options()
     ("cribfile,f",    po::value<std::string>()->value_name("path.postcrib"),
       "Path to crib file (list of known sequences)")
-    ("initsize,l",    po::value<uint16_t>()->default_value(30)->value_name("size")
+    ("initsize,l",    po::value<uint16_t>()->value_name("size")
                           ->notifier(validator_uint_between("initsize", 1, 64)),
       "Size of initial condition tapes")
     ("initstart,s",   po::value<uint64_t>()->value_name("start"),
-      "Starting initial condition")
+      "Starting initial condition tape (as decimal integer)")
     ("initcount,n",   po::value<uint64_t>()->default_value(1)->value_name("count")
                           ->notifier(validator_uint_greater_equal("initcount", 1)),
-      "Number of initial conditions")
+      "Number of initial condition tapes to evaluate")
     ("initoffset,e",  po::value<uint64_t>()->default_value(0)->value_name("offset"),
       "Shifts starting condition by offset * count (for use with zero-indexed array jobs)");
 

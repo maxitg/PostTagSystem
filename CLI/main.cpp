@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
     // at different offsets from the starting point
     start += count * offset;
 
-    std::cout << boost::format("Evaluating %u initial conditions, starting at %u...\n") % count % start;
+    std::cout << boost::format("Evaluating %u initial condition tapes, starting at %u...\n") % count % start;
     std::cout << "----------------\n";
 
     try {
@@ -136,7 +136,7 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    std::cout << boost::format("Evaluating %u initial conditions...\n") % init_file.state_count;
+    std::cout << boost::format("Evaluating %u initial condition tapes...\n") % init_file.state_count;
     std::cout << "----------------\n";
 
     try {
