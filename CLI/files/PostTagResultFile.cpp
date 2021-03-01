@@ -23,10 +23,20 @@ void PostTagResultFileWriter::write_file(const PostTagResultFile& file) {
 void PostTagResultFileWriter::write_file_V1(const PostTagResultFile& file) {
   write_u64(file.result_count);
 
-  for (size_t i = 0; i < file.result_count; i++) {
-    // TODO(jessef): set write_final_state based on
-    // disposition and/or tape size and/or other stuff
-    write_result(file.results[i], true);
+  for (const PostTagSearcher::EvaluationResult& result : file.results) {
+    // include the final state if it's not too big and the reason isn't one where it's irrelevant
+    bool write_final_state = result.finalTapeLength <= file.biggest_tape_to_write;
+    switch (result.conclusionReason) {
+      case PostTagSearcher::ConclusionReason::InvalidInput:
+      case PostTagSearcher::ConclusionReason::NotEvaluated:
+        write_final_state = false;
+        break;
+      
+      default:
+        break;
+    }
+
+    write_result(result, write_final_state);
   }
 }
 
