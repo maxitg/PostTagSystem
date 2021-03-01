@@ -187,7 +187,7 @@ class PostTagHistory::Implementation {
     }
     CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
-    constexpr int eventsPerClockCheck = 100;
+    constexpr int eventsPerClockCheck = 100000;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
       if (eventCount % eventsPerClockCheck == 0 && std::chrono::steady_clock::now() > endClock) {
