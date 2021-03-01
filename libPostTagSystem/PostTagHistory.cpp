@@ -54,9 +54,9 @@ class PostTagHistory::Implementation {
       return {ConclusionReason::InvalidInput, {{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
-    CheckpointsTrie checkpointsTrie;
+    CheckpointsTrie explicitCheckpointsTrie;
     for (const auto& checkpoint : checkpointSpec.states) {
-      checkpointsTrie.insert(toChunkedState(checkpoint));
+      explicitCheckpointsTrie.insert(toChunkedState(checkpoint));
     }
     uint64_t maxIntermediateTapeLength = tapeLength(chunkedState);
     ConclusionReason conclusionReason;
@@ -65,7 +65,7 @@ class PostTagHistory::Implementation {
                                      &conclusionReason,
                                      &maxIntermediateTapeLength,
                                      limits,
-                                     &checkpointsTrie,
+                                     explicitCheckpointsTrie,
                                      checkpointSpec.flags);
     return {conclusionReason, fromChunkedStateDestructively(&chunkedState), eventCount, maxIntermediateTapeLength};
   }
@@ -150,8 +150,9 @@ class PostTagHistory::Implementation {
                     ConclusionReason* conclusionReason,
                     uint64_t* maxIntermediateTapeLength,
                     const EvaluationLimits& limits,
-                    CheckpointsTrie* checkpoints,
+                    const CheckpointsTrie& explicitCheckpoints,
                     const CheckpointSpecFlags& checkpointFlags) const {
+    CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
@@ -159,12 +160,16 @@ class PostTagHistory::Implementation {
         *conclusionReason = ConclusionReason::MaxTapeLengthExceeded;
         return eventCount;
       }
-      if (checkpoints->contains(*state)) {
-        *conclusionReason = ConclusionReason::ReachedCheckpoint;
+      if (explicitCheckpoints.contains(*state)) {
+        *conclusionReason = ConclusionReason::ReachedExplicitCheckpoint;
+        return eventCount;
+      }
+      if (automaticCheckpoints.contains(*state)) {
+        *conclusionReason = ConclusionReason::ReachedAutomaticCheckpoint;
         return eventCount;
       }
       if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
-        checkpoints->insert(*state);
+        automaticCheckpoints.insert(*state);
       }
       evaluateOnce(evaluationTable, state);
       *maxIntermediateTapeLength = std::max(*maxIntermediateTapeLength, tapeLength(*state));

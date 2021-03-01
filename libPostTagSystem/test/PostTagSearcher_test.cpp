@@ -36,8 +36,10 @@ void compareResults(const TagState& init,
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::InvalidInput);
   } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::Terminated) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::Terminated);
-  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedCheckpoint) {
+  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedAutomaticCheckpoint) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedCycle);
+  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedExplicitCheckpoint) {
+    ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedKnownCheckpoint);
   } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::MaxEventCountExceeded) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::MaxEventCountExceeded);
   }

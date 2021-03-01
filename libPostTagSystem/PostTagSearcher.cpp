@@ -37,7 +37,6 @@ class PostTagSearcher::Implementation {
   std::vector<EvaluationResult> evaluateGroup(const std::vector<TagState>& states,
                                               const EvaluationParameters& parameters) {
     // TODO(maxitg): Implement groupTimeConstraintNs parameter
-    // TODO(maxitg): Implement checkpoints parameter
 
     std::vector<EvaluationResult> results;
     results.reserve(states.size());
@@ -46,7 +45,7 @@ class PostTagSearcher::Implementation {
     limits.maxEventCount = parameters.maxEventCount;
     limits.maxTapeLength = parameters.maxTapeLength;
     for (const auto& init : states) {
-      const auto singleInitResult = evaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits, {{}, {true}});
+      const auto singleInitResult = evaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits, {parameters.checkpoints, {true}});
       EvaluationResult result;
       result.eventCount = singleInitResult.eventCount;
       result.maxTapeLength = singleInitResult.maxIntermediateTapeLength;
@@ -58,8 +57,12 @@ class PostTagSearcher::Implementation {
           result.conclusionReason = ConclusionReason::Terminated;
           break;
 
-        case PostTagHistory::ConclusionReason::ReachedCheckpoint:
+        case PostTagHistory::ConclusionReason::ReachedAutomaticCheckpoint:
           result.conclusionReason = ConclusionReason::ReachedCycle;
+          break;
+
+        case PostTagHistory::ConclusionReason::ReachedExplicitCheckpoint:
+          result.conclusionReason = ConclusionReason::ReachedKnownCheckpoint;
           break;
 
         case PostTagHistory::ConclusionReason::MaxEventCountExceeded:

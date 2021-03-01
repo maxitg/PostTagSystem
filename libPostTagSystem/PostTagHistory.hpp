@@ -13,7 +13,8 @@ class PostTagHistory {
   enum class ConclusionReason {
     InvalidInput,
     Terminated,
-    ReachedCheckpoint,
+    ReachedExplicitCheckpoint,
+    ReachedAutomaticCheckpoint,
     MaxEventCountExceeded,
     MaxTapeLengthExceeded
   };
