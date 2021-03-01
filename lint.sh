@@ -16,7 +16,9 @@ lsfilesOptions=(
 
   # data files
   ':(exclude)TestDatafiles/*'
-  ':(exclude)*.crib'
+  ':(exclude)*.postcrib'
+  ':(exclude)*.postinit'
+  ':(exclude)*.postresult'
 )
 
 mapfile -t filesToLint < <(LC_ALL=C comm -13 <(git ls-files --deleted) <(git ls-files "${lsfilesOptions[@]}"))
