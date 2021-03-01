@@ -2,7 +2,7 @@
 
 #include <boost/format.hpp>
 
-using PostTagSystem::PostTagState;
+using PostTagSystem::TagState;
 
 PostTagCribFile PostTagCribFileReader::read_file() {
   uint8_t file_magic = read_u8();
@@ -34,8 +34,8 @@ PostTagCribFile PostTagCribFileReader::read_file_V1() {
   return file;
 }
 
-std::vector<PostTagState> PostTagCribFileReader::read_checkpoints(uint64_t checkpoint_count) {
-  std::vector<PostTagState> checkpoints(checkpoint_count);
+std::vector<TagState> PostTagCribFileReader::read_checkpoints(uint64_t checkpoint_count) {
+  std::vector<TagState> checkpoints(checkpoint_count);
   for (size_t i = 0; i < checkpoint_count; i++) {
     checkpoints[i].headState = read_u8();
     checkpoints[i].tape = read_prefixed_bits();

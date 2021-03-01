@@ -2,14 +2,14 @@
 #include <iostream>
 
 #include "PostTagHistory.hpp"
-#include "PostTagState.hpp"
+#include "TagState.hpp"
 #include "arguments.hpp"
 #include "files/PostTagCribFile.hpp"
 #include "files/PostTagInitFile.hpp"
 #include "files/PostTagResultFile.hpp"
 
 using boost::program_options::variables_map;
-using PostTagSystem::PostTagHistory, PostTagSystem::PostTagState;
+using PostTagSystem::PostTagHistory, PostTagSystem::TagState;
 
 std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
   std::vector<bool> bits(bit_count, false);
@@ -60,7 +60,7 @@ int run_mode_chase(variables_map args) {
     return 0;
   }
 
-  PostTagState init_state;
+  TagState init_state;
   PostTagHistory system;
 
   std::vector<PostTagHistory::EvaluationResult> results(count);
@@ -116,7 +116,7 @@ int run_mode_pounce(variables_map args) {
 
   printf("Read %" PRIu64 " initial conditions\n", init_file.state_count);
 
-  for (PostTagState& state : init_file.states) {
+  for (TagState& state : init_file.states) {
     print_bits(state.tape);
     printf(" - %u\n", state.headState);
   }
