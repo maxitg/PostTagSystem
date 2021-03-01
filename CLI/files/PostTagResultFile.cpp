@@ -25,7 +25,7 @@ void PostTagResultFileWriter::write_file_V1(const PostTagResultFile& file) {
 
   for (const PostTagSearcher::EvaluationResult& result : file.results) {
     // include the final state if it's not too big and the reason isn't one where it's irrelevant
-    bool write_final_state = result.finalTapeLength <= file.biggest_tape_to_write;
+    bool write_final_state = (result.finalTapeLength <= file.biggest_tape_to_write) && (result.finalTapeLength > 0);
     switch (result.conclusionReason) {
       case PostTagSearcher::ConclusionReason::InvalidInput:
       case PostTagSearcher::ConclusionReason::NotEvaluated:
