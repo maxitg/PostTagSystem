@@ -2,6 +2,7 @@
 #define CLI_FILES_POSTTAGRESULTFILE_HPP_
 
 #include <fstream>
+#include <limits>
 #include <vector>
 
 #include "PostTagFile.hpp"
@@ -13,6 +14,8 @@ struct PostTagResultFile {
 
   uint64_t result_count;
   const std::vector<PostTagSystem::PostTagSearcher::EvaluationResult>& results;
+
+  uint64_t biggest_tape_to_write = std::numeric_limits<uint64_t>::max();
 
   PostTagResultFile(PostTagFileVersion v, const std::vector<PostTagSystem::PostTagSearcher::EvaluationResult>& r)
       : version(v), results(r) {
