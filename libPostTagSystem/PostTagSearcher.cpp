@@ -36,14 +36,13 @@ class PostTagSearcher::Implementation {
 
   std::vector<EvaluationResult> evaluateGroup(const std::vector<TagState>& states,
                                               const EvaluationParameters& parameters) {
-    // TODO(maxitg): Implement groupTimeConstraintNs parameter
-
     std::vector<EvaluationResult> results;
     results.reserve(states.size());
     PostTagHistory evaluator;
     PostTagHistory::EvaluationLimits limits;
     limits.maxEventCount = parameters.maxEventCount;
     limits.maxTapeLength = parameters.maxTapeLength;
+    limits.maxTimeNs = parameters.groupTimeConstraintNs;
     const auto singleInitResults =
         evaluator.evaluate(PostTagHistory::NamedRule::Post, states, limits, {parameters.checkpoints, {true}});
     for (size_t initIndex = 0; initIndex < states.size(); ++initIndex) {
@@ -68,6 +67,14 @@ class PostTagSearcher::Implementation {
 
         case PostTagHistory::ConclusionReason::MaxEventCountExceeded:
           result.conclusionReason = ConclusionReason::MaxEventCountExceeded;
+          break;
+
+        case PostTagHistory::ConclusionReason::TimeConstraintExceeded:
+          result.conclusionReason = ConclusionReason::TimeConstraintExceeded;
+          break;
+
+        case PostTagHistory::ConclusionReason::NotEvaluated:
+          result.conclusionReason = ConclusionReason::NotEvaluated;
           break;
 
         default:
