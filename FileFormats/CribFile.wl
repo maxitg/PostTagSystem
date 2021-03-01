@@ -25,10 +25,7 @@ writeCribFile[path_String, data_List, ___] := Module[{stream, result},
 
 writeCribFile[
     stream_OutputStream,
-    cribs:{Alternatives[
-        Rule[{__Integer}, _Integer],
-        {__Integer}
-    ] ..},
+    cribs:{Rule[{__Integer}, _Integer] ..},
     ___
 ] := Block[{$ByteOrdering = -1}, Module[{
     version = $CurrentFormatVersion
@@ -83,12 +80,6 @@ writeCribFileEntry[
 
     PostTagFileFormats`Utility`writePackedBits[stream, tape];
 )
-
-writeCribFileEntry[version: 1, stream_OutputStream, tape_List] := writeCribFileEntry[
-    version,
-    stream,
-    tape -> 0
-]
 
 (* ::Section:: *)
 (* Register export converter *)

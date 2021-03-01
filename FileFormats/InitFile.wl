@@ -25,13 +25,10 @@ writeInitFile[path_String, data_List, ___] := Module[{stream, result},
 
 writeInitFile[
     stream_OutputStream,
-    inits:{Alternatives[
-        Rule[
+    inits:{Repeated@Rule[
             {__Integer}?(Length[#] <= 64 &),
             _Integer
-        ],
-        {__Integer}?(Length[#] <= 64 &)
-    ] ..},
+        ]},
     ___
 ] := Block[{$ByteOrdering = -1}, Module[{
     version = $CurrentFormatVersion
@@ -92,12 +89,6 @@ writeInitFileEntry[
 
     PostTagFileFormats`Utility`writePackedBits[stream, tape];
 )
-
-writeInitFileEntry[version: 1, stream_OutputStream, tape_List] := writeInitFileEntry[
-    version,
-    stream,
-    tape -> 0
-]
 
 (* ::Section:: *)
 (* Register export converter *)
