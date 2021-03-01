@@ -46,11 +46,11 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Pounce mode (file search)")
     ("outfile,o",     po::value<std::string>()->default_value("./output.postresult")->value_name("path.postresult"),
       "Path to output file")
-    ("maxsize,x",     po::value<uint64_t>()->default_value(1e9, "10^9")->value_name("size"),
+    ("maxsize,x",     po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e9), "10^9")->value_name("size"),
       "Maximum tape length to evaluate each initial condition to (0 = no limit)")
-    ("maxsteps,m",    po::value<uint64_t>()->default_value(1e10, "10^10")->value_name("steps"),
+    ("maxsteps,m",    po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e10), "10^10")->value_name("steps"),
       "Maximum number of steps to evaluate each initial condition to (0 = no limit)")
-    ("timeout,t",     po::value<uint64_t>()->default_value(0)->value_name("secs"),
+    ("timeout,t",     po::value<uint32_t>()->default_value(0)->value_name("secs"),
       "Total execution time constraint (seconds) (0 = no limit)");
 
   chase_options.add_options()
