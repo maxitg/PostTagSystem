@@ -47,10 +47,10 @@ class PostTagHistory::Implementation {
 
   EvaluationResult evaluate(const NamedRule& rule,
                             const TagState& init,
-                            const uint64_t maxEvents,
+                            const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec) {
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
-    if (maxEvents % chunkEvaluationTable.eventsAtOnce != 0) {
+    if (limits.maxEventCount % chunkEvaluationTable.eventsAtOnce != 0) {
       return {ConclusionReason::InvalidInput, {{}, std::numeric_limits<uint8_t>::max()}, 0, 0};
     }
     auto chunkedState = toChunkedState(init);
@@ -58,16 +58,16 @@ class PostTagHistory::Implementation {
     for (const auto& checkpoint : checkpointSpec.states) {
       checkpointsTrie.insert(toChunkedState(checkpoint));
     }
-    uint64_t maxTapeLength = tapeLength(chunkedState);
+    uint64_t maxIntermediateTapeLength = tapeLength(chunkedState);
     ConclusionReason conclusionReason;
     const auto eventCount = evaluate(chunkEvaluationTable,
                                      &chunkedState,
                                      &conclusionReason,
-                                     &maxTapeLength,
-                                     maxEvents,
+                                     &maxIntermediateTapeLength,
+                                     limits,
                                      &checkpointsTrie,
                                      checkpointSpec.flags);
-    return {conclusionReason, fromChunkedStateDestructively(&chunkedState), eventCount, maxTapeLength};
+    return {conclusionReason, fromChunkedStateDestructively(&chunkedState), eventCount, maxIntermediateTapeLength};
   }
 
  private:
@@ -148,13 +148,17 @@ class PostTagHistory::Implementation {
   uint64_t evaluate(const ChunkEvaluationTable& evaluationTable,
                     ChunkedState* state,
                     ConclusionReason* conclusionReason,
-                    uint64_t* maxTapeLength,
-                    const uint64_t maxEvents,
+                    uint64_t* maxIntermediateTapeLength,
+                    const EvaluationLimits& limits,
                     CheckpointsTrie* checkpoints,
                     const CheckpointSpecFlags& checkpointFlags) const {
     uint64_t eventCount;
-    for (eventCount = 0; eventCount < maxEvents && state->chunks.size() > 1;
+    for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
+      if (*maxIntermediateTapeLength > limits.maxTapeLength) {
+        *conclusionReason = ConclusionReason::MaxTapeLengthExceeded;
+        return eventCount;
+      }
       if (checkpoints->contains(*state)) {
         *conclusionReason = ConclusionReason::ReachedCheckpoint;
         return eventCount;
@@ -163,9 +167,9 @@ class PostTagHistory::Implementation {
         checkpoints->insert(*state);
       }
       evaluateOnce(evaluationTable, state);
-      *maxTapeLength = std::max(*maxTapeLength, tapeLength(*state));
+      *maxIntermediateTapeLength = std::max(*maxIntermediateTapeLength, tapeLength(*state));
     }
-    if (eventCount == maxEvents) {
+    if (eventCount == limits.maxEventCount) {
       *conclusionReason = ConclusionReason::MaxEventCountExceeded;
     } else {
       *conclusionReason = ConclusionReason::Terminated;
@@ -209,8 +213,8 @@ PostTagHistory::PostTagHistory() : implementation_(std::make_shared<Implementati
 
 PostTagHistory::EvaluationResult PostTagHistory::evaluate(const NamedRule& rule,
                                                           const TagState& init,
-                                                          const uint64_t maxEvents,
+                                                          const EvaluationLimits& limits,
                                                           const CheckpointSpec& checkpoints) {
-  return implementation_->evaluate(rule, init, maxEvents, checkpoints);
+  return implementation_->evaluate(rule, init, limits, checkpoints);
 }
 }  // namespace PostTagSystem

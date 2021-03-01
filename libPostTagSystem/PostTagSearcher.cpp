@@ -36,19 +36,20 @@ class PostTagSearcher::Implementation {
 
   std::vector<EvaluationResult> evaluateGroup(const std::vector<TagState>& states,
                                               const EvaluationParameters& parameters) {
-    // TODO(maxitg): Implement maxTapeLength parameters
     // TODO(maxitg): Implement groupTimeConstraintNs parameter
     // TODO(maxitg): Implement checkpoints parameter
 
     std::vector<EvaluationResult> results;
     results.reserve(states.size());
     PostTagHistory evaluator;
+    PostTagHistory::EvaluationLimits limits;
+    limits.maxEventCount = parameters.maxEventCount;
+    limits.maxTapeLength = parameters.maxTapeLength;
     for (const auto& init : states) {
-      const auto singleInitResult =
-          evaluator.evaluate(PostTagHistory::NamedRule::Post, init, parameters.maxEventCount, {{}, {true}});
+      const auto singleInitResult = evaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits, {{}, {true}});
       EvaluationResult result;
       result.eventCount = singleInitResult.eventCount;
-      result.maxTapeLength = singleInitResult.maxTapeLength;
+      result.maxTapeLength = singleInitResult.maxIntermediateTapeLength;
       result.finalTapeLength = singleInitResult.finalState.tape.size();
       result.initialState = init;
       result.finalState = singleInitResult.finalState;
