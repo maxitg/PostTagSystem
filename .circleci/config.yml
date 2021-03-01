@@ -229,7 +229,7 @@ jobs:
             cmake --build . --config Release
 
       - store_artifacts:
-          path: ./CLI
+          path: ./build/CLI/Release
 
 workflows:
   version: 2
