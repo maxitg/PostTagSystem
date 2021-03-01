@@ -149,4 +149,8 @@ TEST(PostTagSearcher, smallTimeConstraint) {
   ASSERT_EQ(result.size(), 3);
   ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::TimeConstraintExceeded);
 }
+
+TEST(PostTagSearcher, rangePerformance) {
+  PostTagSearcher().evaluateRange(30, 0, 100000, PostTagSearcher::EvaluationParameters());
+}
 }  // namespace PostTagSystem
