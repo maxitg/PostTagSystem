@@ -119,4 +119,23 @@ TEST(PostTagSearcher, checkpoints) {
   compareResults(TagState(20, 123, 0), result[0], PostTagHistory::EvaluationLimits(), parameters.checkpoints);
   compareResults(TagState(20, 124, 0), result[3], PostTagHistory::EvaluationLimits(), parameters.checkpoints);
 }
+
+TEST(PostTagSearcher, zeroTimeConstraint) {
+  PostTagSearcher searcher;
+  PostTagSearcher::EvaluationParameters parameters;
+  parameters.groupTimeConstraintNs = 0;
+  const auto result = searcher.evaluateRange(20, 123, 124, parameters);
+  ASSERT_EQ(result.size(), 3);
+  ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::NotEvaluated);
+}
+
+TEST(PostTagSearcher, smallTimeConstraint) {
+  PostTagSearcher searcher;
+  PostTagSearcher::EvaluationParameters parameters;
+  parameters.groupTimeConstraintNs = 100000000;  // 0.1 seconds
+  // The following init takes ~4 seconds to terminate
+  const auto result = searcher.evaluateRange(64, 1473593303835332608, 1473593303835332609, parameters);
+  ASSERT_EQ(result.size(), 3);
+  ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::TimeConstraintExceeded);
+}
 }  // namespace PostTagSystem
