@@ -15,7 +15,6 @@ lsfilesOptions=(
   ':(exclude)*.xcodeproj/*' # Xcode manages these automatically
 
   # data files
-  ':(exclude)TestDatafiles/*'
   ':(exclude)*.postcrib'
   ':(exclude)*.postinit'
   ':(exclude)*.postresult'
