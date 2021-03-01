@@ -81,7 +81,7 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
 }
 
 int run_mode_chase(const variables_map& args) {
-  auto tape_length = args["initsize"].as<uint8_t>();
+  auto tape_length = static_cast<uint8_t>(args["initsize"].as<uint16_t>());
   auto start = args["initstart"].as<uint64_t>();
   auto count = args["initcount"].as<uint64_t>();
   auto offset = args["initoffset"].as<uint64_t>();
