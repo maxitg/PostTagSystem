@@ -1,7 +1,7 @@
 #include "PostTagFileReader.hpp"
 
 uint8_t PostTagFileReader::read_u8() {
-  uint8_t byte = get();
+  uint8_t byte = static_cast<uint8_t>(get());
 
   if (eof()) {
     throw std::logic_error("Unexpected EOF");
@@ -61,7 +61,7 @@ std::vector<bool> PostTagFileReader::read_bits(uint64_t bit_count) {
 
 std::vector<bool> PostTagFileReader::read_prefixed_bits() { return read_bits(read_u64()); }
 
-std::vector<bool> PostTagFileReader::read_bits_u64(uint64_t bit_count) {
+std::vector<bool> PostTagFileReader::read_bits_u64(uint8_t bit_count) {
   std::vector<bool> bits(bit_count, false);
   uint64_t bits_dec = read_u64();
 

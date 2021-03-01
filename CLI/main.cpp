@@ -50,9 +50,9 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
     std::cout << "Maximum step count: unlimited\n";
   }
 
-  auto timeout = args["timeout"].as<uint64_t>();
+  auto timeout = args["timeout"].as<uint32_t>();
   if (timeout > 0) {
-    eval_params.groupTimeConstraintNs = timeout * 1e9;  // seconds to ns
+    eval_params.groupTimeConstraintNs = timeout * static_cast<uint64_t>(1e9);  // seconds to ns
     std::cout << boost::format("Total evaluation time limit: %u seconds\n") % timeout;
   } else {
     std::cout << "Total evaluation time limit: unlimited\n";
