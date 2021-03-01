@@ -17,6 +17,9 @@ class PostTagFileReader : public std::ifstream {
 
   // bit sequence prefixed by a uint_64 indicating the # of bits
   std::vector<bool> read_prefixed_bits();
+
+  // sequence of <= 64 bits written as a 64-bit decimal integer
+  std::vector<bool> read_bits_u64(uint64_t bit_count);
 };
 
 #endif  // CLI_FILES_POSTTAGFILEREADER_HPP_

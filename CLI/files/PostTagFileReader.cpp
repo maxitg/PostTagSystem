@@ -60,3 +60,15 @@ std::vector<bool> PostTagFileReader::read_bits(uint64_t bit_count) {
 }
 
 std::vector<bool> PostTagFileReader::read_prefixed_bits() { return read_bits(read_u64()); }
+
+std::vector<bool> PostTagFileReader::read_bits_u64(uint64_t bit_count) {
+  std::vector<bool> bits(bit_count, false);
+  uint64_t bits_dec = read_u64();
+
+  for (int8_t bit = (bit_count - 1); bit >= 0; bit--) {
+    bits[bit] = bits_dec & 1;
+    bits_dec >>= 1;
+  }
+
+  return bits;
+}

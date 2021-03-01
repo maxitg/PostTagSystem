@@ -23,7 +23,7 @@ void PostTagFileWriter::write_u64(uint64_t n) {
   write_u32(0xFFFFFFFF & (n >> 32));
 }
 
-void PostTagFileWriter::write_bits(std::vector<bool> bits) {
+void PostTagFileWriter::write_bits(const std::vector<bool>& bits) {
   uint64_t full_bytes = bits.size() / 8;
   uint8_t remainder_bits = bits.size() % 8;
 
@@ -46,7 +46,22 @@ void PostTagFileWriter::write_bits(std::vector<bool> bits) {
   }
 }
 
-void PostTagFileWriter::write_prefixed_bits(std::vector<bool> bits) {
+void PostTagFileWriter::write_prefixed_bits(const std::vector<bool>& bits) {
   write_u64(bits.size());
   write_bits(bits);
+}
+
+void PostTagFileWriter::write_bits_u64(const std::vector<bool>& bits) {
+  uint64_t bits_dec = 0;
+
+  if (bits.size() > 64) {
+    throw std::logic_error("Too many bits passed to write_bits_u4");
+  }
+
+  for (uint8_t bit = 0; bit < bits.size(); bit++) {
+    bits_dec <<= 1;
+    bits_dec |= bits[bit] & 1;
+  }
+
+  write_u64(bits_dec);
 }
