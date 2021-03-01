@@ -12,15 +12,18 @@ class PostTagSearcher {
  public:
   PostTagSearcher();
 
-  enum class ConclusionReason {
-    InvalidInput,
-    Terminated,
-    ReachedCycle,
-    ReachedKnownCheckpoint,
-    MaxTapeLengthExceeded,
-    MaxEventCountExceeded,
-    TimeConstraintExceeded,
-    NotEvaluated
+  enum class ConclusionReason : uint8_t {
+    InvalidInput = 1,
+    Terminated = 2,
+    ReachedCycle = 3,
+    ReachedKnownCheckpoint = 4,
+    MaxTapeLengthExceeded = 5,
+    MaxEventCountExceeded = 6,
+    TimeConstraintExceeded = 7,
+    NotEvaluated = 8,
+
+    // result file spec requires the reason to fit in 5 bits
+    MAX_DO_NOT_EXCEED = 31
   };
 
   struct EvaluationResult {
