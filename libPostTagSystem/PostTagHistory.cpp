@@ -58,9 +58,14 @@ class PostTagHistory::Implementation {
                                          const std::vector<TagState>& inits,
                                          const EvaluationLimits& limits,
                                          const CheckpointSpec& checkpointSpec) {
-    constexpr uint64_t nsPerSec = 1000000000;
     const auto startClock = std::chrono::steady_clock::now();
-    const auto endClock = startClock + std::chrono::nanoseconds(limits.maxTimeNs);
+    std::chrono::steady_clock::time_point endClock;
+
+    if (std::chrono::nanoseconds(limits.maxTimeNs) > std::chrono::steady_clock::time_point::max() - startClock) {
+      endClock = std::chrono::steady_clock::time_point::max();
+    } else {
+      endClock = startClock + std::chrono::nanoseconds(limits.maxTimeNs);
+    }
 
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (limits.maxEventCount % chunkEvaluationTable.eventsAtOnce != 0) {

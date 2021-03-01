@@ -45,8 +45,9 @@ class PostTagSearcher {
     // If the time constraint is exceeded the current EvaluationResult and all the remaining ones will have
     // TimeConstraintExceeded conclusion reason. The aborted evaluations will have EvaluationResult filled in with
     // values obtained so far. The remaining ones will be filled with zeros.
-    uint64_t groupTimeConstraintNs = std::numeric_limits<uint64_t>::max();
+    int64_t groupTimeConstraintNs = std::numeric_limits<int64_t>::max();
     Checkpoints checkpoints = {};
+    // TODO(maxitg): Add an option to omit returning unevaluated states
   };
 
   // The functions below use two tries. One for the input checkpoints which is shared among all of them. The other trie
