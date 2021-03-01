@@ -106,7 +106,7 @@ readResultFileResult[version: 1, stream_InputStream] := Module[{
     }];
 
     conclusionReasonNumber = BitShiftRight[BitAnd[resultHeaderByte, 2^^11111000], 3];
-    result["ConclusionReason"] = Lookup[
+    result["Reason"] = Lookup[
         $ConclusionReasons,
         conclusionReasonNumber,
         Missing["Unknown", conclusionReasonNumber]
