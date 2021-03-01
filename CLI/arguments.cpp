@@ -23,20 +23,20 @@ auto validator_uint_between(const char* const option_name, uint64_t min, uint64_
   };
 }
 
-void validate_option_existence(po::variables_map args, const char* const option_name) {
+void validate_option_existence(const po::variables_map& args, const char* const option_name) {
   if (args.count(option_name) == 0) {
     // TODO(jessef): better exception
     throw po::validation_error(po::validation_error::at_least_one_value_required, option_name);
   }
 }
 
-void mode_validate_chase(po::variables_map args) {
+void mode_validate_chase(const po::variables_map& args) {
   validate_option_existence(args, "initsize");
   validate_option_existence(args, "initstart");
   validate_option_existence(args, "initcount");
 }
 
-void mode_validate_pounce(po::variables_map args) { validate_option_existence(args, "initfile"); }
+void mode_validate_pounce(const po::variables_map& args) { validate_option_existence(args, "initfile"); }
 
 po::variables_map parse_arguments(int argc, char** argv) {
   po::options_description general_options("General options");
