@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <queue>
@@ -56,6 +58,15 @@ class PostTagHistory::Implementation {
                                          const std::vector<TagState>& inits,
                                          const EvaluationLimits& limits,
                                          const CheckpointSpec& checkpointSpec) {
+    const auto startClock = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point endClock;
+
+    if (std::chrono::nanoseconds(limits.maxTimeNs) > std::chrono::steady_clock::time_point::max() - startClock) {
+      endClock = std::chrono::steady_clock::time_point::max();
+    } else {
+      endClock = startClock + std::chrono::nanoseconds(limits.maxTimeNs);
+    }
+
     const ChunkEvaluationTable chunkEvaluationTable = createChunkEvaluationTable(rule);
     if (limits.maxEventCount % chunkEvaluationTable.eventsAtOnce != 0) {
       return std::vector<EvaluationResult>(
@@ -77,6 +88,7 @@ class PostTagHistory::Implementation {
                                        &conclusionReason,
                                        &maxIntermediateTapeLength,
                                        limits,
+                                       endClock,
                                        explicitCheckpointsTrie,
                                        checkpointSpec.flags);
       results.push_back(
@@ -166,12 +178,22 @@ class PostTagHistory::Implementation {
                            ConclusionReason* conclusionReason,
                            uint64_t* maxIntermediateTapeLength,
                            const EvaluationLimits& limits,
+                           std::chrono::time_point<std::chrono::steady_clock> endClock,
                            const CheckpointsTrie& explicitCheckpoints,
                            const CheckpointSpecFlags& checkpointFlags) {
+    if (std::chrono::steady_clock::now() > endClock) {
+      *conclusionReason = ConclusionReason::NotEvaluated;
+      return 0;
+    }
     CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
+    constexpr int eventsPerClockCheck = 1000;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
+      if (eventCount % eventsPerClockCheck == 0 && std::chrono::steady_clock::now() > endClock) {
+        *conclusionReason = ConclusionReason::TimeConstraintExceeded;
+        return eventCount;
+      }
       if (*maxIntermediateTapeLength > limits.maxTapeLength) {
         *conclusionReason = ConclusionReason::MaxTapeLengthExceeded;
         return eventCount;
