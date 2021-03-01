@@ -16,7 +16,9 @@ class PostTagHistory {
     ReachedExplicitCheckpoint,
     ReachedAutomaticCheckpoint,
     MaxEventCountExceeded,
-    MaxTapeLengthExceeded
+    MaxTapeLengthExceeded,
+    TimeConstraintExceeded,
+    NotEvaluated
   };
 
   struct EvaluationResult {
@@ -40,7 +42,7 @@ class PostTagHistory {
   struct EvaluationLimits {
     uint64_t maxEventCount = std::numeric_limits<uint64_t>::max() - 7;
     uint64_t maxTapeLength = std::numeric_limits<uint64_t>::max();
-    uint64_t maxTimeNs = std::numeric_limits<uint64_t>::max();
+    int64_t maxTimeNs = std::numeric_limits<int64_t>::max();
 
     EvaluationLimits() = default;
     explicit EvaluationLimits(uint64_t maxEventCountInput) : maxEventCount(maxEventCountInput) {}
