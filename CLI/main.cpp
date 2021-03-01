@@ -100,7 +100,7 @@ int run_mode_chase(const variables_map& args) {
 
   std::vector<PostTagSearcher::EvaluationResult> results =
       searcher.evaluateRange(tape_length, start, start + count, eval_params);
-  //std::cout << "----------------\n";
+  // std::cout << "----------------\n";
 
   std::cout << boost::format("Evaluation finished with %i results\n") % results.size();
 

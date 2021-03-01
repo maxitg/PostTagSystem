@@ -31,7 +31,7 @@ void PostTagResultFileWriter::write_file_V1(const PostTagResultFile& file) {
       case PostTagSearcher::ConclusionReason::NotEvaluated:
         write_final_state = false;
         break;
-      
+
       default:
         break;
     }
