@@ -2,9 +2,7 @@
 #include <iostream>
 #include <utility>
 
-#include "PostTagHistory.hpp"
 #include "PostTagSearcher.hpp"
-#include "TagState.hpp"
 #include "arguments.hpp"
 #include "boost/format.hpp"
 #include "files/PostTagCribFile.hpp"
@@ -12,24 +10,7 @@
 #include "files/PostTagResultFile.hpp"
 
 using boost::program_options::variables_map;
-using PostTagSystem::PostTagHistory, PostTagSystem::TagState, PostTagSystem::PostTagSearcher;
-
-std::vector<bool> integer_bits(uint64_t n, uint32_t bit_count) {
-  std::vector<bool> bits(bit_count, false);
-
-  for (size_t i = (bit_count - 1); i > 0; i--) {
-    bits[i] = n & 1;
-    n >>= 1;
-  }
-
-  return bits;
-}
-
-void print_bits(const std::vector<bool>& bits) {
-  for (auto i = bits.begin(); i != bits.end(); i++) {
-    std::cout << *i;
-  }
-}
+using PostTagSystem::PostTagSearcher;
 
 PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& args) {
   PostTagSearcher::EvaluationParameters eval_params;
@@ -37,7 +18,7 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   auto max_size = args["maxsize"].as<uint64_t>();
   if (max_size > 0) {
     eval_params.maxTapeLength = max_size;
-    std::cout << boost::format("Maximum tape size: %u seconds\n") % max_size;
+    std::cout << boost::format("Maximum tape size: %.6g\n") % static_cast<double>(max_size);
   } else {
     std::cout << "Maximum tape size: unlimited\n";
   }
@@ -45,7 +26,7 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   auto max_steps = args["maxsteps"].as<uint64_t>();
   if (max_steps > 0) {
     eval_params.maxEventCount = max_steps;
-    std::cout << boost::format("Maximum step count: %u seconds\n") % max_steps;
+    std::cout << boost::format("Maximum step count: %.6g\n") % static_cast<double>(max_steps);
   } else {
     std::cout << "Maximum step count: unlimited\n";
   }
@@ -80,46 +61,7 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   return eval_params;
 }
 
-int run_mode_chase(const variables_map& args) {
-  auto tape_length = static_cast<uint8_t>(args["initsize"].as<uint16_t>());
-  auto start = args["initstart"].as<uint64_t>();
-  auto count = args["initcount"].as<uint64_t>();
-  auto offset = args["initoffset"].as<uint64_t>();
-
-  // allows several jobs of the same size to be run
-  // at different offsets from the starting point
-  start += count * offset;
-
-  PostTagSearcher searcher;
-
-  auto eval_params = get_eval_parameters(args);
-  std::cout << "\n";
-
-  std::cout << boost::format("Evaluating %u initial conditions, starting at %u...\n") % count % start;
-  std::cout << "----------------\n";
-
-  std::vector<PostTagSearcher::EvaluationResult> results =
-      searcher.evaluateRange(tape_length, start, start + count, eval_params);
-  // std::cout << "----------------\n";
-
-  std::cout << boost::format("Evaluation finished with %i results\n") % results.size();
-
-  auto result_file_path = args["outfile"].as<std::string>();
-  std::cout << boost::format("Writing results to '%s'\n") % result_file_path;
-
-  PostTagResultFileWriter result_file_writer(result_file_path, std::ios::binary);
-  if (!result_file_writer.is_open()) {
-    throw std::runtime_error("Failed to open output file '" + result_file_path + "' for writing");
-  }
-
-  PostTagResultFile result_file(Version1, results);
-
-  result_file_writer.write_file(result_file);
-
-  return 0;
-}
-
-int run_mode_pounce(const variables_map& args) {
+PostTagInitFile get_initial_states_from_file(const variables_map& args) {
   auto init_file_path = args["initfile"].as<std::string>();
   PostTagInitFileReader init_file_reader(init_file_path, std::ios::binary);
   if (!init_file_reader.is_open()) {
@@ -128,14 +70,9 @@ int run_mode_pounce(const variables_map& args) {
 
   PostTagInitFile init_file = init_file_reader.read_file();
 
-  printf("Read %" PRIu64 " initial conditions\n", init_file.state_count);
+  std::cout << boost::format("Loaded %u initial conditions from file '%s'\n") % init_file.state_count % init_file_path;
 
-  for (TagState& state : init_file.states) {
-    print_bits(state.tape);
-    printf(" - %u\n", state.headState);
-  }
-
-  return 0;
+  return init_file;
 }
 
 int main(int argc, char** argv) {
@@ -143,7 +80,7 @@ int main(int argc, char** argv) {
   try {
     args = parse_arguments(argc, argv);
   } catch (const std::exception& err) {
-    printf("Input error: %s\n", err.what());
+    std::cout << "Input error: " << err.what() << "\n";
     return 1;
   }
 
@@ -151,19 +88,80 @@ int main(int argc, char** argv) {
     return 0;
   }
 
-  int mode_result;
+  auto chaseMode = args["chase"].as<bool>();
+  auto pounceMode = args["pounce"].as<bool>();
+  if (!(chaseMode || pounceMode)) {
+    std::cout << "Input error: No valid mode specified\n";
+  }
+
+  PostTagSearcher searcher;
+  PostTagSearcher::EvaluationParameters eval_params;
+
   try {
-    if (args["chase"].as<bool>()) {
-      mode_result = run_mode_chase(args);
-    } else if (args["pounce"].as<bool>()) {
-      mode_result = run_mode_pounce(args);
-    } else {
-      throw std::logic_error("No valid mode specified");
-    }
+    eval_params = get_eval_parameters(args);
+    std::cout << "\n";
   } catch (const std::exception& err) {
-    printf("Evaluation error: %s\n", err.what());
+    std::cout << "Input error: " << err.what() << "\n";
     return 1;
   }
 
-  return mode_result;
+  std::vector<PostTagSearcher::EvaluationResult> results;
+
+  if (chaseMode) {
+    auto tape_length = static_cast<uint8_t>(args["initsize"].as<uint16_t>());
+    auto start = args["initstart"].as<uint64_t>();
+    auto count = args["initcount"].as<uint64_t>();
+    auto offset = args["initoffset"].as<uint64_t>();
+
+    // allows several jobs of the same size to be run
+    // at different offsets from the starting point
+    start += count * offset;
+
+    std::cout << boost::format("Evaluating %u initial conditions, starting at %u...\n") % count % start;
+    std::cout << "----------------\n";
+
+    try {
+      results = searcher.evaluateRange(tape_length, start, start + count, eval_params);
+    } catch (const std::exception& err) {
+      std::cout << "Evaluation error: " << err.what() << "\n";
+      return 1;
+    }
+
+  } else if (pounceMode) {
+    PostTagInitFile init_file;
+    try {
+      init_file = get_initial_states_from_file(args);
+    } catch (const std::exception& err) {
+      std::cout << "Input error: " << err.what() << "\n";
+      return 1;
+    }
+
+    std::cout << boost::format("Evaluating %u initial conditions...\n") % init_file.state_count;
+    std::cout << "----------------\n";
+
+    try {
+      results = searcher.evaluateGroup(init_file.states, eval_params);
+    } catch (const std::exception& err) {
+      std::cout << "Evaluation error: " << err.what() << "\n";
+      return 1;
+    }
+  }
+
+  std::cout << boost::format("Evaluation finished with %u results\n") % results.size();
+
+  auto result_file_path = args["outfile"].as<std::string>();
+
+  PostTagResultFileWriter result_file_writer(result_file_path, std::ios::binary);
+  if (!result_file_writer.is_open()) {
+    std::cout << boost::format("Output error: Failed to open output file '%s' for writing\n") % result_file_path;
+    return 1;
+  }
+
+  PostTagResultFile result_file(Version1, results);
+
+  result_file_writer.write_file(result_file);
+
+  std::cout << boost::format("Wrote results to '%s'\n") % result_file_path;
+
+  return 0;
 }

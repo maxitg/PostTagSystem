@@ -12,7 +12,7 @@ struct PostTagInitFile {
   PostTagFileVersion version;
 
   uint64_t state_count;
-  std::vector<PostTagSystem::TagState> states;  // TODO(jessef): use SmallState
+  std::vector<PostTagSystem::TagState> states;
 };
 
 class PostTagInitFileReader : public PostTagFileReader {
