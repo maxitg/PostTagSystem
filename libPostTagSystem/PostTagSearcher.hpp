@@ -30,6 +30,8 @@ class PostTagSearcher {
     uint64_t finalTapeLength;
     TagState initialState;
     TagState finalState;
+
+    bool operator==(const EvaluationResult&) const;
   };
 
   // Note that the system run 8 events at a time. That means, the tape lengths don't change one at a time, they can

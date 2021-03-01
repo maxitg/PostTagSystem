@@ -79,6 +79,12 @@ class PostTagSearcher::Implementation {
   }
 };
 
+bool PostTagSearcher::EvaluationResult::operator==(const PostTagSearcher::EvaluationResult& other) const {
+  return conclusionReason == other.conclusionReason && eventCount == other.eventCount &&
+         maxTapeLength == other.maxTapeLength && finalTapeLength == other.finalTapeLength &&
+         initialState == other.initialState && finalState == other.finalState;
+}
+
 PostTagSearcher::PostTagSearcher() : implementation_(std::make_shared<Implementation>()) {}
 
 std::vector<PostTagSearcher::EvaluationResult> PostTagSearcher::evaluateRange(
