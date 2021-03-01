@@ -18,10 +18,17 @@ TEST(PostTagSystem, simpleEvolution) {
 
 TEST(PostTagSystem, chunkEvaluationTable) {
   PostTagHistory history;
-  ASSERT_EQ(history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 0).finalState.tape[8],
-            1);
   ASSERT_EQ(
-      history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, 8).finalState.tape.size(),
+      history
+          .evaluate(
+              PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, PostTagHistory::EvaluationLimits(0))
+          .finalState.tape[8],
+      1);
+  ASSERT_EQ(
+      history
+          .evaluate(
+              PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1, 1}, 2}, PostTagHistory::EvaluationLimits(8))
+          .finalState.tape.size(),
       10);
   ASSERT_EQ(history.evaluate(PostTagHistory::NamedRule::Post, {{1, 0, 1, 1, 1, 0, 1, 1}, 0}, 0).finalState.tape.size(),
             8);
@@ -71,5 +78,19 @@ TEST(PostTagSystem, rule002211) {
   ASSERT_EQ(anotherEvaluationResult.finalState.headState, 1);
   std::vector<bool> anotherExpectedTape = {0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1};
   ASSERT_EQ(anotherEvaluationResult.finalState.tape, anotherExpectedTape);
+}
+
+TEST(PostTagSystem, maxTapeLength) {
+  PostTagHistory evaluator;
+  const TagState init(20, 123, 0);
+  PostTagHistory::EvaluationLimits limits;
+  limits.maxTapeLength = 52;
+  const auto lengthLimitResult = evaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits);
+  const auto eventLimitResult =
+      evaluator.evaluate(PostTagHistory::NamedRule::Post, init, PostTagHistory::EvaluationLimits(912));
+  ASSERT_EQ(lengthLimitResult.conclusionReason, PostTagHistory::ConclusionReason::MaxTapeLengthExceeded);
+  ASSERT_EQ(lengthLimitResult.eventCount, 912);
+  ASSERT_EQ(lengthLimitResult.finalState, eventLimitResult.finalState);
+  ASSERT_EQ(lengthLimitResult.maxIntermediateTapeLength, eventLimitResult.maxIntermediateTapeLength);
 }
 }  // namespace PostTagSystem
