@@ -1,6 +1,7 @@
 #ifndef LIBPOSTTAGSYSTEM_POSTTAGSEARCHER_HPP_
 #define LIBPOSTTAGSYSTEM_POSTTAGSEARCHER_HPP_
 
+#include <limits>
 #include <memory>
 #include <vector>
 
