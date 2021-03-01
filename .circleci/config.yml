@@ -214,7 +214,6 @@ workflows:
     jobs:
       - macos-build
       - windows-build
-      - windows-cli-build
       - cpp-test
       - cpp-32-test
       - wolfram-language-paclet-test:
