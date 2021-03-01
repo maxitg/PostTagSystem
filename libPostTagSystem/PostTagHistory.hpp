@@ -42,7 +42,7 @@ class PostTagHistory {
     uint64_t maxTimeNs = std::numeric_limits<uint64_t>::max();
 
     EvaluationLimits() = default;
-    EvaluationLimits(uint64_t maxEventCountInput) : maxEventCount(maxEventCountInput) {}
+    explicit EvaluationLimits(uint64_t maxEventCountInput) : maxEventCount(maxEventCountInput) {}
   };
 
   PostTagHistory();
