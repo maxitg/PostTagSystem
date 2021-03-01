@@ -151,6 +151,7 @@ TEST(PostTagSearcher, smallTimeConstraint) {
 }
 
 TEST(PostTagSearcher, rangePerformance) {
+  // Getting 45332 ms on 950557aae1eb3a9a799e12ac24ab49151be25c19 (master)
   PostTagSearcher().evaluateRange(30, 0, 100000, PostTagSearcher::EvaluationParameters());
 }
 }  // namespace PostTagSystem
