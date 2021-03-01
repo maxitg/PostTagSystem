@@ -37,7 +37,6 @@ class PostTagSearcher::Implementation {
   std::vector<EvaluationResult> evaluateGroup(const std::vector<TagState>& states,
                                               const EvaluationParameters& parameters) {
     // TODO(maxitg): Implement groupTimeConstraintNs parameter
-    // TODO(maxitg): Implement checkpoints parameter
 
     std::vector<EvaluationResult> results;
     results.reserve(states.size());
@@ -45,21 +44,26 @@ class PostTagSearcher::Implementation {
     PostTagHistory::EvaluationLimits limits;
     limits.maxEventCount = parameters.maxEventCount;
     limits.maxTapeLength = parameters.maxTapeLength;
-    for (const auto& init : states) {
-      const auto singleInitResult = evaluator.evaluate(PostTagHistory::NamedRule::Post, init, limits, {{}, {true}});
+    const auto singleInitResults =
+        evaluator.evaluate(PostTagHistory::NamedRule::Post, states, limits, {parameters.checkpoints, {true}});
+    for (size_t initIndex = 0; initIndex < states.size(); ++initIndex) {
       EvaluationResult result;
-      result.eventCount = singleInitResult.eventCount;
-      result.maxTapeLength = singleInitResult.maxIntermediateTapeLength;
-      result.finalTapeLength = singleInitResult.finalState.tape.size();
-      result.initialState = init;
-      result.finalState = singleInitResult.finalState;
-      switch (singleInitResult.conclusionReason) {
+      result.eventCount = singleInitResults[initIndex].eventCount;
+      result.maxTapeLength = singleInitResults[initIndex].maxIntermediateTapeLength;
+      result.finalTapeLength = singleInitResults[initIndex].finalState.tape.size();
+      result.initialState = states[initIndex];
+      result.finalState = singleInitResults[initIndex].finalState;
+      switch (singleInitResults[initIndex].conclusionReason) {
         case PostTagHistory::ConclusionReason::Terminated:
           result.conclusionReason = ConclusionReason::Terminated;
           break;
 
-        case PostTagHistory::ConclusionReason::ReachedCheckpoint:
+        case PostTagHistory::ConclusionReason::ReachedAutomaticCheckpoint:
           result.conclusionReason = ConclusionReason::ReachedCycle;
+          break;
+
+        case PostTagHistory::ConclusionReason::ReachedExplicitCheckpoint:
+          result.conclusionReason = ConclusionReason::ReachedKnownCheckpoint;
           break;
 
         case PostTagHistory::ConclusionReason::MaxEventCountExceeded:

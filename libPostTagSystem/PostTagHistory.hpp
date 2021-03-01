@@ -13,7 +13,8 @@ class PostTagHistory {
   enum class ConclusionReason {
     InvalidInput,
     Terminated,
-    ReachedCheckpoint,
+    ReachedExplicitCheckpoint,
+    ReachedAutomaticCheckpoint,
     MaxEventCountExceeded,
     MaxTapeLengthExceeded
   };
@@ -50,6 +51,11 @@ class PostTagHistory {
                             const TagState& init,
                             const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec = CheckpointSpec());
+
+  std::vector<EvaluationResult> evaluate(const NamedRule& rule,
+                                         const std::vector<TagState>& inits,
+                                         const EvaluationLimits& limits,
+                                         const CheckpointSpec& checkpointSpec = CheckpointSpec());
 
  private:
   class Implementation;
