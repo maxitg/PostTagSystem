@@ -49,7 +49,13 @@ class PostTagHistory::Implementation {
                             const TagState& init,
                             const EvaluationLimits& limits,
                             const CheckpointSpec& checkpointSpec) {
-    return evaluate(rule, std::vector<TagState>({init}), limits, checkpointSpec).front();
+    constexpr uint64_t nsPerSec = 1000000000;
+    const auto startClock = clock();
+    const clock_t endClock = startClock + limits.maxTimeNs / (nsPerSec / CLOCKS_PER_SEC);
+    EvaluationLimits singleEvaluationLimits = limits;
+    singleEvaluationLimits.maxTimeNs = std::numeric_limits<uint64_t>::max();
+    singleEvaluationLimits.terminationClock = endClock;
+    return evaluate(rule, std::vector<TagState>({init}), singleEvaluationLimits, checkpointSpec).front();
   }
 
   std::vector<EvaluationResult> evaluate(const NamedRule& rule,
@@ -168,10 +174,18 @@ class PostTagHistory::Implementation {
                            const EvaluationLimits& limits,
                            const CheckpointsTrie& explicitCheckpoints,
                            const CheckpointSpecFlags& checkpointFlags) {
+    if (clock() > limits.terminationClock) {
+      *conclusionReason = ConclusionReason::NotEvaluated;
+      return 0;
+    }
     CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
          eventCount += evaluationTable.eventsAtOnce) {
+      if (clock() > limits.terminationClock) {
+        *conclusionReason = ConclusionReason::TimeConstraintExceeded;
+        return eventCount;
+      }
       if (*maxIntermediateTapeLength > limits.maxTapeLength) {
         *conclusionReason = ConclusionReason::MaxTapeLengthExceeded;
         return eventCount;
