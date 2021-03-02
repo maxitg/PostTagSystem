@@ -154,7 +154,7 @@ TEST(PostTagSearcher, smallTimeConstraint) {
   ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::TimeConstraintExceeded);
 }
 
-TEST(PostTagSearcher, rangePerformance) {
+TEST(PostTagSearcher, DISABLED_rangePerformance) {
   // With separate tries: 0.36 GB, 1133 seconds
   // With shared trie: 1.1 GB of RAM, 93 seconds, 12x speedup, 3x more memory use
   PostTagSearcher().evaluateRange(30, 0, 1000000, PostTagSearcher::EvaluationParameters());
