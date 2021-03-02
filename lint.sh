@@ -13,6 +13,11 @@ lsfilesOptions=(
   ':(exclude)Dependencies/*'
   ':(exclude)libPostTagSystem/WolframHeaders/*'
   ':(exclude)*.xcodeproj/*' # Xcode manages these automatically
+
+  # data files
+  ':(exclude)*.postcrib'
+  ':(exclude)*.postinit'
+  ':(exclude)*.postresult'
 )
 
 mapfile -t filesToLint < <(LC_ALL=C comm -13 <(git ls-files --deleted) <(git ls-files "${lsfilesOptions[@]}"))

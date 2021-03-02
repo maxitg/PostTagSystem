@@ -62,7 +62,9 @@ jobs:
       - run:
           name: Install Required Tools
           command: |
-            apk add --no-cache bash git g++ make cmake clang py-pip shellcheck shfmt grep npm
+            apk add --no-cache \
+              bash boost-dev boost-static git g++ make cmake \
+              clang py-pip shellcheck shfmt grep npm
             pip install cpplint
             npm install -g markdownlint-cli
 
@@ -83,6 +85,7 @@ jobs:
             mkdir build
             cd build
             cmake .. -DPOST_TAG_SYSTEM_BUILD_TESTING=ON \
+                     -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
                      -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON
             cmake --build .
 
@@ -105,7 +108,7 @@ jobs:
 
       - run:
           name: Install Required Tools
-          command: apk add --no-cache bash git g++ make cmake
+          command: apk add --no-cache bash boost-dev boost-static git g++ make cmake
 
       - run:
           name: Build
@@ -113,6 +116,7 @@ jobs:
             mkdir build
             cd build
             cmake .. -DPOST_TAG_SYSTEM_BUILD_TESTING=ON \
+                     -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
                      -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON
             cmake --build .
 
@@ -171,6 +175,19 @@ jobs:
             echo "export PATH=\"$(pwd)/$cmakeDir/bin:$PATH\"" >> $BASH_ENV
 
       - run:
+          name: Install Boost headers and build libraries
+          command: |
+            boostURL="https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.zip"
+            curl -L --output boost.zip $boostURL
+            unzip -q boost.zip
+            boostDir=$(dir -1 | findstr -i boost_*)
+            echo "export BOOST_ROOT=\"$(pwd)/$boostDir\"" >> $BASH_ENV
+            grep BOOST_ $BASH_ENV
+            cd $boostDir
+            ./bootstrap.bat
+            ./b2 --with-program_options
+
+      - run:
           name: Build
           command: scripts/buildLibraryResources.sh
 
@@ -181,6 +198,22 @@ jobs:
 
       - store_artifacts:
           path: ./LibraryResources/
+
+      - run:
+          name: Build
+          command: |
+            rm -rf build
+            mkdir -p build
+            cd build
+            cmake .. \
+              -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON \
+              -DPOST_TAG_SYSTEM_BUILD_CLI=ON \
+              -DPOST_TAG_SYSTEM_CLI_STATIC_BUILD=ON \
+              -DCMAKE_BUILD_TYPE=Release
+            cmake --build . --config Release
+
+      - store_artifacts:
+          path: ./build/CLI/Release
 
 workflows:
   version: 2
