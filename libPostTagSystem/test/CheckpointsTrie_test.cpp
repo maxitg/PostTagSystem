@@ -10,14 +10,14 @@ void checkStateInsertion(const std::vector<ChunkedState>& insertedStates,
                          const std::vector<ChunkedState>& missingStates) {
   CheckpointsTrie trie;
   for (auto insertionIt = insertedStates.begin(); insertionIt != insertedStates.end(); ++insertionIt) {
-    trie.insert(*insertionIt);
+    trie.insert(*insertionIt, static_cast<int>(insertionIt - insertedStates.begin()));
     for (auto checkIt = insertedStates.begin(); checkIt != insertionIt + 1; ++checkIt) {
-      ASSERT_TRUE(trie.contains(*checkIt));
+      ASSERT_EQ(trie.findValue(*checkIt).value(), static_cast<int>(checkIt - insertedStates.begin()));
     }
   }
 
   for (const auto& state : missingStates) {
-    ASSERT_FALSE(trie.contains(state));
+    ASSERT_EQ(trie.findValue(state), std::nullopt);
   }
 }
 }  // namespace

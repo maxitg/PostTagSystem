@@ -2,6 +2,7 @@
 #define LIBPOSTTAGSYSTEM_CHECKPOINTSTRIE_HPP_
 
 #include <memory>
+#include <optional>
 
 #include "ChunkedState.hpp"
 
@@ -9,8 +10,9 @@ namespace PostTagSystem {
 class CheckpointsTrie {
  public:
   CheckpointsTrie();
-  void insert(const ChunkedState& state);
-  bool contains(const ChunkedState& state) const;
+  // returns false if the value already exists, in which case the old key will remain
+  bool insert(const ChunkedState& key, int value);
+  std::optional<int> findValue(const ChunkedState& state) const;
 
  private:
   class Implementation;
