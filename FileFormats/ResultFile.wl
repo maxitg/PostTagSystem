@@ -15,7 +15,8 @@ $ConclusionReasons = <|
     5 -> "MaxTapeLengthExceeded",
     6 -> "MaxEventCountExceeded",
     7 -> "TimeConstraintExceeded",
-    8 -> "NotEvaluated"
+    8 -> "NotEvaluated",
+    9 -> "MergedWithAnotherInit"
 |>
 
 (* ::Section:: *)
