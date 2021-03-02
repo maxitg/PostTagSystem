@@ -206,7 +206,7 @@ class PostTagHistory::Implementation {
         if (foundCheckpoint.value() == explicitCheckpoint) {
           *conclusionReason = ConclusionReason::ReachedExplicitCheckpoint;
           return eventCount;
-        } else if (foundCheckpoint.value() == index) {
+        } else if (foundCheckpoint.value() == static_cast<int>(index)) {
           *conclusionReason = ConclusionReason::ReachedAutomaticCheckpoint;
           return eventCount;
         } else {
