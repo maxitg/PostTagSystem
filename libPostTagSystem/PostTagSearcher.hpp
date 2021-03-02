@@ -17,6 +17,7 @@ class PostTagSearcher {
     Terminated,
     ReachedCycle,
     ReachedKnownCheckpoint,
+    MergedWithAnotherInit,
     MaxTapeLengthExceeded,
     MaxEventCountExceeded,
     TimeConstraintExceeded,

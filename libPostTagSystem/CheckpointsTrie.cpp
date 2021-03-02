@@ -59,12 +59,12 @@ class CheckpointsTrie::Implementation {
     if (chunksBegin == chunksEnd) return false;  // it's a total match, don't insert a value
 
     if (*index >= 0) {
-      const auto nextChunkIt = trieNodes_[*index].find(*chunksBegin);
-      if (nextChunkIt == trieNodes_[*index].end()) {
+      const auto nextChunkIt = trieNodes_.at(*index).find(*chunksBegin);
+      if (nextChunkIt == trieNodes_.at(*index).end()) {
         reverseSuffixes_.push_back(std::vector<uint8_t>(std::reverse_iterator<ChunksIterator>(chunksEnd),
                                                         std::reverse_iterator<ChunksIterator>(chunksBegin) - 1));
         values_.push_back(value);
-        trieNodes_[*index].insert({*chunksBegin, fromReverseSuffixesIndex(reverseSuffixes_.size() - 1)});
+        trieNodes_.at(*index).insert({*chunksBegin, fromReverseSuffixesIndex(reverseSuffixes_.size() - 1)});
       } else {
         insertChunks(&nextChunkIt->second, chunksBegin + 1, chunksEnd, value);
       }
@@ -93,8 +93,8 @@ class CheckpointsTrie::Implementation {
     }
 
     if (index >= 0) {
-      const auto nextChunkIt = trieNodes_[index].find(*chunksBegin);
-      if (nextChunkIt == trieNodes_[index].end()) {
+      const auto nextChunkIt = trieNodes_.at(index).find(*chunksBegin);
+      if (nextChunkIt == trieNodes_.at(index).end()) {
         return std::nullopt;
       } else {
         return findValueInChunks(nextChunkIt->second, chunksBegin + 1, chunksEnd);
@@ -102,8 +102,8 @@ class CheckpointsTrie::Implementation {
     } else {
       const auto firstMismatch = std::mismatch(chunksBegin,
                                                chunksEnd,
-                                               reverseSuffixes_[toReverseSuffixesIndex(index)].rbegin(),
-                                               reverseSuffixes_[toReverseSuffixesIndex(index)].rend());
+                                               reverseSuffixes_.at(toReverseSuffixesIndex(index)).rbegin(),
+                                               reverseSuffixes_.at(toReverseSuffixesIndex(index)).rend());
       if (firstMismatch.first == chunksEnd) {
         return values_.at(fromReverseSuffixesIndex(index));
       } else {

@@ -77,6 +77,10 @@ class PostTagSearcher::Implementation {
           result.conclusionReason = ConclusionReason::NotEvaluated;
           break;
 
+        case PostTagHistory::ConclusionReason::ReachedPreviousInitCheckpoint:
+          result.conclusionReason = ConclusionReason::MergedWithAnotherInit;
+          break;
+
         default:
           result.conclusionReason = ConclusionReason::InvalidInput;
       }

@@ -44,6 +44,8 @@ class PostTagHistory::Implementation {
 
   std::unordered_map<NamedRule, ChunkEvaluationTable> evaluationTables_;
 
+  static constexpr int explicitCheckpoint = -1;
+
  public:
   Implementation() {}
 
@@ -72,9 +74,9 @@ class PostTagHistory::Implementation {
       return std::vector<EvaluationResult>(
           inits.size(), {ConclusionReason::InvalidInput, {{}, std::numeric_limits<uint8_t>::max()}, 0, 0});
     }
-    CheckpointsTrie explicitCheckpointsTrie;
+    CheckpointsTrie checkpointsTrie;
     for (const auto& checkpoint : checkpointSpec.states) {
-      explicitCheckpointsTrie.insert(toChunkedState(checkpoint), -1);
+      checkpointsTrie.insert(toChunkedState(checkpoint), explicitCheckpoint);
     }
 
     std::vector<EvaluationResult> results;
@@ -90,7 +92,7 @@ class PostTagHistory::Implementation {
                                        &maxIntermediateTapeLength,
                                        limits,
                                        endClock,
-                                       explicitCheckpointsTrie,
+                                       &checkpointsTrie,
                                        checkpointSpec.flags);
       results.push_back(
           {conclusionReason, fromChunkedStateDestructively(&chunkedState), eventCount, maxIntermediateTapeLength});
@@ -181,13 +183,12 @@ class PostTagHistory::Implementation {
                            uint64_t* maxIntermediateTapeLength,
                            const EvaluationLimits& limits,
                            std::chrono::time_point<std::chrono::steady_clock> endClock,
-                           const CheckpointsTrie& explicitCheckpoints,
+                           CheckpointsTrie* checkpoints,
                            const CheckpointSpecFlags& checkpointFlags) {
     if (std::chrono::steady_clock::now() > endClock) {
       *conclusionReason = ConclusionReason::NotEvaluated;
       return 0;
     }
-    CheckpointsTrie automaticCheckpoints;
     uint64_t eventCount;
     constexpr int eventsPerClockCheck = 1000;
     for (eventCount = 0; eventCount < limits.maxEventCount && state->chunks.size() > 1;
@@ -200,16 +201,21 @@ class PostTagHistory::Implementation {
         *conclusionReason = ConclusionReason::MaxTapeLengthExceeded;
         return eventCount;
       }
-      if (explicitCheckpoints.findValue(*state).has_value()) {
-        *conclusionReason = ConclusionReason::ReachedExplicitCheckpoint;
-        return eventCount;
-      }
-      if (automaticCheckpoints.findValue(*state).has_value()) {
-        *conclusionReason = ConclusionReason::ReachedAutomaticCheckpoint;
-        return eventCount;
+      const auto foundCheckpoint = checkpoints->findValue(*state);
+      if (foundCheckpoint.has_value()) {
+        if (foundCheckpoint.value() == explicitCheckpoint) {
+          *conclusionReason = ConclusionReason::ReachedExplicitCheckpoint;
+          return eventCount;
+        } else if (foundCheckpoint.value() == index) {
+          *conclusionReason = ConclusionReason::ReachedAutomaticCheckpoint;
+          return eventCount;
+        } else {
+          *conclusionReason = ConclusionReason::ReachedPreviousInitCheckpoint;
+          return eventCount;
+        }
       }
       if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
-        automaticCheckpoints.insert(*state, static_cast<int>(index));
+        checkpoints->insert(*state, static_cast<int>(index));
       }
       evaluateOnce(evaluationTable, state);
       *maxIntermediateTapeLength = std::max(*maxIntermediateTapeLength, tapeLength(*state));
