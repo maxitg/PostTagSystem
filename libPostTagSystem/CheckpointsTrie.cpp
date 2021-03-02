@@ -88,7 +88,6 @@ class CheckpointsTrie::Implementation {
 
   std::optional<int> findValueInChunks(int64_t index, ChunksIterator chunksBegin, ChunksIterator chunksEnd) const {
     if (chunksBegin == chunksEnd) {
-      if (index >= 0) throw std::runtime_error("trie keeps branching at the leaf, something is wrong");
       return values_.at(toReverseSuffixesIndex(index));
     }
 
