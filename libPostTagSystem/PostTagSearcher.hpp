@@ -20,7 +20,8 @@ class PostTagSearcher {
     MaxTapeLengthExceeded,
     MaxEventCountExceeded,
     TimeConstraintExceeded,
-    NotEvaluated
+    NotEvaluated,
+    MergedWithAnotherInit
   };
 
   struct EvaluationResult {

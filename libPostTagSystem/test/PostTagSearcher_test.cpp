@@ -35,20 +35,24 @@ void compareResults(const TagState& init,
 
   if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::InvalidInput) {
     ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::InvalidInput);
-  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::Terminated) {
-    ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::Terminated);
-  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedAutomaticCheckpoint) {
-    ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedCycle);
-  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedExplicitCheckpoint) {
-    ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedKnownCheckpoint);
-  } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::MaxEventCountExceeded) {
-    ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::MaxEventCountExceeded);
+  } else if (result.conclusionReason != PostTagSearcher::ConclusionReason::MergedWithAnotherInit) {
+    if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::Terminated) {
+      ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::Terminated);
+    } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedAutomaticCheckpoint) {
+      ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedCycle);
+    } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::ReachedExplicitCheckpoint) {
+      ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::ReachedKnownCheckpoint);
+    } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::MaxEventCountExceeded) {
+      ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::MaxEventCountExceeded);
+    } else if (singleResult.conclusionReason == PostTagHistory::ConclusionReason::MaxTapeLengthExceeded) {
+      ASSERT_EQ(result.conclusionReason, PostTagSearcher::ConclusionReason::MaxTapeLengthExceeded);
+    }
+    ASSERT_EQ(result.finalState, singleResult.finalState);
+    ASSERT_EQ(result.eventCount, singleResult.eventCount);
+    ASSERT_EQ(result.maxTapeLength, singleResult.maxIntermediateTapeLength);
+    ASSERT_EQ(result.finalTapeLength, singleResult.finalState.tape.size());
   }
 
-  ASSERT_EQ(result.finalState, singleResult.finalState);
-  ASSERT_EQ(result.eventCount, singleResult.eventCount);
-  ASSERT_EQ(result.maxTapeLength, singleResult.maxIntermediateTapeLength);
-  ASSERT_EQ(result.finalTapeLength, singleResult.finalState.tape.size());
   ASSERT_EQ(result.initialState, init);
 }
 
@@ -148,5 +152,11 @@ TEST(PostTagSearcher, smallTimeConstraint) {
   const auto result = searcher.evaluateRange(64, 1473593303835332608, 1473593303835332609, parameters);
   ASSERT_EQ(result.size(), 3);
   ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::TimeConstraintExceeded);
+}
+
+TEST(PostTagSearcher, DISABLED_rangePerformance) {
+  // With separate tries: 0.36 GB, 1133 seconds
+  // With shared trie: 1.1 GB of RAM, 93 seconds, 12x speedup, 3x more memory use
+  PostTagSearcher().evaluateRange(30, 0, 1000000, PostTagSearcher::EvaluationParameters());
 }
 }  // namespace PostTagSystem

@@ -15,6 +15,7 @@ class PostTagHistory {
     Terminated,
     ReachedExplicitCheckpoint,
     ReachedAutomaticCheckpoint,
+    ReachedPreviousInitCheckpoint,
     MaxEventCountExceeded,
     MaxTapeLengthExceeded,
     TimeConstraintExceeded,
