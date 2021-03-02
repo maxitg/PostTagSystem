@@ -202,6 +202,7 @@ jobs:
       - run:
           name: Build
           command: |
+            rm -rf build
             mkdir -p build
             cd build
             cmake .. \
