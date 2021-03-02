@@ -17,11 +17,11 @@ class PostTagSearcher {
     Terminated,
     ReachedCycle,
     ReachedKnownCheckpoint,
-    MergedWithAnotherInit,
     MaxTapeLengthExceeded,
     MaxEventCountExceeded,
     TimeConstraintExceeded,
-    NotEvaluated
+    NotEvaluated,
+    MergedWithAnotherInit
   };
 
   struct EvaluationResult {
