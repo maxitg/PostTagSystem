@@ -107,6 +107,7 @@ Diagram shows a single initial state of 25 bits.
       - `6`: Maximum event count exceeded
       - `7`: Time constraint exceeded
       - `8`: Not evaluated (previous evaluation hit time constraint)
+      - `9`: Evaluation merged with that of another initial state
     - Bits 5-6: Final head state as unsigned 2-bit integer (0 to 3)
     - Bit 7: Whether final state is present
   - Event count: `u64`
