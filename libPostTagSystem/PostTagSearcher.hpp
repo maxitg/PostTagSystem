@@ -52,6 +52,7 @@ class PostTagSearcher {
     int64_t groupTimeConstraintNs = std::numeric_limits<int64_t>::max();
     Checkpoints checkpoints = {};
     bool includeUnevaluatedStates = false;
+    bool includeMergedStates = false;
   };
 
   // The functions below use two tries. One for the input checkpoints which is shared among all of them. The other trie

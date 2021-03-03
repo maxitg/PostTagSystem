@@ -84,7 +84,8 @@ class PostTagSearcher::Implementation {
         default:
           result.conclusionReason = ConclusionReason::InvalidInput;
       }
-      if (result.conclusionReason != ConclusionReason::NotEvaluated || parameters.includeUnevaluatedStates) {
+      if ((result.conclusionReason != ConclusionReason::NotEvaluated || parameters.includeUnevaluatedStates) &&
+          (result.conclusionReason != ConclusionReason::MergedWithAnotherInit || parameters.includeMergedStates)) {
         results.push_back(result);
       }
     }
