@@ -1,0 +1,3 @@
+FROM maxitg/wolfram-postproject:latest
+
+RUN apk add aws-cli

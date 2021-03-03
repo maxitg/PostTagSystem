@@ -24,4 +24,8 @@ FROM alpine:3.12.1
 
 COPY --from=build /working/build/CLI/wolfram-postproject /usr/bin/wolfram-postproject
 
-ENTRYPOINT ["/usr/bin/wolfram-postproject"]
+COPY ./scripts/CLIRunner-AWSBatch.sh /usr/bin/wolfram-postproject-awsbatch
+RUN chmod +x /usr/bin/wolfram-postproject-awsbatch
+
+COPY ./scripts/CLIRunner-CharityEngine.sh /usr/bin/wolfram-postproject-charityengine
+RUN chmod +x /usr/bin/wolfram-postproject-charityengine
