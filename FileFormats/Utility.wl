@@ -1,6 +1,7 @@
 BeginPackage["PostTagFileFormats`Utility`"]
 
 PostTagFileFormats`Utility`readPackedBits
+PostTagFileFormats`Utility`readPackedBitsAsInteger
 PostTagFileFormats`Utility`writePackedBits
 
 Begin["`Private`"]
@@ -15,6 +16,14 @@ readPackedBits[
         8
     ],
     bitCount
+]
+
+readPackedBitsAsInteger[
+    stream_InputStream,
+    bitCount_Integer
+] := FromDigits[
+    readPackedBits[stream, bitCount],
+    2
 ]
 
 writePackedBits[

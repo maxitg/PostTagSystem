@@ -88,7 +88,7 @@ readResultFileResult[version: 1, stream_InputStream] := Module[{
 
     initialState["HeadState"] = BitShiftRight[BitAnd[initialStateHeaderByte, 2^^11000000], 6];
     initialState["TapeSize"] = 1 + BitAnd[initialStateHeaderByte, 2^^00111111];
-    initialState["Tape"] = PostTagFileFormats`Utility`readPackedBits[
+    initialState["Tape"] = PostTagFileFormats`Utility`readPackedBitsAsInteger[
         stream,
         initialState["TapeSize"]
     ];
@@ -117,7 +117,7 @@ readResultFileResult[version: 1, stream_InputStream] := Module[{
     finalStateTapePresent = BitAnd[resultHeaderByte, 2^^00000001] === 1;
 
     If[finalStateTapePresent,
-        finalState["Tape"] = PostTagFileFormats`Utility`readPackedBits[
+        finalState["Tape"] = PostTagFileFormats`Utility`readPackedBitsAsInteger[
             stream,
             finalState["TapeSize"]
         ]
