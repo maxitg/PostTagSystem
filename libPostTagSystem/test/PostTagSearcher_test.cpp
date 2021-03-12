@@ -58,9 +58,12 @@ void compareResults(const TagState& init,
 
 TEST(PostTagSearcher, rangeOfTagStates) {
   PostTagSearcher searcher;
-  const auto result = searcher.evaluateRange({{0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 0},
-                                             {{0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0}, 1},
-                                             PostTagSearcher::EvaluationParameters());
+
+  PostTagSearcher::EvaluationParameters evalParams;
+  evalParams.includeMergedStates = true;
+
+  const auto result = searcher.evaluateRange(
+      {{0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1}, 0}, {{0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0}, 1}, evalParams);
   ASSERT_EQ(result.size(), 106);
 
   compareResults(TagState({0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1}, 0), result[48]);
