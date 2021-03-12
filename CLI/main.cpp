@@ -124,6 +124,7 @@ int main(int argc, char** argv) {
 
     std::cout << boost::format("Evaluating %u initial condition tapes, starting at %u...\n") % count % start;
     std::cout << "----------------\n";
+    std::cout << std::flush;
 
     try {
       results = searcher.evaluateRange(tape_length, start, start + count, eval_params);
@@ -143,6 +144,7 @@ int main(int argc, char** argv) {
 
     std::cout << boost::format("Evaluating %u initial condition tapes...\n") % init_file.state_count;
     std::cout << "----------------\n";
+    std::cout << std::flush;
 
     try {
       results = searcher.evaluateGroup(init_file.states, eval_params);
