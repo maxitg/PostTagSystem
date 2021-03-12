@@ -59,6 +59,8 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Maximum tape length to evaluate each initial condition to (0 = no limit)")
     ("maxoutsize,z",  po::value<uint64_t>()->default_value(0)->value_name("size"),
       "Maximum tape length to include in output file entries (0 = never write final tapes)")
+    ("allstates,u",   po::bool_switch(),
+      "Include unevaluated and merged states in the result file")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e10), "10^10")->value_name("steps"),
       "Maximum number of steps to evaluate each initial condition to (0 = no limit)")
     ("timeout,t",     po::value<uint32_t>()->default_value(0)->value_name("secs"),

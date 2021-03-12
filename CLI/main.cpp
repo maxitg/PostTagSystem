@@ -39,6 +39,11 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
     std::cout << "Total evaluation time limit: unlimited\n";
   }
 
+  if (args["allstates"].as<bool>()) {
+    eval_params.includeUnevaluatedStates = true;
+    eval_params.includeMergedStates = true;
+  }
+
   if (args.count("cribfile")) {
     auto crib_file_path = args["cribfile"].as<std::string>();
     PostTagCribFileReader crib_file_reader(crib_file_path, std::ios::binary);
