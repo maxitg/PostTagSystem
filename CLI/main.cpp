@@ -158,9 +158,7 @@ int main(int argc, char** argv) {
   }
 
   PostTagResultFile result_file(Version1, results);
-  if (args.count("maxoutsize")) {
-    result_file.biggest_tape_to_write = args["maxoutsize"].as<uint64_t>();
-  }
+  result_file.biggest_tape_to_write = args["maxoutsize"].as<uint64_t>();
 
   result_file_writer.write_file(result_file);
 
