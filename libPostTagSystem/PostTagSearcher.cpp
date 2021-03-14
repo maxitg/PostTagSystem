@@ -12,7 +12,7 @@ class PostTagSearcher::Implementation {
                                               uint64_t tapeEnd,
                                               const EvaluationParameters& parameters) {
     return evaluateRange(TagState(tapeLength, tapeBegin, 0),
-                         TagState(tapeEnd == 1 << tapeLength ? tapeLength + 1 : tapeLength, tapeEnd, 0),
+                         TagState(tapeEnd == 1u << tapeLength ? tapeLength + 1 : tapeLength, tapeEnd, 0),
                          parameters);
   }
 
