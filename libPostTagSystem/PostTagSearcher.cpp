@@ -11,7 +11,10 @@ class PostTagSearcher::Implementation {
                                               uint64_t tapeBegin,
                                               uint64_t tapeEnd,
                                               const EvaluationParameters& parameters) {
-    return evaluateRange(TagState(tapeLength, tapeBegin, 0), TagState(tapeLength, tapeEnd, 0), parameters);
+    return evaluateRange(
+        TagState(tapeLength, tapeBegin, 0),
+        TagState(tapeEnd == static_cast<uint64_t>(1) << tapeLength ? tapeLength + 1 : tapeLength, tapeEnd, 0),
+        parameters);
   }
 
   std::vector<EvaluationResult> evaluateRange(const TagState& begin,
