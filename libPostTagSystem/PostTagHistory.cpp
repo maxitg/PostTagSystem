@@ -184,7 +184,7 @@ class PostTagHistory::Implementation {
                            const EvaluationLimits& limits,
                            std::chrono::time_point<std::chrono::steady_clock> endClock,
                            CheckpointsTrie* checkpoints,
-                           const CheckpointSpecFlags& checkpointFlags) {
+                           const AutomaticCheckpointParameters& checkpointFlags) {
     if (std::chrono::steady_clock::now() > endClock) {
       *conclusionReason = ConclusionReason::NotEvaluated;
       return 0;
@@ -214,9 +214,8 @@ class PostTagHistory::Implementation {
           return eventCount;
         }
       }
-      constexpr uint64_t hundredBillion = 100000000000;
       if ((checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) ||
-          (checkpointFlags.multipleOfHundredBillionEventCounts && (eventCount % hundredBillion == 0))) {
+          (checkpointFlags.eventCountsMultiple && (eventCount % checkpointFlags.eventCountsMultiple == 0))) {
         checkpoints->insert(*state, static_cast<int>(index));
       }
       evaluateOnce(evaluationTable, state);

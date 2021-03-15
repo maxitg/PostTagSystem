@@ -31,14 +31,15 @@ class PostTagHistory {
 
   enum class NamedRule { Post = 0, Rule002211 = 1, Rule000010111 = 2 };
 
-  struct CheckpointSpecFlags {
+  static constexpr uint64_t eventCountsMultipleDisabled = 0;
+  struct AutomaticCheckpointParameters {
     bool powerOfTwoEventCounts;
-    bool multipleOfHundredBillionEventCounts;
+    uint64_t eventCountsMultiple;
   };
 
   struct CheckpointSpec {
     std::vector<TagState> states;
-    CheckpointSpecFlags flags;
+    AutomaticCheckpointParameters flags;
   };
 
   struct EvaluationLimits {
