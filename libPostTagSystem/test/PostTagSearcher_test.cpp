@@ -157,6 +157,13 @@ TEST(PostTagSearcher, smallTimeConstraint) {
   ASSERT_EQ(result[0].conclusionReason, PostTagSearcher::ConclusionReason::TimeConstraintExceeded);
 }
 
+TEST(PostTagSearcher, lastTape) {
+  PostTagSearcher searcher;
+  PostTagSearcher::EvaluationParameters parameters;
+  const auto result = searcher.evaluateRange(10, 1023, 1024, parameters);
+  ASSERT_EQ(result.size(), 3);
+}
+
 TEST(PostTagSearcher, DISABLED_rangePerformance) {
   // With separate tries: 0.36 GB, 1133 seconds
   // With shared trie: 1.1 GB of RAM, 93 seconds, 12x speedup, 3x more memory use
