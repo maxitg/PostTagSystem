@@ -47,7 +47,7 @@ class PostTagSearcher::Implementation {
     limits.maxTapeLength = parameters.maxTapeLength;
     limits.maxTimeNs = parameters.groupTimeConstraintNs;
     const auto singleInitResults =
-        evaluator.evaluate(PostTagHistory::NamedRule::Post, states, limits, {parameters.checkpoints, {true}});
+        evaluator.evaluate(PostTagHistory::NamedRule::Post, states, limits, {parameters.checkpoints, {true, true}});
     for (size_t initIndex = 0; initIndex < states.size(); ++initIndex) {
       EvaluationResult result;
       result.eventCount = singleInitResults[initIndex].eventCount;

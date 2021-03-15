@@ -214,7 +214,9 @@ class PostTagHistory::Implementation {
           return eventCount;
         }
       }
-      if (checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) {
+      constexpr uint64_t hundredBillion = 100000000000;
+      if ((checkpointFlags.powerOfTwoEventCounts && !isPowerOfTwo(eventCount)) ||
+          (checkpointFlags.multipleOfHundredBillionEventCounts && (eventCount % hundredBillion == 0))) {
         checkpoints->insert(*state, static_cast<int>(index));
       }
       evaluateOnce(evaluationTable, state);

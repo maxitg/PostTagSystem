@@ -105,4 +105,15 @@ TEST(PostTagSystem, maxTapeLength) {
   ASSERT_EQ(lengthLimitResult.finalState, eventLimitResult.finalState);
   ASSERT_EQ(lengthLimitResult.maxIntermediateTapeLength, eventLimitResult.maxIntermediateTapeLength);
 }
+
+// This test takes unreasonably long time, and is unlikely to break
+TEST(PostTagSystem, DISABLED_multipleOfHundredBillionEventCounts) {
+  PostTagHistory evaluator;
+  const TagState init(24, 9603135, 0);
+  const auto result = PostTagHistory().evaluate(
+      PostTagHistory::NamedRule::Post, init, PostTagHistory::EvaluationLimits(), {{}, {false, true}});
+  constexpr uint64_t hundredBillion = 100000000000;
+  ASSERT_GT(result.eventCount, hundredBillion);
+  ASSERT_LT(result.eventCount, 2 * hundredBillion);
+}
 }  // namespace PostTagSystem

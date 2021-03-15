@@ -33,6 +33,7 @@ class PostTagHistory {
 
   struct CheckpointSpecFlags {
     bool powerOfTwoEventCounts;
+    bool multipleOfHundredBillionEventCounts;
   };
 
   struct CheckpointSpec {
