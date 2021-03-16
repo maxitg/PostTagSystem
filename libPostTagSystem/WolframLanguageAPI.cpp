@@ -116,10 +116,10 @@ std::vector<TagState> getStateVector(WolframLibraryData libData,
   return result;
 }
 
-PostTagHistory::CheckpointSpecFlags getCheckpointFlags(WolframLibraryData libData, const MTensor flags) {
+PostTagHistory::AutomaticCheckpointParameters getCheckpointFlags(WolframLibraryData libData, const MTensor flags) {
   if (libData->MTensor_getFlattenedLength(flags) != 1) throw LIBRARY_FUNCTION_ERROR;
   const auto flagData = libData->MTensor_getIntegerData(flags);
-  return {static_cast<bool>(flagData[0])};
+  return {static_cast<bool>(flagData[0]), PostTagHistory::eventCountsMultipleDisabled};
 }
 
 int addEvolutionStartingFromState(WolframLibraryData libData, mint argc, MArgument* argv) {

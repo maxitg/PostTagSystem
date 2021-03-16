@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 
+#include "PostTagHistory.hpp"
 #include "TagState.hpp"
 
 namespace PostTagSystem {
@@ -51,6 +52,7 @@ class PostTagSearcher {
     // values obtained so far. The remaining ones will be filled with zeros.
     int64_t groupTimeConstraintNs = std::numeric_limits<int64_t>::max();
     Checkpoints checkpoints = {};
+    uint64_t automaticCheckpointsEveryEvents = PostTagHistory::eventCountsMultipleDisabled;
     bool includeUnevaluatedStates = false;
     bool includeMergedStates = false;
   };
