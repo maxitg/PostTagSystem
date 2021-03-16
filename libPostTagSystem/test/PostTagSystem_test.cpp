@@ -106,7 +106,6 @@ TEST(PostTagSystem, maxTapeLength) {
   ASSERT_EQ(lengthLimitResult.maxIntermediateTapeLength, eventLimitResult.maxIntermediateTapeLength);
 }
 
-// This test takes unreasonably long time, and is unlikely to break
 TEST(PostTagSystem, eventCountMultipleCheckpoints) {
   PostTagHistory evaluator;
   const TagState init(24, 9603135, 0);
