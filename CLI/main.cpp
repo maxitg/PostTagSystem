@@ -18,7 +18,7 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   auto max_size = args["maxsize"].as<uint64_t>();
   if (max_size > 0) {
     eval_params.maxTapeLength = max_size;
-    std::cout << boost::format("Maximum tape size: %.6g\n") % static_cast<double>(max_size);
+    std::cout << boost::format("Maximum tape size: %.6g bits\n") % static_cast<double>(max_size);
   } else {
     std::cout << "Maximum tape size: unlimited\n";
   }
@@ -26,9 +26,19 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   auto max_steps = args["maxsteps"].as<uint64_t>();
   if (max_steps > 0) {
     eval_params.maxEventCount = max_steps;
-    std::cout << boost::format("Maximum step count: %.6g\n") % static_cast<double>(max_steps);
+    std::cout << boost::format("Maximum step count: %.6g steps\n") % static_cast<double>(max_steps);
   } else {
     std::cout << "Maximum step count: unlimited\n";
+  }
+
+  auto checkpoint_interval = args["checkint"].as<uint64_t>();
+  if (checkpoint_interval > 0) {
+    eval_params.automaticCheckpointsEveryEvents = checkpoint_interval;
+    std::cout << boost::format("Checkpointing interval: powers of two + every %.6g steps\n") %
+                     static_cast<double>(checkpoint_interval);
+  } else {
+    eval_params.automaticCheckpointsEveryEvents = PostTagSystem::PostTagHistory::eventCountsMultipleDisabled;
+    std::cout << "Checkpointing interval: powers of two only\n";
   }
 
   auto timeout = args["timeout"].as<uint32_t>();
@@ -42,6 +52,9 @@ PostTagSearcher::EvaluationParameters get_eval_parameters(const variables_map& a
   if (args["allstates"].as<bool>()) {
     eval_params.includeUnevaluatedStates = true;
     eval_params.includeMergedStates = true;
+    std::cout << "Including merged and unevaluated states in result\n";
+  } else {
+    std::cout << "Excluding merged and unevaluated states from result\n";
   }
 
   if (args.count("cribfile")) {
