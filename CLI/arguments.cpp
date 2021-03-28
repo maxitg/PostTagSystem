@@ -63,7 +63,7 @@ po::variables_map parse_arguments(int argc, char** argv) {
       "Include unevaluated and merged states in the result file")
     ("maxsteps,m",    po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e10), "10^10")->value_name("steps"),
       "Maximum number of steps to evaluate each initial condition to (0 = no limit)")
-    ("checkint,a",    po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e8), "10^8")->value_name("steps"),
+    ("checkint,a",    po::value<uint64_t>()->default_value(static_cast<uint64_t>(1e11), "10^11")->value_name("steps"),
       "Interval between checkpoints, in addition to standard powers-of-two (0 = no additional checkpointing)")
     ("timeout,t",     po::value<uint32_t>()->default_value(0)->value_name("secs"),
       "Total execution time constraint (seconds) (0 = no limit)");
