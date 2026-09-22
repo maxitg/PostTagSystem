@@ -37,30 +37,33 @@ echo "libPostTagSystem sources hash: $shortSHA"
 
 # Build the library
 
+cmakeOptions=()
+if [ "$(uname -s)" = "Darwin" ]; then
+  cmakeOptions+=("-DCMAKE_OSX_ARCHITECTURES=arm64;x86_64" "-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0")
+fi
+
 mkdir -p build
 cd build
-cmake .. -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release
+cmake .. -DPOST_TAG_SYSTEM_ENABLE_ALLWARNINGS=ON -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release "${cmakeOptions[@]}"
 cmake --build . --config Release # Needed for multi-config generators
 cd ..
 
 # Set the platform-specific names
 
-if [ "$(uname -sm)" = "Darwin x86_64" ]; then
-  libraryResourcesDirName=MacOSX-x86-64
+if [ "$(uname -s)" = "Darwin" ]; then
+  libraryResourcesDirNames=(MacOSX-x86-64 MacOSX-ARM64)
   libraryExtension=dylib
 elif [ "$(uname -sm)" = "Linux x86_64" ]; then
-  libraryResourcesDirName=Linux-x86-64
+  libraryResourcesDirNames=(Linux-x86-64)
   libraryExtension=so
 elif [[ "$OSTYPE" == "msys" && "$(uname -m)" == "x86_64" ]]; then # Windows
-  libraryResourcesDirName=Windows-x86-64
+  libraryResourcesDirNames=(Windows-x86-64)
   libraryExtension=dll
 else
   echo "Operating system unsupported"
   exit 1
 fi
 
-libraryDir=LibraryResources/$libraryResourcesDirName
-echo "LibraryResources directory: $postTagSystemRoot/$libraryDir"
 echo "Library extension: $libraryExtension"
 
 # Find the compiled library
@@ -79,19 +82,23 @@ echo "Found compiled library at $postTagSystemRoot/$compiledLibrary"
 
 # Copy the library to LibraryResources
 
-mkdir -p $libraryDir
-libraryDestination=$libraryDir/libPostTagSystem-$shortSHA.$libraryExtension
-echo "Copying the library to $postTagSystemRoot/$libraryDestination"
-cp $compiledLibrary "$libraryDestination"
+for libraryResourcesDirName in "${libraryResourcesDirNames[@]}"; do
+  libraryDir=LibraryResources/$libraryResourcesDirName
+  echo "LibraryResources directory: $postTagSystemRoot/$libraryDir"
+  mkdir -p "$libraryDir"
+  libraryDestination=$libraryDir/libPostTagSystem-$shortSHA.$libraryExtension
+  echo "Copying the library to $postTagSystemRoot/$libraryDestination"
+  cp "$compiledLibrary" "$libraryDestination"
 
-metadataDestination=$libraryDir/libPostTagSystemBuildInfo.json
-echo "Writing metadata to $postTagSystemRoot/$metadataDestination"
-echo "\
+  metadataDestination=$libraryDir/libPostTagSystemBuildInfo.json
+  echo "Writing metadata to $postTagSystemRoot/$metadataDestination"
+  echo "\
 {
   \"LibraryFileName\": \"libPostTagSystem-$shortSHA.$libraryExtension\",
   \"LibraryBuildTime\": $(date -u "+[%-Y, %-m, %-d, %-H, %-M, %-S]"),
   \"LibrarySourceHash\": \"$shortSHA\"
-}" >$metadataDestination
+}" >"$metadataDestination"
 
-cat $metadataDestination
+  cat "$metadataDestination"
+done
 echo "Build done"
