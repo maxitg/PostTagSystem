@@ -22,8 +22,7 @@
       ],
 
       VerificationTest[
-        $PostTagSystemBuildTime["TimeZone"],
-        "UTC"
+        TimeZoneOffset[$PostTagSystemBuildTime["TimeZone"]] == 0
       ],
 
       (* could not be built in the future *)
@@ -57,8 +56,7 @@
       ],
 
       VerificationTest[
-        $PostTagSystemLibraryBuildTime["TimeZone"],
-        "UTC"
+        TimeZoneOffset[$PostTagSystemLibraryBuildTime["TimeZone"]] == 0
       ],
 
       (* could not be built in the future *)

@@ -18,8 +18,9 @@ PackPostTagSystem::nolibraries = "There were no library files in ``.";
 PackPostTagSystem::packfailed = "Could not pack paclet from `` into ``.";
 PackPostTagSystem::nopacletinfo = "Paclet info file was not present at ``.";
 PackPostTagSystem::nobuildinfo = "Build info file was not present at ``.";
-PackPostTagSystem::nogitlink = "GitLink is not installed, so the built paclet version cannot be correctly \
-calculated. Proceed with caution, and consider installing GitLink by running InstallGitLink[].";
+PackPostTagSystem::nogitlink = "Neither GitLink nor command-line git is available. Install git or a compatible \
+GitLink to build a paclet with version information.";
+PackPostTagSystem::gitmetadata = "Could not determine the Git version information for ``.";
 
 SetUsage @ "
 PackPostTagSystem[] creates a PacletObject containing the local source and last built library.
@@ -45,14 +46,16 @@ PackPostTagSystem[OptionsPattern[]] := ModuleScope[
   SetAutomatic[sourceDirectory, repositoryDirectory];
   EnsureDirectory[outputDirectory];
 
-  If[$PostTagSystemGitLinkAvailableQ,
+  If[$PostTagSystemGitAvailableQ,
     minorVersionNumber = PostTagSystemCalculateMinorVersionNumber[repositoryDirectory, masterBranch];
-    pacletInfoFile = createUpdatedPacletInfo[FileNameJoin[{sourceDirectory, "PacletInfo.m"}], minorVersionNumber];
     gitSHA = PostTagSystemGitSHAWithDirtyStar[repositoryDirectory];
+    If[!IntegerQ[minorVersionNumber] || minorVersionNumber < 0 ||
+        !StringQ[gitSHA] || !StringMatchQ[gitSHA, Repeated[HexadecimalCharacter, 40] ~~ Repeated["*", {0, 1}]],
+      ReturnFailed["gitmetadata", repositoryDirectory];
+    ];
+    pacletInfoFile = createUpdatedPacletInfo[FileNameJoin[{sourceDirectory, "PacletInfo.m"}], minorVersionNumber];
   ,
-    Message[PackPostTagSystem::nogitlink];
-    pacletInfoFile = FileNameJoin[{sourceDirectory, "PacletInfo.m"}];
-    gitSHA = Missing["GitLinkNotAvailable"];
+    ReturnFailed["nogitlink"];
   ];
 
   buildInfo = <|"GitSHA" -> gitSHA, "BuildTime" -> Round[DateList[TimeZone -> "UTC"]]|>;
@@ -87,10 +90,11 @@ PackPostTagSystem[OptionsPattern[]] := ModuleScope[
 ];
 
 createUpdatedPacletInfo[pacletInfoFilename_, minorVersionNumber_] := ModuleScope[
-  pacletInfo = Association @@ Import[pacletInfoFilename];
-  versionString = pacletInfo[Version] <> "." <> ToString[minorVersionNumber];
+  (* Legacy PacletInfo symbols may be read in a different context from this package. *)
+  pacletInfo = KeyMap[If[StringQ[#], #, SymbolName[#]] &, Association @@ Import[pacletInfoFilename]];
+  versionString = pacletInfo["Version"] <> "." <> ToString[minorVersionNumber];
   tempFilename = FileNameJoin[{$PostTagSystemDevUtilsTemporaryDirectory, "PacletInfo.m"}];
-  AppendTo[pacletInfo, Version -> versionString];
+  AppendTo[pacletInfo, "Version" -> versionString];
   Block[{$ContextPath = {"System`", "PacletManager`"}},
     Export[tempFilename, PacletManager`Paclet @@ Normal[pacletInfo]]
   ];
