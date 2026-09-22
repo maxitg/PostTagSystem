@@ -6,7 +6,7 @@ orbs:
 jobs:
   wolfram-language-paclet-test:
     docker:
-      - image: wolframresearch/wolframengine:12.3.0
+      - image: wolframresearch/wolframengine:15.0.0
         user: root
     parallelism: 4
 
