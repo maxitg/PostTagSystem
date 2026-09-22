@@ -119,7 +119,7 @@ if(POST_TAG_SYSTEM_BUILD_TESTING)
   FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG master
+    GIT_TAG f8d7d77c06936315286eb55f8de22cd23c188571 # GoogleTest v1.14.0
   )
 
   set(CMAKE_POLICY_DEFAULT_CMP0048 NEW) # google test raises warning about it
