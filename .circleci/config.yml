@@ -15,7 +15,9 @@ jobs:
           name: Install Required Tools
           command: |
             apt-get update
-            apt-get install --no-install-recommends -y g++ git openssh-client
+            # UsingFrontEnd needs the runtime libraries included in the official 12.3 image.
+            apt-get install --no-install-recommends -y \
+              g++ git openssh-client netbase libgl1-mesa-glx libfontconfig1 libasound2
 
       - checkout
 

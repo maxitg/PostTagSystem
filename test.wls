@@ -1,7 +1,7 @@
 #!/usr/bin/env wolframscript
 
-(* Disable messages about outdated cloud. *)
-Off[CloudConnect::clver];
+(* These tests run locally; cloud support for older kernels is not required. *)
+Off[CloudConnect::clver, CloudConnect::verr];
 
 $redColor = "\033[0;31m";
 $greenColor = "\033[0;32m";
