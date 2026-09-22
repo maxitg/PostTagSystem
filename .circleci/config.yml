@@ -6,14 +6,25 @@ orbs:
 jobs:
   wolfram-language-paclet-test:
     docker:
-      - image: maxitg/set-replace-wl-ci:12.1.1
-        auth:
-          username: maxitg
-          password: $DOCKERHUB_PASSWORD
+      - image: wolframresearch/wolframengine:12.1.1
+        user: root
     parallelism: 4
 
     steps:
+      - run:
+          name: Install Required Tools
+          command: |
+            apt-get update
+            apt-get install --no-install-recommends -y g++ git openssh-client
+
       - checkout
+
+      - run:
+          name: Activate Wolfram Engine
+          command: |
+            : "${WOLFRAM_PASSWORD:?Set WOLFRAM_PASSWORD in CircleCI project settings}"
+            wolframscript -authenticate maxitg@icloud.com "${WOLFRAM_PASSWORD}"
+            wolframscript -activate
 
       - run:
           name: Build
@@ -42,6 +53,7 @@ jobs:
 
       - run:
           name: Test
+          no_output_timeout: 20m
           command: |
             testsToRun=$(circleci tests glob "Tests/*.wlt" \
               | circleci tests split --total=4 --split-by=filesize \
