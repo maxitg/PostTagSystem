@@ -8,6 +8,7 @@ jobs:
     docker:
       - image: wolframresearch/wolframengine:15.0.0
         user: root
+    resource_class: large # The history-test report exceeds the default container memory.
     parallelism: 4
 
     steps:
